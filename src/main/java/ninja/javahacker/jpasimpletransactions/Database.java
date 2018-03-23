@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.Synchronized;
 import lombok.experimental.UtilityClass;
@@ -15,12 +14,12 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class Database {
-    private final AtomicReference<String> DEFAULT_CONNECTOR_NAME = new AtomicReference<>();
-    private final Map<String, Connector> MAP = new ConcurrentHashMap<>();
+    private static final AtomicReference<String> DEFAULT_CONNECTOR_NAME = new AtomicReference<>();
+    private static final Map<String, Connector> CONNECTOR_MAP = new ConcurrentHashMap<>();
 
-    private final List<ConnectorListener> LISTENERS = new CopyOnWriteArrayList<>();
+    private static final List<ConnectorListener> LISTENERS = new CopyOnWriteArrayList<>();
 
-    private final ConnectorListener MASTER_LISTENER = ConnectorListener.newBroadcaster(LISTENERS);
+    private static final ConnectorListener MASTER_LISTENER = ConnectorListener.newBroadcaster(LISTENERS);
 
     @NonNull
     @Synchronized
@@ -33,7 +32,7 @@ public class Database {
     @NonNull
     @Synchronized
     public Connector getConnector(@NonNull String persistenceUnitName) {
-        Connector c = MAP.get(persistenceUnitName);
+        Connector c = CONNECTOR_MAP.get(persistenceUnitName);
         if (c != null) return c;
         return addConnector(persistenceUnitName, persistenceUnitName.equals(DEFAULT_CONNECTOR_NAME.get()));
     }
@@ -48,7 +47,7 @@ public class Database {
 
     @Synchronized
     public Connector addConnector(@NonNull String persistenceUnitName, boolean defaultConnector) {
-        Connector c = MAP.computeIfAbsent(persistenceUnitName, n -> new Connector(persistenceUnitName));
+        Connector c = CONNECTOR_MAP.computeIfAbsent(persistenceUnitName, n -> new Connector(persistenceUnitName));
         if (defaultConnector) DEFAULT_CONNECTOR_NAME.set(persistenceUnitName);
         return c;
     }
