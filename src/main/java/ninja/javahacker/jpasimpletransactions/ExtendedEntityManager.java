@@ -3,6 +3,7 @@ package ninja.javahacker.jpasimpletransactions;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.criteria.CriteriaQuery;
@@ -33,6 +34,10 @@ public interface ExtendedEntityManager extends EntityManager {
 
     public default <E> List<E> listAll(@NonNull Class<E> type) {
         return this.createQuery("SELECT c FROM " + type.getName(), type).getResultList();
+    }
+
+    public default <E> Stream<E> streamAll(@NonNull Class<E> type) {
+        return this.createQuery("SELECT c FROM " + type.getName(), type).getResultStream();
     }
 
     public default <E> Optional<E> findOptional(Class<E> type, Object id) {
