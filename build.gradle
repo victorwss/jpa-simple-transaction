@@ -8,7 +8,7 @@ buildscript {
 plugins {
     id "io.spring.dependency-management" version "1.0.4.RELEASE"
     id "com.github.johnrengelman.shadow" version "2.0.2"
-    id "com.github.spotbugs" version "1.6.1"
+    //id "com.github.spotbugs" version "1.6.1"
 }
 
 apply plugin: 'base'
@@ -19,9 +19,9 @@ apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = "8.8"
 }
-spotbugs {
+/*spotbugs {
     toolVersion = "3.1.2"
-}
+}*/
 
 version = 1.0
 
@@ -37,13 +37,13 @@ repositories {
 dependencies {
 
     // Lombok
-    //annotationPocessor group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
+    //annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
     //compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
-    //testAnnotationPocessor group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
+    //testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
     //testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
-    //annotationPocessor files('libs/lombok-1.16.21-d.jar')
+    annotationProcessor files('libs/lombok-1.16.21-d.jar')
     compileOnly files('libs/lombok-1.16.21-d.jar')
-    //testAnnotationPocessor files('libs/lombok-1.16.21-d.jar')
+    testAnnotationProcessor files('libs/lombok-1.16.21-d.jar')
     testCompileOnly files('libs/lombok-1.16.21-d.jar')
 
     // SpotBugs
@@ -58,8 +58,8 @@ dependencies {
     compileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.1.0'
     testCompileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.1.0'
 
-    // JPA + Hibernate
-    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
+    // JPA
+    compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
 
     // XJFunctions
     compile group: 'ninja.javahacker', name: 'xjfunctions', version: '1.0'
@@ -73,7 +73,7 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.compilerArgs << "-parameters" << "-Xlint:all,-processing"
-    if (JavaVersion.current() == JavaVersion.VERSION_1_9) {
+    if (JavaVersion.current().isJava9Compatible()) {
         options.compilerArgs << "--add-modules" << "java.xml.ws.annotation"
         options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
         options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
@@ -87,19 +87,19 @@ tasks.withType(JavaCompile) {
     }
 }
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+/*tasks.withType(com.github.spotbugs.SpotBugsTask) {
     reports {
         xml.enabled = false
         html.enabled = true
     }
-}
+}*/
 
 publishing {
     publications {
         maven(MavenPublication) {
             groupId 'ninja.javahacker'
             artifactId 'jpa-simple-transactions'
-            version '1.0'
+            version '1.1.0'
 
             from components.java
         }

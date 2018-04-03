@@ -39,7 +39,7 @@ public class Connector implements AutoCloseable {
     }
 
     private ExtendedEntityManager createNewEntityManager() {
-        ExtendedEntityManager em = new SpecialEntityManager(emf.createEntityManager());
+        ExtendedEntityManager em = ExtendedEntityManager.wrap(emf.createEntityManager());
         managers.set(em);
         return em;
     }
