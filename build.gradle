@@ -7,9 +7,12 @@ buildscript {
 
 plugins {
     id "io.spring.dependency-management" version "1.0.4.RELEASE"
-    id "com.github.johnrengelman.shadow" version "2.0.2"
+    id "com.github.johnrengelman.shadow" version "2.0.3"
     //id "com.github.spotbugs" version "1.6.1"
 }
+
+version = "1.1.0"
+ext.moduleName = "ninja.javahacker.jpasimpletransactions"
 
 apply plugin: 'base'
 apply plugin: 'java'
@@ -18,12 +21,16 @@ apply plugin: 'checkstyle'
 
 checkstyle {
     toolVersion = "8.8"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    configProperties = [
+        "checkstyle.cache.file": "${buildDir}/checkstyle.cache",
+    ]
+    ignoreFailures = true
+    showViolations = true
 }
 /*spotbugs {
     toolVersion = "3.1.2"
 }*/
-
-version = 1.0
 
 repositories {
     flatDir {
@@ -49,14 +56,14 @@ dependencies {
     // SpotBugs
     compileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
     compileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '3.1.2'
-    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     testCompileOnly group: 'net.jcip', name: 'jcip-annotations', version: '1.0'
     testCompileOnly group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: '3.1.2'
-    testCompileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    testCompileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
 
     // PMD
-    compileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.1.0'
-    testCompileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.1.0'
+    compileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.2.0'
+    testCompileOnly group: 'net.sourceforge.pmd', name: 'pmd', version: '6.2.0'
 
     // JPA
     compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
@@ -99,7 +106,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'ninja.javahacker'
             artifactId 'jpa-simple-transactions'
-            version '1.1.0'
+            version '${version}'
 
             from components.java
         }
@@ -107,5 +114,9 @@ publishing {
 }
 
 jar {
-    duplicatesStrategy = 'exclude'
+    duplicatesStrategy = "exclude"
+    inputs.property("moduleName", moduleName)
+    manifest {
+        attributes("Automatic-Module-Name": moduleName)
+    }
 }

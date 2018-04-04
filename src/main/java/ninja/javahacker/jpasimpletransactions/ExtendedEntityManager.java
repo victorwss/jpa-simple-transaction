@@ -1,9 +1,9 @@
 package ninja.javahacker.jpasimpletransactions;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.StringJoiner;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.criteria.CriteriaQuery;
@@ -32,36 +32,45 @@ public interface ExtendedEntityManager extends EntityManager {
         return em instanceof ExtendedEntityManager ? (ExtendedEntityManager) em : new SpecialEntityManager(em);
     }
 
-    public default <E> List<E> listAll(@NonNull Class<E> type) {
-        return this.createQuery("SELECT c FROM " + type.getName(), type).getResultList();
+    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type) {
+        return this.createQuery(type, Collections.emptyMap());
     }
 
-    public default <E> Stream<E> streamAll(@NonNull Class<E> type) {
-        return this.createQuery("SELECT c FROM " + type.getName(), type).getResultStream();
-    }
-
-    public default <E> Optional<E> findOptional(Class<E> type, Object id) {
+    public default <T> Optional<T> findOptional(Class<T> type, Object id) {
         return Optional.ofNullable(find(type, id));
     }
 
-    public default <E> Optional<E> findOptional(Class<E> type, Object id, LockModeType lmt) {
+    public default <T> Optional<T> findOptional(Class<T> type, Object id, LockModeType lmt) {
         return Optional.ofNullable(find(type, id, lmt));
     }
 
-    public default <E> Optional<E> findOptional(Class<E> type, Object id, Map<String, Object> map) {
+    public default <T> Optional<T> findOptional(Class<T> type, Object id, Map<String, Object> map) {
         return Optional.ofNullable(find(type, id, map));
     }
 
-    public default <E> Optional<E> findOptional(Class<E> type, Object id, LockModeType lmt, Map<String, Object> map) {
+    public default <T> Optional<T> findOptional(Class<T> type, Object id, LockModeType lmt, Map<String, Object> map) {
         return Optional.ofNullable(find(type, id, lmt, map));
     }
 
     @Override
-    public <T extends Object> ExtendedTypedQuery<T> createQuery(CriteriaQuery<T> cq);
+    public <T> ExtendedTypedQuery<T> createQuery(CriteriaQuery<T> cq);
 
     @Override
-    public <T extends Object> ExtendedTypedQuery<T> createQuery(String string, Class<T> type);
+    public <T> ExtendedTypedQuery<T> createQuery(String string, Class<T> type);
+
+    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull Map<String, Object> map) {
+        StringBuilder jpql = new StringBuilder("SELECT c FROM " + type.getName());
+        if (!map.isEmpty()) {
+            jpql.append(" WHERE ");
+            StringJoiner sj = new StringJoiner(" AND ");
+            map.keySet().stream().map(k -> k + " = :" + k).forEach(sj::add);
+            jpql.append(sj.toString());
+        }
+        ExtendedTypedQuery<T> query = this.createQuery(jpql.toString(), type);
+        map.forEach(query::setParameter);
+        return query;
+    }
 
     @Override
-    public <T extends Object> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type);
+    public <T> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type);
 }
