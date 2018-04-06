@@ -60,7 +60,7 @@ public class Connector implements AutoCloseable {
         return in -> execute(() -> trans.apply(in));
     }
 
-    public <E> Consumer<E> transacionarConsumer(@NonNull Consumer<E> trans) {
+    public <E> Consumer<E> transactConsumer(@NonNull Consumer<E> trans) {
         return transactXConsumer(XConsumer.wrap(trans)).unchecked();
     }
 
