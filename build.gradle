@@ -79,7 +79,8 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.compilerArgs << "-parameters" << "-Xlint:all,-processing"
+    options.debug = true
+    options.compilerArgs << "-parameters" << "-Xlint:all,-processing" // << "-Xdoclint:all"
     if (JavaVersion.current().isJava9Compatible()) {
         options.compilerArgs << "--add-modules" << "java.xml.ws.annotation"
         options.compilerArgs << "--add-opens" << "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"

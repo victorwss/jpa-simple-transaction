@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongFunction;
@@ -26,9 +27,9 @@ public class Connector implements AutoCloseable {
 
     private final ThreadLocal<ExtendedEntityManager> managers;
 
-    /*package*/ Connector(@NonNull String persistenceUnitName) {
+    /*package*/ Connector(@NonNull String persistenceUnitName, Map<String, String> properties) {
         this.persistenceUnitName = persistenceUnitName;
-        this.emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        this.emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
         this.managers = new ThreadLocal<>();
     }
 

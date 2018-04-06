@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +48,12 @@ public class Database {
 
     @Synchronized
     public Connector addConnector(@NonNull String persistenceUnitName, boolean defaultConnector) {
-        Connector c = CONNECTOR_MAP.computeIfAbsent(persistenceUnitName, n -> new Connector(persistenceUnitName));
+        return addConnector(persistenceUnitName, defaultConnector, Collections.emptyMap());
+    }
+
+    @Synchronized
+    public Connector addConnector(@NonNull String persistenceUnitName, boolean defaultConnector, @NonNull Map<String, String> properties) {
+        Connector c = CONNECTOR_MAP.computeIfAbsent(persistenceUnitName, n -> new Connector(persistenceUnitName, properties));
         if (defaultConnector) DEFAULT_CONNECTOR_NAME.set(persistenceUnitName);
         return c;
     }

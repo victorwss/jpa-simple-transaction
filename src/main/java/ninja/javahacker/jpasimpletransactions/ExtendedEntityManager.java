@@ -32,10 +32,6 @@ public interface ExtendedEntityManager extends EntityManager {
         return em instanceof ExtendedEntityManager ? (ExtendedEntityManager) em : new SpecialEntityManager(em);
     }
 
-    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type) {
-        return this.createQuery(type, Collections.emptyMap());
-    }
-
     public default <T> Optional<T> findOptional(Class<T> type, Object id) {
         return Optional.ofNullable(find(type, id));
     }
@@ -50,6 +46,10 @@ public interface ExtendedEntityManager extends EntityManager {
 
     public default <T> Optional<T> findOptional(Class<T> type, Object id, LockModeType lmt, Map<String, Object> map) {
         return Optional.ofNullable(find(type, id, lmt, map));
+    }
+
+    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type) {
+        return this.createQuery(type, Collections.emptyMap());
     }
 
     @Override
