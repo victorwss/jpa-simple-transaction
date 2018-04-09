@@ -27,10 +27,27 @@ public class Connector implements AutoCloseable {
 
     private final ThreadLocal<ExtendedEntityManager> managers;
 
-    /*package*/ Connector(@NonNull String persistenceUnitName, Map<String, String> properties) {
+    public Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
         this.persistenceUnitName = persistenceUnitName;
-        this.emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
+        this.emf = emf;
         this.managers = new ThreadLocal<>();
+    }
+
+    public static Connector withEntityXml(@NonNull String persistenceUnitName) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        return new Connector(persistenceUnitName, emf);
+    }
+
+    public static Connector withEntityXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
+        return new Connector(persistenceUnitName, emf);
+    }
+
+    public static Connector withoutXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
+        EntityManagerFactory emf = SimplePersistenceUnitInfo
+                .makeProvider()
+                .createContainerEntityManagerFactory(new SimplePersistenceUnitInfo(persistenceUnitName), properties);
+        return new Connector(persistenceUnitName, emf);
     }
 
     public ExtendedEntityManager getEntityManager() {

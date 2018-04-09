@@ -1,8 +1,8 @@
 package ninja.javahacker.jpasimpletransactions;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,7 +15,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class Database {
-    private static final AtomicReference<String> DEFAULT_CONNECTOR_NAME = new AtomicReference<>();
+    private static final AtomicReference<Connector> DEFAULT_CONNECTOR = new AtomicReference<>();
     private static final Map<String, Connector> CONNECTOR_MAP = new ConcurrentHashMap<>();
 
     private static final List<ConnectorListener> LISTENERS = new CopyOnWriteArrayList<>();
@@ -25,9 +25,9 @@ public class Database {
     @NonNull
     @Synchronized
     public Connector getDefaultConnector() {
-        String name = DEFAULT_CONNECTOR_NAME.get();
-        if (name == null) throw new IllegalStateException("No registered default persistence unit.");
-        return getConnector(name);
+        Connector defaultConnector = DEFAULT_CONNECTOR.get();
+        if (defaultConnector == null) throw new NoSuchElementException("No registered default persistence unit.");
+        return defaultConnector;
     }
 
     @NonNull
@@ -35,27 +35,21 @@ public class Database {
     public Connector getConnector(@NonNull String persistenceUnitName) {
         Connector c = CONNECTOR_MAP.get(persistenceUnitName);
         if (c != null) return c;
-        return addConnector(persistenceUnitName, persistenceUnitName.equals(DEFAULT_CONNECTOR_NAME.get()));
+        throw new NoSuchElementException("No registered persistence unit named " + persistenceUnitName + ".");
     }
 
-    public Connector setDefaultConnector(@NonNull String persistenceUnitName) {
-        return addConnector(persistenceUnitName, true);
+    public void setDefaultConnector(@NonNull Connector conn) {
+        addConnector(conn, true);
     }
 
-    public Connector setSecondaryConnector(@NonNull String persistenceUnitName) {
-        return addConnector(persistenceUnitName, false);
-    }
-
-    @Synchronized
-    public Connector addConnector(@NonNull String persistenceUnitName, boolean defaultConnector) {
-        return addConnector(persistenceUnitName, defaultConnector, Collections.emptyMap());
+    public void setSecondaryConnector(@NonNull Connector conn) {
+        addConnector(conn, false);
     }
 
     @Synchronized
-    public Connector addConnector(@NonNull String persistenceUnitName, boolean defaultConnector, @NonNull Map<String, String> properties) {
-        Connector c = CONNECTOR_MAP.computeIfAbsent(persistenceUnitName, n -> new Connector(persistenceUnitName, properties));
-        if (defaultConnector) DEFAULT_CONNECTOR_NAME.set(persistenceUnitName);
-        return c;
+    public void addConnector(@NonNull Connector conn, boolean defaultConnector) {
+        CONNECTOR_MAP.put(conn.getPersistenceUnitName(), conn);
+        if (defaultConnector) DEFAULT_CONNECTOR.set(conn);
     }
 
     public ExtendedEntityManager getEntityManager() {
