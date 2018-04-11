@@ -7,59 +7,59 @@ import lombok.NonNull;
  * @author Victor Williams Stafusa da Silva
  */
 public interface ConnectorListener {
-    public default void connectorStarted(@NonNull Connector c) {
+    public default void connectorStarted(@NonNull String persistenceUnit) {
     }
 
-    public default void startedTransaction(@NonNull Connector c) {
+    public default void startedTransaction(@NonNull String persistenceUnit) {
     }
 
-    public default void renewedConnection(@NonNull Connector c) {
+    public default void renewedConnection(@NonNull String persistenceUnit) {
     }
 
-    public default void finishedWithCommit(@NonNull Connector c) {
+    public default void finishedWithCommit(@NonNull String persistenceUnit) {
     }
 
-    public default void finishedWithRollback(@NonNull Connector c) {
+    public default void finishedWithRollback(@NonNull String persistenceUnit) {
     }
 
-    public default void connectorClosed(@NonNull Connector c) {
+    public default void connectorClosed(@NonNull String persistenceUnit) {
     }
 
     public static ConnectorListener newBroadcaster(Iterable<ConnectorListener> list) {
 
         return new ConnectorListener() {
-            private void broadcast(BiConsumer<ConnectorListener, Connector> cons, Connector c) {
-                list.forEach(listener -> cons.accept(listener, c));
+            private void broadcast(BiConsumer<ConnectorListener, String> cons, String persistenceUnit) {
+                list.forEach(listener -> cons.accept(listener, persistenceUnit));
             }
 
             @Override
-            public void connectorStarted(@NonNull Connector c) {
-                broadcast(ConnectorListener::connectorStarted, c);
+            public void connectorStarted(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::connectorStarted, persistenceUnit);
             }
 
             @Override
-            public void startedTransaction(@NonNull Connector c) {
-                broadcast(ConnectorListener::startedTransaction, c);
+            public void startedTransaction(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::startedTransaction, persistenceUnit);
             }
 
             @Override
-            public void renewedConnection(@NonNull Connector c) {
-                broadcast(ConnectorListener::renewedConnection, c);
+            public void renewedConnection(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::renewedConnection, persistenceUnit);
             }
 
             @Override
-            public void finishedWithCommit(@NonNull Connector c) {
-                broadcast(ConnectorListener::finishedWithCommit, c);
+            public void finishedWithCommit(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::finishedWithCommit, persistenceUnit);
             }
 
             @Override
-            public void finishedWithRollback(@NonNull Connector c) {
-                broadcast(ConnectorListener::finishedWithRollback, c);
+            public void finishedWithRollback(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::finishedWithRollback, persistenceUnit);
             }
 
             @Override
-            public void connectorClosed(@NonNull Connector c) {
-                broadcast(ConnectorListener::connectorClosed, c);
+            public void connectorClosed(@NonNull String persistenceUnit) {
+                broadcast(ConnectorListener::connectorClosed, persistenceUnit);
             }
         };
     }

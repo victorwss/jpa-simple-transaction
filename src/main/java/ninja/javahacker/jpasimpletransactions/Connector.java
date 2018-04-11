@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,20 +34,25 @@ public class Connector implements AutoCloseable {
         this.managers = new ThreadLocal<>();
     }
 
-    public static Connector withEntityXml(@NonNull String persistenceUnitName) {
+    public static Connector withPersistenceXml(@NonNull String persistenceUnitName) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName);
         return new Connector(persistenceUnitName, emf);
     }
 
-    public static Connector withEntityXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
+    public static Connector withPersistenceXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
         return new Connector(persistenceUnitName, emf);
     }
 
-    public static Connector withoutXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
+    public static Connector withoutXml(
+            @NonNull String persistenceUnitName,
+            @NonNull Collection<Class<?>> classes,
+            @NonNull Map<String, String> properties)
+    {
+        SimplePersistenceUnitInfo sui = new SimplePersistenceUnitInfo(persistenceUnitName, classes, properties);
         EntityManagerFactory emf = SimplePersistenceUnitInfo
                 .makeProvider()
-                .createContainerEntityManagerFactory(new SimplePersistenceUnitInfo(persistenceUnitName), properties);
+                .createContainerEntityManagerFactory(sui, properties);
         return new Connector(persistenceUnitName, emf);
     }
 
@@ -59,6 +65,7 @@ public class Connector implements AutoCloseable {
     private ExtendedEntityManager createNewEntityManager() {
         ExtendedEntityManager em = ExtendedEntityManager.wrap(emf.createEntityManager());
         managers.set(em);
+        Database.getListener().connectorStarted(persistenceUnitName);
         return em;
     }
 
@@ -122,18 +129,14 @@ public class Connector implements AutoCloseable {
                 try {
                     atual.getTransaction().begin();
                 } catch (RuntimeException e) {
-                    if (!e.getClass().getName().equals("org.hibernate.exception.JDBCConnectionException")
-                            || !e.getMessage().equals("Unable to acquire JDBC Connection"))
-                    {
-                        throw e;
-                    }
-                    Database.getListener().renewedConnection(this);
+                    if (!shouldTryToReconnect(e)) throw e;
+                    Database.getListener().renewedConnection(persistenceUnitName);
                     atual.close();
                     atual = createNewEntityManager();
                     managers.set(atual);
                     atual.getTransaction().begin();
                 }
-                Database.getListener().startedTransaction(this);
+                Database.getListener().startedTransaction(persistenceUnitName);
             }
             E resultado = trans.get();
             ok = true;
@@ -143,18 +146,24 @@ public class Connector implements AutoCloseable {
                 try {
                     if (ok) {
                         atual.getTransaction().commit();
-                        Database.getListener().finishedWithCommit(this);
+                        Database.getListener().finishedWithCommit(persistenceUnitName);
                     } else {
                         atual.getTransaction().rollback();
-                        Database.getListener().finishedWithRollback(this);
+                        Database.getListener().finishedWithRollback(persistenceUnitName);
                     }
                 } finally {
                     atual.clear();
                     atual.close();
                     managers.remove();
+                    Database.getListener().connectorClosed(persistenceUnitName);
                 }
             }
         }
+    }
+
+    private boolean shouldTryToReconnect(RuntimeException e) {
+        return e.getClass().getName().equals("org.hibernate.exception.JDBCConnectionException")
+                && e.getMessage().equals("Unable to acquire JDBC Connection");
     }
 
     @Override

@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.ClassTransformer;
@@ -34,9 +37,17 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     private final String persistenceUnitName;
+    private final List<String> classes;
+    private final Map<String, String> properties;
 
-    public SimplePersistenceUnitInfo(@NonNull String persistenceUnitName) {
+    public SimplePersistenceUnitInfo(
+            @NonNull String persistenceUnitName,
+            @NonNull Collection<Class<?>> classes,
+            @NonNull Map<String, String> properties)
+    {
         this.persistenceUnitName = persistenceUnitName;
+        this.classes = classes.stream().map(Class::getName).collect(Collectors.toUnmodifiableList());
+        this.properties = Map.copyOf(properties);
     }
 
     public static PersistenceProvider makeProvider() {
@@ -56,7 +67,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceProviderClassName() {
-        return "org.hibernate.jpa.HibernatePersistenceProvider";
+        return HIBERNATE_PROVIDER_CLASS.getName();
     }
 
     @Override
@@ -95,7 +106,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public List<String> getManagedClassNames() {
-        return Collections.emptyList();
+        return Collections.unmodifiableList(classes);
     }
 
     @Override
@@ -105,32 +116,33 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public SharedCacheMode getSharedCacheMode() {
-        return null;
+        return SharedCacheMode.UNSPECIFIED;
     }
 
     @Override
     public ValidationMode getValidationMode() {
-        return null;
+        return ValidationMode.AUTO;
     }
 
     @Override
     public Properties getProperties() {
-        return new Properties();
+        Properties p = new Properties();
+        p.putAll(properties);
+        return p;
     }
 
     @Override
     public String getPersistenceXMLSchemaVersion() {
-        return null;
+        return "2.2";
     }
 
     @Override
     public ClassLoader getClassLoader() {
-        return null;
+        return Thread.currentThread().getContextClassLoader();
     }
 
     @Override
     public void addTransformer(ClassTransformer transformer) {
-
     }
 
     @Override

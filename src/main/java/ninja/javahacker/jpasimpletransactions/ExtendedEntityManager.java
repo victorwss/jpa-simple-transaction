@@ -59,11 +59,11 @@ public interface ExtendedEntityManager extends EntityManager {
     public <T> ExtendedTypedQuery<T> createQuery(String string, Class<T> type);
 
     public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull Map<String, Object> map) {
-        StringBuilder jpql = new StringBuilder("SELECT c FROM " + type.getName());
+        StringBuilder jpql = new StringBuilder("SELECT c FROM ").append(type.getName()).append(" c");
         if (!map.isEmpty()) {
             jpql.append(" WHERE ");
             StringJoiner sj = new StringJoiner(" AND ");
-            map.keySet().stream().map(k -> k + " = :" + k).forEach(sj::add);
+            map.keySet().stream().map(k -> "c." + k + " = :" + k).forEach(sj::add);
             jpql.append(sj.toString());
         }
         ExtendedTypedQuery<T> query = this.createQuery(jpql.toString(), type);
