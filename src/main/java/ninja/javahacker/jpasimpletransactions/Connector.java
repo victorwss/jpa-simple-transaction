@@ -1,19 +1,13 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.LongFunction;
-import java.util.function.Supplier;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import lombok.Getter;
 import lombok.NonNull;
-import ninja.javahacker.xjfunctions.XConsumer;
-import ninja.javahacker.xjfunctions.XFunction;
-import ninja.javahacker.xjfunctions.XLongFunction;
-import ninja.javahacker.xjfunctions.XRunnable;
+import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 import ninja.javahacker.xjfunctions.XSupplier;
 
 /**
@@ -69,91 +63,55 @@ public class Connector implements AutoCloseable {
         return em;
     }
 
-    public <A, B> Function<A, B> transactFunction(@NonNull Function<A, B> trans) {
-        return transactXFunction(XFunction.wrap(trans)).unchecked();
+    public <A> A transact(@NonNull Class<A> type, @NonNull A operation) {
+        return transact(ReifiedGeneric.forClass(type), operation);
     }
 
-    public <A, B> XFunction<A, B> transactXFunction(@NonNull XFunction<A, B> trans) {
-        return in -> execute(() -> trans.apply(in));
+    @SuppressWarnings("unchecked")
+    public <A> A transact(@NonNull ReifiedGeneric<A> type, @NonNull A operation) {
+        Class<?> k = type.raw();
+        if (!k.isInterface()) throw new IllegalArgumentException();
+        return (A) Proxy.newProxyInstance(
+                Thread.currentThread().getContextClassLoader(),
+                new Class<?>[] {k},
+                (p, m, args) -> execute(() -> m.invoke(operation, args)));
     }
 
-    public <B> LongFunction<B> transactLongFunction(@NonNull LongFunction<B> trans) {
-        return transactXLongFunction(XLongFunction.wrap(trans)).unchecked();
-    }
-
-    public <B> XLongFunction<B> transactXLongFunction(@NonNull XLongFunction<B> trans) {
-        return in -> execute(() -> trans.apply(in));
-    }
-
-    public <E> Consumer<E> transactConsumer(@NonNull Consumer<E> trans) {
-        return transactXConsumer(XConsumer.wrap(trans)).unchecked();
-    }
-
-    public <E> XConsumer<E> transactXConsumer(@NonNull XConsumer<E> trans) {
-        return in -> {
-            execute(() -> {
-                trans.accept(in);
-                return this;
-            });
-        };
-    }
-
-    public Runnable transactRunnable(@NonNull Runnable trans) {
-        return transactXRunnable(XRunnable.wrap(trans)).unchecked();
-    }
-
-    public XRunnable transactXRunnable(@NonNull XRunnable trans) {
-        return () -> {
-            execute(() -> {
-                trans.run();
-                return this;
-            });
-        };
-    }
-
-    public <E> Supplier<E> transactSupplier(@NonNull Supplier<E> trans) {
-        return transactXSupplier(XSupplier.wrap(trans)).unchecked();
-    }
-
-    public <E> XSupplier<E> transactXSupplier(@NonNull XSupplier<E> trans) {
-        return () -> execute(trans);
-    }
-
-    public <E> E execute(@NonNull XSupplier<E> trans) throws Throwable {
-        ExtendedEntityManager jaExistente = managers.get();
-        ExtendedEntityManager atual = jaExistente == null ? createNewEntityManager() : jaExistente;
+    private <E> E execute(@NonNull XSupplier<E> trans) throws Throwable {
+        ExtendedEntityManager alreadyExists = managers.get();
+        ExtendedEntityManager actual = alreadyExists == null ? createNewEntityManager() : alreadyExists;
         boolean ok = false;
         try {
-            if (jaExistente == null) {
-                managers.set(atual);
+            if (alreadyExists == null) {
+                managers.set(actual);
                 try {
-                    atual.getTransaction().begin();
+                    actual.getTransaction().begin();
                 } catch (RuntimeException e) {
                     if (!shouldTryToReconnect(e)) throw e;
                     Database.getListener().renewedConnection(persistenceUnitName);
-                    atual.close();
-                    atual = createNewEntityManager();
-                    managers.set(atual);
-                    atual.getTransaction().begin();
+                    actual.close();
+                    actual = createNewEntityManager();
+                    managers.set(actual);
+                    actual.getTransaction().begin();
                 }
                 Database.getListener().startedTransaction(persistenceUnitName);
             }
-            E resultado = trans.get();
+            E result = trans.get();
             ok = true;
-            return resultado;
+            return result;
         } finally {
-            if (jaExistente == null) {
+            if (alreadyExists == null) {
                 try {
                     if (ok) {
-                        atual.getTransaction().commit();
+                        actual.getTransaction().commit();
                         Database.getListener().finishedWithCommit(persistenceUnitName);
                     } else {
-                        atual.getTransaction().rollback();
+                        actual.getTransaction().rollback();
                         Database.getListener().finishedWithRollback(persistenceUnitName);
                     }
                 } finally {
-                    atual.clear();
-                    atual.close();
+                    actual.clear();
+                    actual.close();
                     managers.remove();
                     Database.getListener().connectorClosed(persistenceUnitName);
                 }
