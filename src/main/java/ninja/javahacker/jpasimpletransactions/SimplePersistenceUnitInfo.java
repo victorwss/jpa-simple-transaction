@@ -38,7 +38,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     private final String persistenceUnitName;
     private final List<String> classes;
-    private final Map<String, String> properties;
+    private final Properties properties;
 
     public SimplePersistenceUnitInfo(
             @NonNull String persistenceUnitName,
@@ -46,8 +46,9 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
             @NonNull Map<String, String> properties)
     {
         this.persistenceUnitName = persistenceUnitName;
-        this.classes = classes.stream().map(Class::getName).collect(Collectors.toUnmodifiableList());
-        this.properties = Map.copyOf(properties);
+        this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
+        this.properties = new Properties();
+        this.properties.putAll(properties);
     }
 
     public static PersistenceProvider makeProvider() {
@@ -126,9 +127,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public Properties getProperties() {
-        Properties p = new Properties();
-        p.putAll(properties);
-        return p;
+        return properties;
     }
 
     @Override
