@@ -54,6 +54,14 @@ public class Connector implements AutoCloseable {
         return new Connector(persistenceUnitName, emf);
     }
 
+    public static Connector withoutXml(
+            @NonNull String persistenceUnitName,
+            @NonNull Collection<Class<?>> classes,
+            @NonNull PersistenceProperties properties)
+    {
+        return Connector.withoutXml(persistenceUnitName, classes, properties.build());
+    }
+
     public ExtendedEntityManager getEntityManager() {
         ExtendedEntityManager em = managers.get();
         if (em == null) throw new IllegalStateException();
