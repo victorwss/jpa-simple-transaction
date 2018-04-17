@@ -38,6 +38,10 @@ public class Connector implements AutoCloseable {
         return new Connector(persistenceUnitName, emf);
     }
 
+    public static Connector withPersistenceXml(@NonNull String persistenceUnitName, @NonNull PersistenceProperties properties) {
+        return withPersistenceXml(persistenceUnitName, properties.build());
+    }
+
     public static Connector withoutXml(
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
