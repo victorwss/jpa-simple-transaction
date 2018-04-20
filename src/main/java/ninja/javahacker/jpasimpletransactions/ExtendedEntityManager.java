@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.criteria.CriteriaQuery;
@@ -48,8 +49,8 @@ public interface ExtendedEntityManager extends EntityManager {
         return Optional.ofNullable(find(type, id, lmt, map));
     }
 
-    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type) {
-        return this.createQuery(type, Collections.emptyMap());
+    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull OrderBy... orders) {
+        return this.createQuery(type, Collections.emptyMap(), orders);
     }
 
     @Override
@@ -58,12 +59,22 @@ public interface ExtendedEntityManager extends EntityManager {
     @Override
     public <T> ExtendedTypedQuery<T> createQuery(String string, Class<T> type);
 
-    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull Map<String, Object> map) {
+    public default <T> ExtendedTypedQuery<T> createQuery(
+            @NonNull Class<T> type,
+            @NonNull Map<String, Object> map,
+            @NonNull OrderBy... orders)
+    {
         StringBuilder jpql = new StringBuilder("SELECT c FROM ").append(type.getName()).append(" c");
         if (!map.isEmpty()) {
             jpql.append(" WHERE ");
             StringJoiner sj = new StringJoiner(" AND ");
             map.keySet().stream().map(k -> "c." + k + " = :" + k).forEach(sj::add);
+            jpql.append(sj.toString());
+        }
+        if (orders.length > 0) {
+            jpql.append(" ORDER BY ");
+            StringJoiner sj = new StringJoiner(", ");
+            Stream.of(orders).map(k -> "c." + k.getField() + (k.isDesc() ? " DESC" : "")).forEach(sj::add);
             jpql.append(sj.toString());
         }
         ExtendedTypedQuery<T> query = this.createQuery(jpql.toString(), type);
@@ -73,4 +84,12 @@ public interface ExtendedEntityManager extends EntityManager {
 
     @Override
     public <T> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type);
+
+    public static OrderBy orderBy(@NonNull String field) {
+        return new OrderBy(field, false);
+    }
+
+    public static OrderBy orderByDesc(@NonNull String field) {
+        return new OrderBy(field, true);
+    }
 }
