@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
 
 /**
@@ -22,43 +23,77 @@ import lombok.experimental.Wither;
 @Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@FieldDefaults(makeFinal = false)
 public class PersistenceProperties {
-    @NonNull private Class<? extends Driver> driver = Driver.class;
-    @NonNull private Class<?> dialect = void.class;
-    @NonNull private Class<?> jtaPlatform = void.class;
-    @NonNull private String url = "";
-    @NonNull private String user = "";
-    @NonNull private String password = "";
-    @NonNull private SchemaGenerationAction schemaGenerationAction = SchemaGenerationAction.unspecified();
-    @NonNull private SchemaGenerationSource schemaGenerationCreate = SchemaGenerationSource.unspecified();
-    @NonNull private SchemaGenerationSource schemaGenerationDrop = SchemaGenerationSource.unspecified();
-    @NonNull private SchemaGenerationActionTarget schemaGenerationScriptsCreate = SchemaGenerationActionTarget.unspecified();
-    @NonNull private String loadScript = "";
-    @NonNull private String schemaGenerationConnection = "";
-    @NonNull private Hbm2DdlAuto hbm2DdlAuto = Hbm2DdlAuto.unspecified();
-    @NonNull private TriBoolean createDatabaseSchemas = TriBoolean.UNSPECIFIED;
-    @NonNull private TriBoolean showSql = TriBoolean.UNSPECIFIED;
-    @NonNull private TriBoolean formatSql = TriBoolean.UNSPECIFIED;
-    @NonNull private TriBoolean useSqlComments = TriBoolean.UNSPECIFIED;
-    private boolean multipleLinesCommands = true;
-    @NonNull private String databaseProductName = "";
-    @NonNull private String databaseMajorVersion = "";
-    @NonNull private String databaseMinorVersion = "";
-    @NonNull private TriBoolean newGeneratorMappings = TriBoolean.UNSPECIFIED;
+    @NonNull Class<? extends Driver> driver = Driver.class;
+    @NonNull Class<?> dialect = void.class;
+    @NonNull Class<?> jtaPlatform = void.class;
+    @NonNull String url = "";
+    @NonNull String user = "";
+    @NonNull String password = "";
+    @NonNull SchemaGenerationAction schemaGenerationAction = SchemaGenerationAction.unspecified();
+    @NonNull SchemaGenerationSource schemaGenerationCreate = SchemaGenerationSource.unspecified();
+    @NonNull SchemaGenerationSource schemaGenerationDrop = SchemaGenerationSource.unspecified();
+    @NonNull SchemaGenerationActionTarget schemaGenerationScriptsCreate = SchemaGenerationActionTarget.unspecified();
+    @NonNull String loadScript = "";
+    @NonNull String schemaGenerationConnection = "";
+    @NonNull Hbm2DdlAuto hbm2DdlAuto = Hbm2DdlAuto.unspecified();
+    @NonNull TriBoolean createDatabaseSchemas = TriBoolean.UNSPECIFIED;
+    @NonNull TriBoolean showSql = TriBoolean.UNSPECIFIED;
+    @NonNull TriBoolean formatSql = TriBoolean.UNSPECIFIED;
+    @NonNull TriBoolean useSqlComments = TriBoolean.UNSPECIFIED;
+    boolean multipleLinesCommands = true;
+    @NonNull String databaseProductName = "";
+    @NonNull String databaseMajorVersion = "";
+    @NonNull String databaseMinorVersion = "";
+    @NonNull TriBoolean newGeneratorMappings = TriBoolean.UNSPECIFIED;
 
     @NonNull
-    private final Map<String, String> extras = new HashMap<>();
+    final Map<String, String> extras = new HashMap<>(20);
 
-    public PersistenceProperties withDriverName(@NonNull String drivername) throws ClassNotFoundException {
+    @Tolerate
+    public PersistenceProperties withDriver(@NonNull String drivername) throws ClassNotFoundException {
         return withDriver(Class.forName(drivername).asSubclass(Driver.class));
     }
 
-    public PersistenceProperties withDialectName(@NonNull String dialectName) throws ClassNotFoundException {
+    @Tolerate
+    public PersistenceProperties withDialect(@NonNull String dialectName) throws ClassNotFoundException {
         return withDialect(Class.forName(dialectName));
     }
 
-    public PersistenceProperties withJtaPlatformName(@NonNull String jtaPlatformName) throws ClassNotFoundException {
+    @Tolerate
+    public PersistenceProperties withJtaPlatform(@NonNull String jtaPlatformName) throws ClassNotFoundException {
         return withJtaPlatform(Class.forName(jtaPlatformName));
+    }
+
+    @Tolerate
+    public PersistenceProperties withCreateDatabaseSchemas(boolean newValue) {
+        this.createDatabaseSchemas = TriBoolean.from(newValue);
+        return this;
+    }
+
+    @Tolerate
+    public PersistenceProperties withShowSql(boolean newValue) {
+        this.showSql = TriBoolean.from(newValue);
+        return this;
+    }
+
+    @Tolerate
+    public PersistenceProperties withFormatSql(boolean newValue) {
+        this.formatSql = TriBoolean.from(newValue);
+        return this;
+    }
+
+    @Tolerate
+    public PersistenceProperties withUseSqlComments(boolean newValue) {
+        this.useSqlComments = TriBoolean.from(newValue);
+        return this;
+    }
+
+    @Tolerate
+    public PersistenceProperties withNewGeneratorMappings(boolean newValue) {
+        this.newGeneratorMappings = TriBoolean.from(newValue);
+        return this;
     }
 
     public PersistenceProperties putExtra(String key, String value) {
@@ -85,7 +120,7 @@ public class PersistenceProperties {
     }
 
     public Map<String, String> build() {
-        Map<String, String> props = new HashMap<>();
+        Map<String, String> props = new HashMap<>(64);
         if (driver != Driver.class) props.put("javax.persistence.jdbc.driver", driver.getName());
         if (!url.isEmpty()) props.put("javax.persistence.jdbc.url", url);
         if (!user.isEmpty()) props.put("javax.persistence.jdbc.user", user);
@@ -113,77 +148,73 @@ public class PersistenceProperties {
         }
         if (dialect != void.class) props.put("hibernate.dialect", dialect.getName());
         if (jtaPlatform != void.class) props.put("hibernate.transaction.jta.platform", jtaPlatform.getName());
-        if (createDatabaseSchemas != TriBoolean.UNSPECIFIED) {
-            props.put("javax.persistence.schema-generation.create-database-schemas", createDatabaseSchemas.toString());
-        }
+        createDatabaseSchemas.work("javax.persistence.schema-generation.create-database-schemas", props::put);
         if (multipleLinesCommands) {
             props.put(
                     "hibernate.hbm2ddl.import_files_sql_extractor",
                     "org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor");
         }
-        if (showSql != TriBoolean.UNSPECIFIED) props.put("hibernate.show_sql", showSql.toString());
-        if (formatSql != TriBoolean.UNSPECIFIED) props.put("hibernate.format_sql", formatSql.toString());
-        if (useSqlComments != TriBoolean.UNSPECIFIED) props.put("hibernate.use_sql_comments", useSqlComments.toString());
-        if (newGeneratorMappings != TriBoolean.UNSPECIFIED) {
-            props.put("hibernate.id.new_generator_mappings", newGeneratorMappings.toString());
-        }
+        showSql.work("hibernate.show_sql", props::put);
+        formatSql.work("hibernate.format_sql", props::put);
+        useSqlComments.work("hibernate.use_sql_comments", props::put);
+        newGeneratorMappings.work("hibernate.id.new_generator_mappings", props::put);
         props.putAll(extras);
         return props;
     }
 
     @Value
     public static class SchemaGenerationAction {
-        private final Optional<String> name;
+        private final String name;
 
         public static SchemaGenerationAction unspecified() {
-            return new SchemaGenerationAction(Optional.empty());
+            return new SchemaGenerationAction("");
         }
 
         public static SchemaGenerationAction none() {
-            return new SchemaGenerationAction(Optional.of("none"));
+            return new SchemaGenerationAction("none");
         }
 
         public static SchemaGenerationAction drop() {
-            return new SchemaGenerationAction(Optional.of("drop"));
+            return new SchemaGenerationAction("drop");
         }
 
         public static SchemaGenerationAction create() {
-            return new SchemaGenerationAction(Optional.of("create"));
+            return new SchemaGenerationAction("create");
         }
 
         public static SchemaGenerationAction dropAndCreate() {
-            return new SchemaGenerationAction(Optional.of("drop-and-create"));
+            return new SchemaGenerationAction("drop-and-create");
         }
 
         public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
-            name.ifPresent(n -> acceptor.accept(key, n));
+            if (!name.isEmpty()) acceptor.accept(key, name);
         }
     }
 
     @Value
     public static class SchemaGenerationActionTarget {
-        private final Optional<String> name;
-        private final Optional<String> createScript;
-        private final Optional<String> dropScript;
+        private final String name;
+        private final String createScript;
+        private final String dropScript;
 
         public static SchemaGenerationActionTarget unspecified() {
-            return new SchemaGenerationActionTarget(Optional.empty(), Optional.empty(), Optional.empty());
+            return new SchemaGenerationActionTarget("", "", "");
         }
 
         public static SchemaGenerationActionTarget none() {
-            return new SchemaGenerationActionTarget(Optional.of("none"), Optional.empty(), Optional.empty());
+            return new SchemaGenerationActionTarget("none", "", "");
         }
 
         public static SchemaGenerationActionTarget drop(@NonNull String dropScript) {
-            return new SchemaGenerationActionTarget(Optional.of("drop"), Optional.empty(), Optional.of(dropScript));
+            return new SchemaGenerationActionTarget("drop", "", dropScript);
         }
 
         public static SchemaGenerationActionTarget create(@NonNull String createScript) {
-            return new SchemaGenerationActionTarget(Optional.of("create"), Optional.of(createScript), Optional.empty());
+            return new SchemaGenerationActionTarget("create", createScript, "");
         }
 
         public static SchemaGenerationActionTarget dropAndCreate(@NonNull String createScript, @NonNull String dropScript) {
-            return new SchemaGenerationActionTarget(Optional.of("drop-and-create"), Optional.of(createScript), Optional.of(dropScript));
+            return new SchemaGenerationActionTarget("drop-and-create", createScript, dropScript);
         }
 
         public void work(
@@ -192,69 +223,69 @@ public class PersistenceProperties {
                 @NonNull String dropKey,
                 @NonNull BiConsumer<String, String> acceptor)
         {
-            name.ifPresent(n -> acceptor.accept(key, n));
-            createScript.ifPresent(n -> acceptor.accept(createKey, n));
-            dropScript.ifPresent(n -> acceptor.accept(dropKey, n));
+            if (!name.isEmpty()) acceptor.accept(key, name);
+            if (!createScript.isEmpty()) acceptor.accept(createKey, createScript);
+            if (!dropScript.isEmpty()) acceptor.accept(dropKey, dropScript);
         }
     }
 
     @Value
     public static class Hbm2DdlAuto {
-        private final Optional<String> name;
+        private final String name;
 
         public static Hbm2DdlAuto unspecified() {
-            return new Hbm2DdlAuto(Optional.empty());
+            return new Hbm2DdlAuto("");
         }
 
         public static Hbm2DdlAuto validate() {
-            return new Hbm2DdlAuto(Optional.of("validate"));
+            return new Hbm2DdlAuto("validate");
         }
 
         public static Hbm2DdlAuto update() {
-            return new Hbm2DdlAuto(Optional.of("update"));
+            return new Hbm2DdlAuto("update");
         }
 
         public static Hbm2DdlAuto create() {
-            return new Hbm2DdlAuto(Optional.of("create"));
+            return new Hbm2DdlAuto("create");
         }
 
         public static Hbm2DdlAuto createDrop() {
-            return new Hbm2DdlAuto(Optional.of("create-drop"));
+            return new Hbm2DdlAuto("create-drop");
         }
 
         public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
-            name.ifPresent(n -> acceptor.accept(key, n));
+            if (!name.isEmpty()) acceptor.accept(key, name);
         }
     }
 
     @Value
     public static class SchemaGenerationSource {
-        private final Optional<String> name;
-        private final Optional<String> script;
+        private final String name;
+        private final String script;
 
         public static SchemaGenerationSource unspecified() {
-            return new SchemaGenerationSource(Optional.empty(), Optional.empty());
+            return new SchemaGenerationSource("", "");
         }
 
         public static SchemaGenerationSource metadata() {
-            return new SchemaGenerationSource(Optional.of("metadata"), Optional.empty());
+            return new SchemaGenerationSource("metadata", "");
         }
 
         public static SchemaGenerationSource script(@NonNull String script) {
-            return new SchemaGenerationSource(Optional.of("script"), Optional.of(script));
+            return new SchemaGenerationSource("script", script);
         }
 
         public static SchemaGenerationSource metadataThenScript(@NonNull String script) {
-            return new SchemaGenerationSource(Optional.of("metadata-then-script"), Optional.of(script));
+            return new SchemaGenerationSource("metadata-then-script", script);
         }
 
         public static SchemaGenerationSource scriptThenMetadata(@NonNull String script) {
-            return new SchemaGenerationSource(Optional.of("script-then-metadata"), Optional.of(script));
+            return new SchemaGenerationSource("script-then-metadata", script);
         }
 
         public void work(@NonNull String key, @NonNull String scriptKey, @NonNull BiConsumer<String, String> acceptor) {
-            name.ifPresent(n -> acceptor.accept(key, n));
-            script.ifPresent(n -> acceptor.accept(scriptKey, n));
+            if (!name.isEmpty()) acceptor.accept(key, name);
+            if (!script.isEmpty()) acceptor.accept(scriptKey, script);
         }
     }
 
@@ -264,6 +295,15 @@ public class PersistenceProperties {
         @Override
         public String toString() {
             return name().toLowerCase(Locale.ROOT);
+        }
+
+        public static TriBoolean from(boolean b) {
+            return b ? TRUE : FALSE;
+        }
+
+        public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
+            if (this == UNSPECIFIED) return;
+            acceptor.accept(key, this == TRUE ? "true" : "false");
         }
     }
 }
