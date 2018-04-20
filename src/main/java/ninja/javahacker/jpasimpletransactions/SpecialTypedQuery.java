@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -13,11 +14,14 @@ import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
+import lombok.experimental.PackagePrivate;
 
 /**
  * @author Victor Williams Stafusa da Silva
  */
-/*package*/ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
+@SuppressFBWarnings("RV")
+@PackagePrivate
+class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
     @Delegate(types = DelegatedParts.class)
     private final TypedQuery<X> delegate;
 

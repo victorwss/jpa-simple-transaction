@@ -5,12 +5,14 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
+import lombok.experimental.PackagePrivate;
 
 /**
  * @author Victor Williams Stafusa da Silva
  */
 @SuppressWarnings("rawtypes")
-/*package*/ class SpecialEntityManager implements ExtendedEntityManager {
+@PackagePrivate
+class SpecialEntityManager implements ExtendedEntityManager {
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
     private final EntityManager delegate;
 

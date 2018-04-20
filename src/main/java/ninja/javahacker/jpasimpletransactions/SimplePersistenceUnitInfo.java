@@ -127,7 +127,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public Properties getProperties() {
-        return properties;
+        return (Properties) properties.clone();
     }
 
     @Override

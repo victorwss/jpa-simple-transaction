@@ -16,10 +16,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Database {
     private static final AtomicReference<Connector> DEFAULT_CONNECTOR = new AtomicReference<>();
-    private static final Map<String, Connector> CONNECTOR_MAP = new ConcurrentHashMap<>();
-
+    private static final Map<String, Connector> CONNECTOR_MAP = new ConcurrentHashMap<>(10);
     private static final List<ConnectorListener> LISTENERS = new CopyOnWriteArrayList<>();
-
     private static final ConnectorListener MASTER_LISTENER = ConnectorListener.newBroadcaster(LISTENERS);
 
     @NonNull
