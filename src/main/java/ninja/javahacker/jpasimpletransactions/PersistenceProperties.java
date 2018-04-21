@@ -31,6 +31,7 @@ public class PersistenceProperties {
     @NonNull String url = "";
     @NonNull String user = "";
     @NonNull String password = "";
+    @NonNull String schema = "";
     @NonNull SchemaGenerationAction schemaGenerationAction = SchemaGenerationAction.unspecified();
     @NonNull SchemaGenerationSource schemaGenerationCreate = SchemaGenerationSource.unspecified();
     @NonNull SchemaGenerationSource schemaGenerationDrop = SchemaGenerationSource.unspecified();
@@ -128,6 +129,7 @@ public class PersistenceProperties {
         if (!databaseProductName.isEmpty()) props.put("javax.persistence.database-product-name", databaseProductName);
         if (!databaseMajorVersion.isEmpty()) props.put("javax.persistence.database-major-version", databaseMajorVersion);
         if (!databaseMinorVersion.isEmpty()) props.put("javax.persistence.database-minor-version", databaseMinorVersion);
+        if (!schema.isEmpty()) props.put("hibernate.default_schema", schema);
         schemaGenerationAction.work("javax.persistence.schema-generation.database.action", props::put);
         schemaGenerationCreate.work(
                 "javax.persistence.schema-generation.create-source",
