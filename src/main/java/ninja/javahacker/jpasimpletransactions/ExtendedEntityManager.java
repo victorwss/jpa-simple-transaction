@@ -49,7 +49,7 @@ public interface ExtendedEntityManager extends EntityManager {
         return Optional.ofNullable(find(type, id, lmt, map));
     }
 
-    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull OrderBy... orders) {
+    public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> type, @NonNull By... orders) {
         return this.createQuery(type, Collections.emptyMap(), orders);
     }
 
@@ -62,7 +62,7 @@ public interface ExtendedEntityManager extends EntityManager {
     public default <T> ExtendedTypedQuery<T> createQuery(
             @NonNull Class<T> type,
             @NonNull Map<String, Object> map,
-            @NonNull OrderBy... orders)
+            @NonNull By... orders)
     {
         StringBuilder jpql = new StringBuilder("SELECT c FROM ").append(type.getName()).append(" c");
         if (!map.isEmpty()) {
@@ -84,12 +84,4 @@ public interface ExtendedEntityManager extends EntityManager {
 
     @Override
     public <T> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type);
-
-    public static OrderBy orderBy(@NonNull String field) {
-        return new OrderBy(field, false);
-    }
-
-    public static OrderBy orderByDesc(@NonNull String field) {
-        return new OrderBy(field, true);
-    }
 }

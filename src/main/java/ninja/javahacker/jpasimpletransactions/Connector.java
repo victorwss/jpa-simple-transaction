@@ -8,7 +8,6 @@ import javax.persistence.Persistence;
 import lombok.Getter;
 import lombok.NonNull;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
-import ninja.javahacker.xjfunctions.XSupplier;
 
 /**
  * @author Victor Williams Stafusa da Silva
@@ -87,6 +86,10 @@ public class Connector implements AutoCloseable {
                 Thread.currentThread().getContextClassLoader(),
                 new Class<?>[] {k},
                 (p, m, args) -> execute(() -> m.invoke(operation, args)));
+    }
+
+    private static interface XSupplier<E> {
+        public E get() throws Throwable;
     }
 
     private <E> E execute(@NonNull XSupplier<E> trans) throws Throwable {
