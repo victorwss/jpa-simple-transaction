@@ -17,7 +17,7 @@ import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
 
 /**
- * @author Victor Williams Stafusad a Silva
+ * @author Victor Williams Stafusa da Silva
  */
 @Getter
 @Wither
@@ -53,8 +53,8 @@ public class PersistenceProperties {
     final Map<String, String> extras = new HashMap<>(20);
 
     @Tolerate
-    public PersistenceProperties withDriver(@NonNull String drivername) throws ClassNotFoundException {
-        return withDriver(Class.forName(drivername).asSubclass(Driver.class));
+    public PersistenceProperties withDriver(@NonNull String driverName) throws ClassNotFoundException {
+        return withDriver(Class.forName(driverName).asSubclass(Driver.class));
     }
 
     @Tolerate
