@@ -25,6 +25,7 @@ import lombok.experimental.Wither;
 @NoArgsConstructor
 @FieldDefaults(makeFinal = false)
 public class PersistenceProperties {
+    @NonNull String persistenceUnitName;
     @NonNull Class<? extends Driver> driver = Driver.class;
     @NonNull Class<?> dialect = void.class;
     @NonNull Class<?> jtaPlatform = void.class;

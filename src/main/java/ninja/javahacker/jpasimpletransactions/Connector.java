@@ -32,13 +32,16 @@ public class Connector implements AutoCloseable {
         return new Connector(persistenceUnitName, emf);
     }
 
-    public static Connector withPersistenceXml(@NonNull String persistenceUnitName, @NonNull Map<String, String> properties) {
+    public static Connector withPersistenceXml(
+            @NonNull String persistenceUnitName,
+            @NonNull Map<String, String> properties)
+    {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
         return new Connector(persistenceUnitName, emf);
     }
 
-    public static Connector withPersistenceXml(@NonNull String persistenceUnitName, @NonNull PersistenceProperties properties) {
-        return withPersistenceXml(persistenceUnitName, properties.build());
+    public static Connector withPersistenceXml(@NonNull PersistenceProperties properties) {
+        return withPersistenceXml(properties.getPersistenceUnitName(), properties.build());
     }
 
     public static Connector withoutXml(
@@ -54,11 +57,10 @@ public class Connector implements AutoCloseable {
     }
 
     public static Connector withoutXml(
-            @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull PersistenceProperties properties)
     {
-        return Connector.withoutXml(persistenceUnitName, classes, properties.build());
+        return Connector.withoutXml(properties.getPersistenceUnitName(), classes, properties.build());
     }
 
     public ExtendedEntityManager getEntityManager() {
