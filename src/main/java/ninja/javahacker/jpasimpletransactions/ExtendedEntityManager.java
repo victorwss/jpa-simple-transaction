@@ -11,9 +11,10 @@ import javax.persistence.criteria.CriteriaQuery;
 import lombok.NonNull;
 
 /**
+ * Extends the {@link EntityManager} interface adding several useful methods into it.
  * @author Victor Williams Stafusa da Silva
  */
-public interface ExtendedEntityManager extends EntityManager {
+public interface ExtendedEntityManager extends EntityManager, AutoCloseable {
 
     public default boolean isNew(@NonNull Object obj) {
         return getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(obj) == null;
@@ -30,7 +31,7 @@ public interface ExtendedEntityManager extends EntityManager {
     }
 
     public static ExtendedEntityManager wrap(@NonNull EntityManager em) {
-        return em instanceof ExtendedEntityManager ? (ExtendedEntityManager) em : new SpecialEntityManager(em);
+        return em instanceof SpecialEntityManager ? (ExtendedEntityManager) em : new SpecialEntityManager(em);
     }
 
     public default <T> Optional<T> findOptional(Class<T> type, Object id) {
@@ -69,13 +70,13 @@ public interface ExtendedEntityManager extends EntityManager {
             jpql.append(" WHERE ");
             StringJoiner sj = new StringJoiner(" AND ");
             map.keySet().stream().map(k -> "c." + k + " = :" + k).forEach(sj::add);
-            jpql.append(sj.toString());
+            jpql.append(sj);
         }
         if (orders.length > 0) {
             jpql.append(" ORDER BY ");
             StringJoiner sj = new StringJoiner(", ");
             Stream.of(orders).map(k -> "c." + k.getField() + (k.isDesc() ? " DESC" : "")).forEach(sj::add);
-            jpql.append(sj.toString());
+            jpql.append(sj);
         }
         ExtendedTypedQuery<T> query = this.createQuery(jpql.toString(), type);
         map.forEach(query::setParameter);

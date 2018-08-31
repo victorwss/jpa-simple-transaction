@@ -4,6 +4,8 @@ import lombok.NonNull;
 import lombok.Value;
 
 /**
+ * Value-based class to describe the ordering of an <code>order by</code>
+ * statement in JPQL queries.
  * @author Victor Williams Stfausa da Silva
  */
 @Value

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.ClassTransformer;
@@ -18,11 +19,14 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import lombok.NonNull;
+import lombok.experimental.PackagePrivate;
 
 /**
+ * A simple minimalist implementation of the {@link PersistenceUnitInfo} interface.
  * @author Victor Williams Stafusa da Silva
  */
-public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
+@PackagePrivate
+final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     public static final Class<? extends PersistenceProvider> HIBERNATE_PROVIDER_CLASS;
 
@@ -51,13 +55,16 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
         this.properties.putAll(properties);
     }
 
-    public static PersistenceProvider makeProvider() {
+    public EntityManagerFactory createEntityManagerFactory() {
         try {
-            return HIBERNATE_PROVIDER_CLASS.getConstructor().newInstance();
+            return HIBERNATE_PROVIDER_CLASS
+                    .getConstructor()
+                    .newInstance()
+                    .createContainerEntityManagerFactory(this, properties);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException x) {
-            throw new Error(x);
+            throw new AssertionError(x);
         } catch (InvocationTargetException x) {
-            throw new RuntimeException(x.getCause());
+            throw new AssertionError(x.getCause());
         }
     }
 

@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -8,16 +9,28 @@ import lombok.experimental.Delegate;
 import lombok.experimental.PackagePrivate;
 
 /**
+ * Implementation of the {@link ExtendedEntityManager} interface that
+ * delegates to some other {@link EntityManager}.
  * @author Victor Williams Stafusa da Silva
  */
 @SuppressWarnings("rawtypes")
 @PackagePrivate
 class SpecialEntityManager implements ExtendedEntityManager {
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
-    private final EntityManager delegate;
+    private EntityManager delegate;
 
     public SpecialEntityManager(@NonNull EntityManager em) {
         this.delegate = em;
+    }
+
+    @PackagePrivate
+    void replace(@NonNull EntityManager em) {
+        this.delegate.close();
+        EntityManager root = em;
+        while (root instanceof SpecialEntityManager) {
+            root = ((SpecialEntityManager) root).delegate;
+        }
+        this.delegate = root;
     }
 
     @Override
@@ -31,6 +44,10 @@ class SpecialEntityManager implements ExtendedEntityManager {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "SQL_INJECTION_JPA",
+            justification = "False alarm, we're just delegating it untouched."
+    )
     public <T extends Object> ExtendedTypedQuery<T> createQuery(String string, Class<T> type) {
         return ExtendedTypedQuery.wrap(delegate.createQuery(string, type));
     }
@@ -40,6 +57,9 @@ class SpecialEntityManager implements ExtendedEntityManager {
         return ExtendedTypedQuery.wrap(delegate.createNamedQuery(string, type));
     }
 
+    /**
+     * Exists only to suppress lombok's delegation on a few methods.
+     */
     private static interface DoNotDelegateEntityManager {
         public void remove(Object obj);
 

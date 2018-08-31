@@ -11,6 +11,7 @@ import lombok.Synchronized;
 import lombok.experimental.UtilityClass;
 
 /**
+ * Centralizes the creation and acquisition of {@link Connector} instances.
  * @author Victor Williams Stafusa da Silva
  */
 @UtilityClass

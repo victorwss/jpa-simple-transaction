@@ -12,18 +12,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
 
 /**
+ * A collection of properties used to instantiate a {@link Connector}.
  * @author Victor Williams Stafusa da Silva
  */
 @Getter
 @Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@FieldDefaults(makeFinal = false)
 public class PersistenceProperties {
     @NonNull String persistenceUnitName;
     @NonNull Class<? extends Driver> driver = Driver.class;
@@ -39,7 +38,6 @@ public class PersistenceProperties {
     @NonNull SchemaGenerationActionTarget schemaGenerationScriptsCreate = SchemaGenerationActionTarget.unspecified();
     @NonNull String loadScript = "";
     @NonNull String schemaGenerationConnection = "";
-    @NonNull Hbm2DdlAuto hbm2DdlAuto = Hbm2DdlAuto.unspecified();
     @NonNull TriBoolean createDatabaseSchemas = TriBoolean.UNSPECIFIED;
     @NonNull TriBoolean showSql = TriBoolean.UNSPECIFIED;
     @NonNull TriBoolean formatSql = TriBoolean.UNSPECIFIED;
@@ -50,8 +48,7 @@ public class PersistenceProperties {
     @NonNull String databaseMinorVersion = "";
     @NonNull TriBoolean newGeneratorMappings = TriBoolean.UNSPECIFIED;
 
-    @NonNull
-    final Map<String, String> extras = new HashMap<>(20);
+    @NonNull Map<String, String> extras = new HashMap<>(20);
 
     @Tolerate
     public PersistenceProperties withDriver(@NonNull String driverName) throws ClassNotFoundException {
@@ -124,13 +121,13 @@ public class PersistenceProperties {
     public Map<String, String> build() {
         Map<String, String> props = new HashMap<>(64);
         if (driver != Driver.class) props.put("javax.persistence.jdbc.driver", driver.getName());
-        if (!url.isEmpty()) props.put("javax.persistence.jdbc.url", url);
-        if (!user.isEmpty()) props.put("javax.persistence.jdbc.user", user);
-        if (!password.isEmpty()) props.put("javax.persistence.jdbc.password", password);
-        if (!databaseProductName.isEmpty()) props.put("javax.persistence.database-product-name", databaseProductName);
-        if (!databaseMajorVersion.isEmpty()) props.put("javax.persistence.database-major-version", databaseMajorVersion);
-        if (!databaseMinorVersion.isEmpty()) props.put("javax.persistence.database-minor-version", databaseMinorVersion);
-        if (!schema.isEmpty()) props.put("hibernate.default_schema", schema);
+        work("javax.persistence.jdbc.url", url, props::put);
+        work("javax.persistence.jdbc.user", user, props::put);
+        work("javax.persistence.jdbc.password", password, props::put);
+        work("javax.persistence.database-product-name", databaseProductName, props::put);
+        work("javax.persistence.database-major-version", databaseMajorVersion, props::put);
+        work("javax.persistence.database-minor-version", databaseMinorVersion, props::put);
+        work("hibernate.default_schema", schema, props::put);
         schemaGenerationAction.work("javax.persistence.schema-generation.database.action", props::put);
         schemaGenerationCreate.work(
                 "javax.persistence.schema-generation.create-source",
@@ -145,10 +142,8 @@ public class PersistenceProperties {
                 "javax.persistence.schema-generation.scripts.create-target",
                 "javax.persistence.schema-generation.scripts.drop-target",
                 props::put);
-        if (!loadScript.isEmpty()) props.put("javax.persistence.sql-load-script-source", loadScript);
-        if (!schemaGenerationConnection.isEmpty()) {
-            props.put("javax.persistence.schema-generation.connection", schemaGenerationConnection);
-        }
+        work("javax.persistence.sql-load-script-source", loadScript, props::put);
+        work("javax.persistence.schema-generation.connection", schemaGenerationConnection, props::put);
         if (dialect != void.class) props.put("hibernate.dialect", dialect.getName());
         if (jtaPlatform != void.class) props.put("hibernate.transaction.jta.platform", jtaPlatform.getName());
         createDatabaseSchemas.work("javax.persistence.schema-generation.create-database-schemas", props::put);
@@ -165,8 +160,18 @@ public class PersistenceProperties {
         return props;
     }
 
+    private void work(@NonNull String key, @NonNull String value, @NonNull BiConsumer<String, String> acceptor) {
+        if (!value.isEmpty()) acceptor.accept(key, value);
+    }
+
+    /**
+     * Specifies the strategy used for automatic schema generation or validation.
+     * @see PersistenceProperties#getSchemaGenerationAction()
+     * @see PersistenceProperties#setSchemaGenerationAction(SchemaGenerationAction)
+     * @see "The property {@code javax.persistence.schema-generation.database.action}."
+     */
     @Value
-    public static class SchemaGenerationAction {
+    public static final class SchemaGenerationAction {
         private final String name;
 
         public static SchemaGenerationAction unspecified() {
@@ -194,8 +199,16 @@ public class PersistenceProperties {
         }
     }
 
+    /**
+     * Specifies the strategy used for automatic schema generation or validation.
+     * @see PersistenceProperties#getSchemaGenerationScriptsCreate()
+     * @see PersistenceProperties#withSchemaGenerationScriptsCreate(SchemaGenerationActionTarget)
+     * @see "The property {@code javax.persistence.schema-generation.scripts.action}."
+     * @see "The property {@code javax.persistence.schema-generation.scripts.create-target}."
+     * @see "The property {@code javax.persistence.schema-generation.scripts.drop-target}."
+     */
     @Value
-    public static class SchemaGenerationActionTarget {
+    public static final class SchemaGenerationActionTarget {
         private final String name;
         private final String createScript;
         private final String dropScript;
@@ -232,37 +245,21 @@ public class PersistenceProperties {
         }
     }
 
+    /**
+     * Specifies the strategy used for executing custom scripts on schema generation.
+     * @see PersistenceProperties#getSchemaGenerationAction()
+     * @see PersistenceProperties#withSchemaGenerationAction(SchemaGenerationSource)
+     * @see PersistenceProperties#getSchemaGenerationCreate()
+     * @see PersistenceProperties#withSchemaGenerationCreate(SchemaGenerationSource)
+     * @see PersistenceProperties#getSchemaGenerationDrop()
+     * @see PersistenceProperties#withSchemaGenerationDrop(SchemaGenerationSource)
+     * @see "The property {@code javax.persistence.schema-generation.create-source}."
+     * @see "The property {@code javax.persistence.schema-generation.create-script-source}."
+     * @see "The property {@code javax.persistence.schema-generation.drop-source}."
+     * @see "The property {@code javax.persistence.schema-generation.drop-script-source}."
+     */
     @Value
-    public static class Hbm2DdlAuto {
-        private final String name;
-
-        public static Hbm2DdlAuto unspecified() {
-            return new Hbm2DdlAuto("");
-        }
-
-        public static Hbm2DdlAuto validate() {
-            return new Hbm2DdlAuto("validate");
-        }
-
-        public static Hbm2DdlAuto update() {
-            return new Hbm2DdlAuto("update");
-        }
-
-        public static Hbm2DdlAuto create() {
-            return new Hbm2DdlAuto("create");
-        }
-
-        public static Hbm2DdlAuto createDrop() {
-            return new Hbm2DdlAuto("create-drop");
-        }
-
-        public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
-            if (!name.isEmpty()) acceptor.accept(key, name);
-        }
-    }
-
-    @Value
-    public static class SchemaGenerationSource {
+    public static final class SchemaGenerationSource {
         private final String name;
         private final String script;
 
@@ -292,6 +289,19 @@ public class PersistenceProperties {
         }
     }
 
+    /**
+     * Specifies the values true, false, or unspecified.
+     * @see PersistenceProperties#getCreateDatabaseSchemas()
+     * @see PersistenceProperties#withCreateDatabaseSchemas(TriBoolean)
+     * @see PersistenceProperties#getShowSql()
+     * @see PersistenceProperties#withShowSql(TriBoolean)
+     * @see PersistenceProperties#getFormatSql()
+     * @see PersistenceProperties#withFormatSql(TriBoolean)
+     * @see PersistenceProperties#getUseSqlComments()
+     * @see PersistenceProperties#withUseSqlComments(TriBoolean)
+     * @see PersistenceProperties#getNewGeneratorMappings()
+     * @see PersistenceProperties#withNewGeneratorMappings(TriBoolean)
+     */
     public static enum TriBoolean {
         UNSPECIFIED, FALSE, TRUE;
 
