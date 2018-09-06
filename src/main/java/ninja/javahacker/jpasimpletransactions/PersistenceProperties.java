@@ -127,7 +127,6 @@ public class PersistenceProperties {
         work("javax.persistence.database-product-name", databaseProductName, props::put);
         work("javax.persistence.database-major-version", databaseMajorVersion, props::put);
         work("javax.persistence.database-minor-version", databaseMinorVersion, props::put);
-        work("hibernate.default_schema", schema, props::put);
         schemaGenerationAction.work("javax.persistence.schema-generation.database.action", props::put);
         schemaGenerationCreate.work(
                 "javax.persistence.schema-generation.create-source",
@@ -144,9 +143,12 @@ public class PersistenceProperties {
                 props::put);
         work("javax.persistence.sql-load-script-source", loadScript, props::put);
         work("javax.persistence.schema-generation.connection", schemaGenerationConnection, props::put);
+        createDatabaseSchemas.work("javax.persistence.schema-generation.create-database-schemas", props::put);
+
+        // TODO: Coupling with Hibernate.
+        work("hibernate.default_schema", schema, props::put);
         if (dialect != void.class) props.put("hibernate.dialect", dialect.getName());
         if (jtaPlatform != void.class) props.put("hibernate.transaction.jta.platform", jtaPlatform.getName());
-        createDatabaseSchemas.work("javax.persistence.schema-generation.create-database-schemas", props::put);
         if (multipleLinesCommands) {
             props.put(
                     "hibernate.hbm2ddl.import_files_sql_extractor",

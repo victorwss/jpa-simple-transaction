@@ -28,6 +28,7 @@ import lombok.experimental.PackagePrivate;
 @PackagePrivate
 final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
+    // TODO:Coupled to Hibernate.
     public static final Class<? extends PersistenceProvider> HIBERNATE_PROVIDER_CLASS;
 
     static {

@@ -116,7 +116,7 @@ public class Connector implements AutoCloseable {
                 try {
                     actual.getTransaction().begin();
                 } catch (RuntimeException e) {
-                    if (!shouldTryToReconnect(e)) throw e;
+                    if (!actual.getProviderAdapter().shouldTryToReconnect(e)) throw e;
                     Database.getListener().renewedConnection(persistenceUnitName);
                     actual.replace(createNewEntityManager());
                     actual.getTransaction().begin();
@@ -138,11 +138,6 @@ public class Connector implements AutoCloseable {
             managers.remove();
             Database.getListener().connectorClosed(persistenceUnitName);
         }
-    }
-
-    private boolean shouldTryToReconnect(RuntimeException e) {
-        return "org.hibernate.exception.JDBCConnectionException".equals(e.getClass().getName())
-                && "Unable to acquire JDBC Connection".equals(e.getMessage());
     }
 
     @Override

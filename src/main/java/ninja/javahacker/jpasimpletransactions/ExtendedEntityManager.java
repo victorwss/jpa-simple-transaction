@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +32,9 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable {
     }
 
     public static ExtendedEntityManager wrap(@NonNull EntityManager em) {
-        return em instanceof SpecialEntityManager ? (ExtendedEntityManager) em : new SpecialEntityManager(em);
+        return em instanceof SpecialEntityManager
+                ? (ExtendedEntityManager) em
+                : new SpecialEntityManager(em, ProviderAdapter.findFor(em));
     }
 
     public default <T> Optional<T> findOptional(Class<T> type, Object id) {
@@ -85,4 +88,6 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable {
 
     @Override
     public <T> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type);
+
+    public Connection getConnection();
 }

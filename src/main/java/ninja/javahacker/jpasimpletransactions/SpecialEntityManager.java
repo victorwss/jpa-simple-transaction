@@ -1,6 +1,7 @@
 package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.sql.Connection;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,8 +20,14 @@ class SpecialEntityManager implements ExtendedEntityManager {
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
     private EntityManager delegate;
 
-    public SpecialEntityManager(@NonNull EntityManager em) {
+    private final ProviderAdapter adapter;
+
+    public SpecialEntityManager(
+            @NonNull EntityManager em,
+            @NonNull ProviderAdapter adapter)
+    {
         this.delegate = em;
+        this.adapter = adapter;
     }
 
     @PackagePrivate
@@ -55,6 +62,15 @@ class SpecialEntityManager implements ExtendedEntityManager {
     @Override
     public <T extends Object> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type) {
         return ExtendedTypedQuery.wrap(delegate.createNamedQuery(string, type));
+    }
+
+    @Override
+    public Connection getConnection() {
+        return adapter.getConnection(delegate);
+    }
+
+    public ProviderAdapter getProviderAdapter() {
+        return adapter;
     }
 
     /**
