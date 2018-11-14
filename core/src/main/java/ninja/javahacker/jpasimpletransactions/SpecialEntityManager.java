@@ -16,7 +16,8 @@ import lombok.experimental.PackagePrivate;
  */
 @SuppressWarnings("rawtypes")
 @PackagePrivate
-class SpecialEntityManager implements ExtendedEntityManager {
+final class SpecialEntityManager implements ExtendedEntityManager {
+
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
     private EntityManager delegate;
 
@@ -26,18 +27,20 @@ class SpecialEntityManager implements ExtendedEntityManager {
             @NonNull EntityManager em,
             @NonNull ProviderAdapter adapter)
     {
-        this.delegate = em;
         this.adapter = adapter;
+        replace(em);
     }
 
     @PackagePrivate
     void replace(@NonNull EntityManager em) {
-        this.delegate.close();
-        EntityManager root = em;
-        while (root instanceof SpecialEntityManager) {
-            root = ((SpecialEntityManager) root).delegate;
-        }
-        this.delegate = root;
+        if (this.delegate != null) this.delegate.close();
+        this.delegate = getRoot(em);
+    }
+
+    private static EntityManager getRoot(EntityManager em) {
+        EntityManager r = em instanceof SpecialEntityManager ? ((SpecialEntityManager) em).delegate : em;
+        if (r instanceof SpecialEntityManager) throw new AssertionError();
+        return r;
     }
 
     @Override

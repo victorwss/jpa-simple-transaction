@@ -1,2 +1,12 @@
 enableFeaturePreview('STABLE_PUBLISHING')
 rootProject.name = 'JPA-Simple-Transactions'
+
+def subDirs = rootDir.listFiles(new FileFilter() {
+    public boolean accept(File file) {
+        return file.isDirectory() && !['config', 'libs', 'build'].contains(file.name) && !file.name.contains('.')
+    }
+});
+
+subDirs.each { File dir ->
+    include dir.name
+}

@@ -1,11 +1,12 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +20,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.experimental.PackagePrivate;
 
 /**
@@ -26,6 +28,7 @@ import lombok.experimental.PackagePrivate;
  * @author Victor Williams Stafusa da Silva
  */
 @PackagePrivate
+@ToString
 final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     // TODO:Coupled to Hibernate.
@@ -41,32 +44,26 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
         }
     }
 
+    private final ProviderAdapter adapter;
     private final String persistenceUnitName;
     private final List<String> classes;
-    private final Properties properties;
+    private final Map<String, String> properties;
 
     public SimplePersistenceUnitInfo(
+            @NonNull ProviderAdapter adapter,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
+        this.adapter = adapter;
         this.persistenceUnitName = persistenceUnitName;
         this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
-        this.properties = new Properties();
+        this.properties = new HashMap<>();
         this.properties.putAll(properties);
     }
 
     public EntityManagerFactory createEntityManagerFactory() {
-        try {
-            return HIBERNATE_PROVIDER_CLASS
-                    .getConstructor()
-                    .newInstance()
-                    .createContainerEntityManagerFactory(this, properties);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException x) {
-            throw new AssertionError(x);
-        } catch (InvocationTargetException x) {
-            throw new AssertionError(x.getCause());
-        }
+        return adapter.createEntityManagerFactory(this, properties);
     }
 
     @Override
@@ -76,7 +73,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceProviderClassName() {
-        return HIBERNATE_PROVIDER_CLASS.getName();
+        return adapter.getJpaProvider().getClass().getName();
     }
 
     @Override
@@ -85,11 +82,13 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
+    @Nullable
     public DataSource getJtaDataSource() {
         return null;
     }
 
     @Override
+    @Nullable
     public DataSource getNonJtaDataSource() {
         return null;
     }
@@ -109,6 +108,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
+    @Nullable
     public URL getPersistenceUnitRootUrl() {
         return null;
     }
@@ -135,7 +135,9 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public Properties getProperties() {
-        return (Properties) properties.clone();
+        Properties p = new Properties();
+        p.putAll(properties);
+        return p;
     }
 
     @Override
@@ -144,6 +146,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
+    @Nullable
     public ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
@@ -153,6 +156,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     }
 
     @Override
+    @Nullable
     public ClassLoader getNewTempClassLoader() {
         return null;
     }

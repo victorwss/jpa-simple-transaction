@@ -2,3 +2,8 @@
 /.nb-gradle/
 /build/
 /gradle.properties
+/core/build/
+/hibernate/build/
+/eclipselink/build/
+/openjpa/build/
+/tests/build/

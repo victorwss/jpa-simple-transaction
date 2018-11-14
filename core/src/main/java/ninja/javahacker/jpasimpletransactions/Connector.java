@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
@@ -8,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.experimental.PackagePrivate;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
 /**
@@ -31,7 +33,8 @@ public class Connector implements AutoCloseable {
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
-    private Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
+    @PackagePrivate
+    Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
         this.persistenceUnitName = persistenceUnitName;
         this.emf = emf;
         this.managers = new ThreadLocal<>();
@@ -55,12 +58,13 @@ public class Connector implements AutoCloseable {
     }
 
     public static Connector withoutXml(
+            @NonNull ProviderAdapter adapter,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
         EntityManagerFactory emf =
-                new SimplePersistenceUnitInfo(persistenceUnitName, classes, properties).createEntityManagerFactory();
+                new SimplePersistenceUnitInfo(adapter, persistenceUnitName, classes, properties).createEntityManagerFactory();
         return new Connector(persistenceUnitName, emf);
     }
 
@@ -68,7 +72,11 @@ public class Connector implements AutoCloseable {
             @NonNull Collection<Class<?>> classes,
             @NonNull PersistenceProperties properties)
     {
-        return Connector.withoutXml(properties.getPersistenceUnitName(), classes, properties.build());
+        return Connector.withoutXml(
+                properties.getProviderAdapter(),
+                properties.getPersistenceUnitName(),
+                classes,
+                properties.build());
     }
 
     public ExtendedEntityManager getEntityManager() {
@@ -104,6 +112,10 @@ public class Connector implements AutoCloseable {
         public E get() throws Throwable;
     }
 
+    @SuppressFBWarnings(
+            value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+            justification = "try-with-resources - It's either SpotBugs fault or javac fault, but definitely not our fault."
+    )
     private <E> E execute(@NonNull XSupplier<E> trans) throws Throwable {
         SpecialEntityManager alreadyExists = managers.get();
         if (alreadyExists != null) return trans.get();
