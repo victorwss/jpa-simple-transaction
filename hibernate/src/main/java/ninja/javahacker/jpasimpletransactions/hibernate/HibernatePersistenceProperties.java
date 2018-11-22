@@ -38,7 +38,7 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
     @NonNull TriBoolean newGeneratorMappings = TriBoolean.UNSPECIFIED;
 
     public HibernatePersistenceProperties(@NonNull String persistenceUnitName) {
-        this.defaultProperties = new DefaultPersistenceProperties(HibernateAdapter.INSTANCE, persistenceUnitName);
+        this.defaultProperties = new DefaultPersistenceProperties(new HibernateAdapter(), persistenceUnitName);
     }
 
     @Tolerate
@@ -99,7 +99,7 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
     }
 
     /**
-     * Method already implemented, so shouldn't delegate to those.
+     * Methods already implemented below that returns this, so shouldn't delegate to those.
      */
     private static interface Dont {
 

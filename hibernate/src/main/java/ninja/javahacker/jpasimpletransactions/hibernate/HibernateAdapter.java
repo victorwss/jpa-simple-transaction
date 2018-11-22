@@ -13,15 +13,11 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
  * Implementation of {@link ProviderAdapter} for Hibernate.
  * @author Victor Williams Stafusa da Silva
  */
-@SuppressFBWarnings("IMC_IMMATURE_CLASS_NO_TOSTRING")
-public class HibernateAdapter implements ProviderAdapter {
+public final class HibernateAdapter implements ProviderAdapter {
 
-    public static final HibernateAdapter INSTANCE = new HibernateAdapter();
+    private static final HibernatePersistenceProvider PROVIDER = new HibernatePersistenceProvider();
 
-    private final HibernatePersistenceProvider provider;
-
-    private HibernateAdapter() {
-        this.provider = new HibernatePersistenceProvider();
+    public HibernateAdapter() {
     }
 
     @Override
@@ -38,11 +34,26 @@ public class HibernateAdapter implements ProviderAdapter {
 
     @Override
     public HibernatePersistenceProvider getJpaProvider() {
-        return provider;
+        return PROVIDER;
     }
 
     @Override
     public boolean shouldTryToReconnect(@NonNull RuntimeException e) {
         return e instanceof JDBCConnectionException && "Unable to acquire JDBC Connection".equals(e.getMessage());
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof HibernateAdapter;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

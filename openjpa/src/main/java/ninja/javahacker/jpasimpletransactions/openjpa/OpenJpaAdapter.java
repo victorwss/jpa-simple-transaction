@@ -1,6 +1,5 @@
 package ninja.javahacker.jpasimpletransactions.openjpa;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import lombok.NonNull;
@@ -12,15 +11,11 @@ import org.apache.openjpa.persistence.PersistenceProviderImpl;
  * Implementation of {@link ProviderAdapter} for Open JPA.
  * @author Victor Williams Stafusa da Silva
  */
-@SuppressFBWarnings("IMC_IMMATURE_CLASS_NO_TOSTRING")
-public class OpenJpaAdapter implements ProviderAdapter {
+public final class OpenJpaAdapter implements ProviderAdapter {
 
-    public static final OpenJpaAdapter INSTANCE = new OpenJpaAdapter();
+    private static final PersistenceProviderImpl PROVIDER = new PersistenceProviderImpl();
 
-    private final PersistenceProviderImpl provider;
-
-    private OpenJpaAdapter() {
-        this.provider = new PersistenceProviderImpl();
+    public OpenJpaAdapter() {
     }
 
     @Override
@@ -37,6 +32,21 @@ public class OpenJpaAdapter implements ProviderAdapter {
 
     @Override
     public PersistenceProviderImpl getJpaProvider() {
-        return provider;
+        return PROVIDER;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof OpenJpaAdapter;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

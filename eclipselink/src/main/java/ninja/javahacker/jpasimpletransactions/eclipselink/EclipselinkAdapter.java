@@ -1,6 +1,5 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -13,15 +12,11 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
  * Implementation of {@link ProviderAdapter} for Eclipselink.
  * @author Victor Williams Stafusa da Silva
  */
-@SuppressFBWarnings("IMC_IMMATURE_CLASS_NO_TOSTRING")
-public class EclipselinkAdapter implements ProviderAdapter {
+public final class EclipselinkAdapter implements ProviderAdapter {
 
-    public static final EclipselinkAdapter INSTANCE = new EclipselinkAdapter();
+    private static final PersistenceProvider PROVIDER = new PersistenceProvider();
 
-    private final PersistenceProvider provider;
-
-    private EclipselinkAdapter() {
-        this.provider = new PersistenceProvider();
+    public EclipselinkAdapter() {
     }
 
     @Override
@@ -44,6 +39,21 @@ public class EclipselinkAdapter implements ProviderAdapter {
 
     @Override
     public PersistenceProvider getJpaProvider() {
-        return provider;
+        return PROVIDER;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof EclipselinkAdapter;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

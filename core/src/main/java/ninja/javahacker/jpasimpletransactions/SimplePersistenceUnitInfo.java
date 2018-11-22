@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.ClassTransformer;
@@ -31,39 +30,22 @@ import lombok.experimental.PackagePrivate;
 @ToString
 final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
-    // TODO:Coupled to Hibernate.
-    public static final Class<? extends PersistenceProvider> HIBERNATE_PROVIDER_CLASS;
-
-    static {
-        try {
-            HIBERNATE_PROVIDER_CLASS = Class
-                    .forName("org.hibernate.jpa.HibernatePersistenceProvider")
-                    .asSubclass(PersistenceProvider.class);
-        } catch (ClassNotFoundException x) {
-            throw new ExceptionInInitializerError(x);
-        }
-    }
-
-    private final ProviderAdapter adapter;
+    private final PersistenceProvider provider;
     private final String persistenceUnitName;
     private final List<String> classes;
     private final Map<String, String> properties;
 
     public SimplePersistenceUnitInfo(
-            @NonNull ProviderAdapter adapter,
+            @NonNull PersistenceProvider provider,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
-        this.adapter = adapter;
+        this.provider = provider;
         this.persistenceUnitName = persistenceUnitName;
         this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
         this.properties = new HashMap<>();
         this.properties.putAll(properties);
-    }
-
-    public EntityManagerFactory createEntityManagerFactory() {
-        return adapter.createEntityManagerFactory(this, properties);
     }
 
     @Override
@@ -73,7 +55,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceProviderClassName() {
-        return adapter.getJpaProvider().getClass().getName();
+        return provider.getClass().getName();
     }
 
     @Override

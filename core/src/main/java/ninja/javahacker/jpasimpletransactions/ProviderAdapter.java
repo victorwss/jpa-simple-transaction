@@ -28,7 +28,14 @@ public interface ProviderAdapter {
         return false;
     }
 
-    public default EntityManagerFactory createEntityManagerFactory(
+    /*public default EntityManagerFactory createEntityManagerFactory(
+            @NonNull String unit,
+            @NonNull Map<String, String> properties)
+    {
+        return getJpaProvider().createEntityManagerFactory(unit, properties);
+    }*/
+
+    public default EntityManagerFactory createContainerEntityManagerFactory(
             @NonNull PersistenceUnitInfo unit,
             @NonNull Map<String, String> properties)
     {
