@@ -5,7 +5,7 @@ import lombok.NonNull;
 
 /**
  * Callback that listen for events in the {@link Connector} class.
- * Mostly intended for loggin purposes.
+ * Mostly intended for logging purposes.
  * @author Victor Williams Stafusa da Silva
  */
 public interface ConnectorListener {

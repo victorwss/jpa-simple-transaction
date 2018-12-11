@@ -1,6 +1,9 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import lombok.NonNull;
@@ -14,6 +17,16 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
  */
 public final class EclipselinkAdapter implements ProviderAdapter {
 
+    private static final Optional<URL> NOWHERE;
+
+    static {
+        try {
+            NOWHERE = Optional.of(new URL("http://0.0.0.0/"));
+        } catch (MalformedURLException x) {
+            throw new AssertionError(x);
+        }
+    }
+
     private static final PersistenceProvider PROVIDER = new PersistenceProvider();
 
     public EclipselinkAdapter() {
@@ -22,6 +35,11 @@ public final class EclipselinkAdapter implements ProviderAdapter {
     @Override
     public boolean recognizes(@NonNull EntityManager em) {
         return em instanceof JpaEntityManager;
+    }
+
+    @Override
+    public Optional<URL> getUrl() {
+        return NOWHERE;
     }
 
     @Override

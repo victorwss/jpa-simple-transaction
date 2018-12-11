@@ -1,7 +1,9 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -23,6 +25,10 @@ public interface ProviderAdapter {
     public Connection getConnection(@NonNull EntityManager em);
 
     public PersistenceProvider getJpaProvider();
+
+    public default Optional<URL> getUrl() {
+        return Optional.empty();
+    }
 
     public default boolean shouldTryToReconnect(@NonNull RuntimeException e) {
         return false;

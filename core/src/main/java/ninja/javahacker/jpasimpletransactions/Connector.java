@@ -63,7 +63,7 @@ public class Connector implements AutoCloseable {
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
-        var spui = new SimplePersistenceUnitInfo(adapter.getJpaProvider(), persistenceUnitName, classes, properties);
+        var spui = new SimplePersistenceUnitInfo(adapter.getUrl(), adapter.getJpaProvider(), persistenceUnitName, classes, properties);
         var emf = adapter.createContainerEntityManagerFactory(spui, properties);
         return new Connector(persistenceUnitName, emf);
     }

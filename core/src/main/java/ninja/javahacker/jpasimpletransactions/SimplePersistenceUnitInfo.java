@@ -1,6 +1,7 @@
 package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.persistence.SharedCacheMode;
@@ -30,17 +32,21 @@ import lombok.experimental.PackagePrivate;
 @ToString
 final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
+    private final Optional<URL> url;
     private final PersistenceProvider provider;
     private final String persistenceUnitName;
     private final List<String> classes;
     private final Map<String, String> properties;
 
+    @SuppressFBWarnings("OI_OPTIONAL_ISSUES_CHECKING_REFERENCE")
     public SimplePersistenceUnitInfo(
+            @NonNull Optional<URL> url,
             @NonNull PersistenceProvider provider,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
+        this.url = url;
         this.provider = provider;
         this.persistenceUnitName = persistenceUnitName;
         this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
@@ -89,10 +95,10 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
         }
     }
 
-    @Override
     @Nullable
+    @Override
     public URL getPersistenceUnitRootUrl() {
-        return null;
+        return url.orElse(null);
     }
 
     @Override

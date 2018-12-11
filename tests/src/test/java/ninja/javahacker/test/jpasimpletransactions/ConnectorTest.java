@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import ninja.javahacker.jpasimpletransactions.Connector;
+import ninja.javahacker.jpasimpletransactions.PersistenceProperties;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkAdapter;
 import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkPersistenceProperties;
@@ -17,7 +20,11 @@ import ninja.javahacker.jpasimpletransactions.openjpa.OpenJpaPersistenceProperti
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * @author Victor Williams Stafusa da Silva
@@ -38,59 +45,40 @@ public class ConnectorTest {
         public EntityManager getIt();
     }
 
-    private void testConnect(Connector con) throws Exception {
+    private static Stream<Arguments> providers() {
+        return Stream.of(
+                Arguments.of("Hibernate", HibernateAdapter.class),
+                Arguments.of("Eclipselink", EclipselinkAdapter.class),
+                Arguments.of("OpenJpa", OpenJpaAdapter.class)
+        );
+    }
+
+    private static Stream<Arguments> properties() {
+        Function<String, HibernatePersistenceProperties> a1 = HibernatePersistenceProperties::new;
+        Function<String, EclipselinkPersistenceProperties> b = EclipselinkPersistenceProperties::new;
+        Function<String, OpenJpaPersistenceProperties> c = OpenJpaPersistenceProperties::new;
+        var a2 = a1.andThen(x -> x.withDialect(HSQLDialect.class).withDriver(JDBCDriver.class));
+        return Stream.of(Arguments.of("Hibernate", a2), Arguments.of("Eclipselink", b), Arguments.of("OpenJpa", c));
+    }
+
+    @DisplayName("testAdapter")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("providers")
+    public void testAdapter(String t, Class<? extends ProviderAdapter> provider) throws Exception {
+        Assertions.assertTrue(load(provider).isPresent());
+    }
+
+    @DisplayName("testSimpleConnect")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("properties")
+    public void testSimpleConnect(String t, Function<String, ? extends PersistenceProperties> prop) throws Exception {
+        var p = prop.apply("test-1");
+        var con = Connector.withoutXml(List.of(Fruit.class), p);
         Assertions.assertAll(
                 () -> Assertions.assertEquals(con.getPersistenceUnitName(), "test-1"),
                 () -> Assertions.assertThrows(IllegalStateException.class, () -> con.getEntityManager()),
                 () -> Assertions.assertNotNull(con.transact(GetEm.class, con::getEntityManager))
         );
-    }
-
-    private Connector hibernateConnect() throws ClassNotFoundException {
-        var p = new HibernatePersistenceProperties("test-1")
-                .withDialect(HSQLDialect.class)
-                .withDriver(JDBCDriver.class);
-        return Connector.withoutXml(List.of(Fruit.class), p);
-    }
-
-    @Test
-    public void testSimpleConnectHibernate() throws Exception {
-        testConnect(hibernateConnect());
-    }
-
-    @Test
-    public void testHibernateAdapter() throws Exception {
-        Assertions.assertTrue(load(HibernateAdapter.class).isPresent());
-    }
-
-    private Connector eclipselinkConnect() throws ClassNotFoundException {
-        var p = new EclipselinkPersistenceProperties("test-1");
-        return Connector.withoutXml(List.of(Fruit.class), p);
-    }
-
-    @Test
-    public void testSimpleConnectEclipselink() throws Exception {
-        testConnect(eclipselinkConnect());
-    }
-
-    @Test
-    public void testEclipselinkAdapter() throws Exception {
-        Assertions.assertTrue(load(EclipselinkAdapter.class).isPresent());
-    }
-
-    private Connector openJpaConnect() throws ClassNotFoundException {
-        var p = new OpenJpaPersistenceProperties("test-1");
-        return Connector.withoutXml(List.of(Fruit.class), p);
-    }
-
-    @Test
-    public void testSimpleConnectOpenJpa() throws Exception {
-        testConnect(openJpaConnect());
-    }
-
-    @Test
-    public void testOpenJpaAdapter() throws Exception {
-        Assertions.assertTrue(load(OpenJpaAdapter.class).isPresent());
     }
 
     @Test

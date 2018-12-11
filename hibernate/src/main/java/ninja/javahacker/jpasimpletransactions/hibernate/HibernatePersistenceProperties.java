@@ -115,13 +115,13 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
 
         public HibernatePersistenceProperties withDriver(String driverName) throws ClassNotFoundException;
 
-        public HibernatePersistenceProperties withDriver(Class<? extends Driver> driver) throws ClassNotFoundException;
+        public HibernatePersistenceProperties withDriver(Class<? extends Driver> driver);
 
-        public HibernatePersistenceProperties withExtras(Map<String, String> values) throws ClassNotFoundException;
+        public HibernatePersistenceProperties withExtras(Map<String, String> values);
 
-        public HibernatePersistenceProperties withLoadScript(String loadScript) throws ClassNotFoundException;
+        public HibernatePersistenceProperties withLoadScript(String loadScript);
 
-        public HibernatePersistenceProperties withPassword(String password) throws ClassNotFoundException;
+        public HibernatePersistenceProperties withPassword(String password);
 
         public HibernatePersistenceProperties withPersistenceUnitName(String persistenceUnitName);
 
@@ -170,22 +170,22 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
         return this;
     }
 
-    public HibernatePersistenceProperties withDriver(Class<? extends Driver> driver) throws ClassNotFoundException {
+    public HibernatePersistenceProperties withDriver(Class<? extends Driver> driver) {
         defaultProperties.withDriver(driver);
         return this;
     }
 
-    public HibernatePersistenceProperties withExtras(Map<String, String> values) throws ClassNotFoundException {
+    public HibernatePersistenceProperties withExtras(Map<String, String> values) {
         defaultProperties.withExtras(values);
         return this;
     }
 
-    public HibernatePersistenceProperties withLoadScript(String loadScript) throws ClassNotFoundException {
+    public HibernatePersistenceProperties withLoadScript(String loadScript) {
         defaultProperties.withLoadScript(loadScript);
         return this;
     }
 
-    public HibernatePersistenceProperties withPassword(String password) throws ClassNotFoundException {
+    public HibernatePersistenceProperties withPassword(String password) {
         defaultProperties.withPassword(password);
         return this;
     }
