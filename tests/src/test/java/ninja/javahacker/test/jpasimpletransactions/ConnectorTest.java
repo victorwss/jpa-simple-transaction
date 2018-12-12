@@ -4,12 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import ninja.javahacker.jpasimpletransactions.Connector;
-import ninja.javahacker.jpasimpletransactions.PersistenceProperties;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkAdapter;
 import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkPersistenceProperties;
@@ -17,6 +16,7 @@ import ninja.javahacker.jpasimpletransactions.hibernate.HibernateAdapter;
 import ninja.javahacker.jpasimpletransactions.hibernate.HibernatePersistenceProperties;
 import ninja.javahacker.jpasimpletransactions.openjpa.OpenJpaAdapter;
 import ninja.javahacker.jpasimpletransactions.openjpa.OpenJpaPersistenceProperties;
+import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.jupiter.api.Assertions;
@@ -54,11 +54,17 @@ public class ConnectorTest {
     }
 
     private static Stream<Arguments> properties() {
-        Function<String, HibernatePersistenceProperties> a1 = HibernatePersistenceProperties::new;
-        Function<String, EclipselinkPersistenceProperties> b = EclipselinkPersistenceProperties::new;
-        Function<String, OpenJpaPersistenceProperties> c = OpenJpaPersistenceProperties::new;
-        var a2 = a1.andThen(x -> x.withDialect(HSQLDialect.class).withDriver(JDBCDriver.class));
-        return Stream.of(Arguments.of("Hibernate", a2), Arguments.of("Eclipselink", b), Arguments.of("OpenJpa", c));
+        Supplier<HibernatePersistenceProperties> a = () -> new HibernatePersistenceProperties()
+                .withPersistenceUnitName("test-1")
+                .withDialect(HSQLDialect.class)
+                .withDriver(JDBCDriver.class);
+        Supplier<EclipselinkPersistenceProperties> b = () -> new EclipselinkPersistenceProperties()
+                .withPersistenceUnitName("test-1")
+                .withDriver(JDBCDriver.class);
+        Supplier<OpenJpaPersistenceProperties> c = () -> new OpenJpaPersistenceProperties()
+                .withPersistenceUnitName("test-1")
+                .withDriver(JDBCDriver.class);
+        return Stream.of(Arguments.of("Hibernate", a), Arguments.of("Eclipselink", b), Arguments.of("OpenJpa", c));
     }
 
     @DisplayName("testAdapter")
@@ -71,8 +77,8 @@ public class ConnectorTest {
     @DisplayName("testSimpleConnect")
     @ParameterizedTest(name = "{0}")
     @MethodSource("properties")
-    public void testSimpleConnect(String t, Function<String, ? extends PersistenceProperties> prop) throws Exception {
-        var p = prop.apply("test-1");
+    public void testSimpleConnect(String t, Supplier<? extends PersistenceProperties> prop) throws Exception {
+        var p = prop.get();
         var con = Connector.withoutXml(List.of(Fruit.class), p);
         Assertions.assertAll(
                 () -> Assertions.assertEquals(con.getPersistenceUnitName(), "test-1"),

@@ -10,6 +10,7 @@ import javax.persistence.Persistence;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.PackagePrivate;
+import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
 /**

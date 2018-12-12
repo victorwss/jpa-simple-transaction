@@ -17,7 +17,11 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
  */
 public final class EclipselinkAdapter implements ProviderAdapter {
 
+    private static final PersistenceProvider PROVIDER = new PersistenceProvider();
+
     private static final Optional<URL> NOWHERE;
+
+    public static final EclipselinkAdapter CANONICAL = new EclipselinkAdapter();
 
     static {
         try {
@@ -26,8 +30,6 @@ public final class EclipselinkAdapter implements ProviderAdapter {
             throw new AssertionError(x);
         }
     }
-
-    private static final PersistenceProvider PROVIDER = new PersistenceProvider();
 
     public EclipselinkAdapter() {
     }

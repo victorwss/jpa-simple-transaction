@@ -17,6 +17,8 @@ public final class HibernateAdapter implements ProviderAdapter {
 
     private static final HibernatePersistenceProvider PROVIDER = new HibernatePersistenceProvider();
 
+    public static final HibernateAdapter CANONICAL = new HibernateAdapter();
+
     public HibernateAdapter() {
     }
 

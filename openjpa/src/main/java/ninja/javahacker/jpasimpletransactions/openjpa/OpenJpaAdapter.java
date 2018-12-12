@@ -15,6 +15,8 @@ public final class OpenJpaAdapter implements ProviderAdapter {
 
     private static final PersistenceProviderImpl PROVIDER = new PersistenceProviderImpl();
 
+    public static final OpenJpaAdapter CANONICAL = new OpenJpaAdapter();
+
     public OpenJpaAdapter() {
     }
 
