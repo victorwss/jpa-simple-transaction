@@ -3,6 +3,7 @@ package ninja.javahacker.test.jpasimpletransactions;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -18,14 +19,14 @@ public class Fruit implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
 
     private String color;
 
-    protected Fruit() {}
+    public Fruit() {}
 
     public Fruit(String name, String color) {
         this.name = name;

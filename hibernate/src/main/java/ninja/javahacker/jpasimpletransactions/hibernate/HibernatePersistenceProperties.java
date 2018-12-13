@@ -1,17 +1,18 @@
 package ninja.javahacker.jpasimpletransactions.hibernate;
 
+import java.sql.Driver;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.Delegate;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
-import ninja.javahacker.jpasimpletransactions.properties.ComposingPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
+import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationAction;
+import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationActionTarget;
+import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationSource;
+import ninja.javahacker.jpasimpletransactions.properties.StandardPersistenceProperties;
 import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
 
 /**
@@ -22,14 +23,24 @@ import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
 @Wither
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HibernatePersistenceProperties implements PersistenceProperties {
+public class HibernatePersistenceProperties implements StandardPersistenceProperties<HibernatePersistenceProperties> {
 
-    @Getter(AccessLevel.NONE)
-    @Wither(AccessLevel.PRIVATE)
-    @Delegate(types = Hack.class, excludes = ComposingPersistenceProperties.Build.class)
-    @NonNull ComposingPersistenceProperties<HibernatePersistenceProperties> hack;
-
-    private static final class Hack extends ComposingPersistenceProperties<HibernatePersistenceProperties> {}
+    @NonNull String persistenceUnitName;
+    @NonNull Class<? extends Driver> driver;
+    @NonNull String url;
+    @NonNull String user;
+    @NonNull String password;
+    @NonNull SchemaGenerationAction schemaGenerationAction;
+    @NonNull SchemaGenerationSource schemaGenerationCreate;
+    @NonNull SchemaGenerationSource schemaGenerationDrop;
+    @NonNull SchemaGenerationActionTarget schemaGenerationScriptsCreate;
+    @NonNull String loadScript;
+    @NonNull String schemaGenerationConnection;
+    @NonNull TriBoolean createDatabaseSchemas;
+    @NonNull String databaseProductName;
+    @NonNull String databaseMajorVersion;
+    @NonNull String databaseMinorVersion;
+    @NonNull Map<String, String> extras;
 
     @NonNull Class<?> dialect;
     @NonNull Class<?> jtaPlatform;
@@ -41,7 +52,23 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
     @NonNull TriBoolean newGeneratorMappings;
 
     public HibernatePersistenceProperties() {
-        this.hack = new ComposingPersistenceProperties<>(HibernateAdapter.CANONICAL, this::withHack);
+        this.persistenceUnitName = "";
+        this.driver = Driver.class;
+        this.url = "";
+        this.user = "";
+        this.password = "";
+        this.schemaGenerationAction = SchemaGenerationAction.unspecified();
+        this.schemaGenerationCreate = SchemaGenerationSource.unspecified();
+        this.schemaGenerationDrop = schemaGenerationCreate;
+        this.schemaGenerationScriptsCreate = SchemaGenerationActionTarget.unspecified();
+        this.loadScript = "";
+        this.schemaGenerationConnection = "";
+        this.createDatabaseSchemas = TriBoolean.UNSPECIFIED;
+        this.databaseProductName = "";
+        this.databaseMajorVersion = "";
+        this.databaseMinorVersion = "";
+        this.extras = Map.of();
+
         this.dialect = void.class;
         this.jtaPlatform = void.class;
         this.schema = "";
@@ -50,6 +77,11 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
         this.useSqlComments = TriBoolean.UNSPECIFIED;
         this.multipleLinesCommands = true;
         this.newGeneratorMappings = TriBoolean.UNSPECIFIED;
+    }
+
+    @Override
+    public HibernateAdapter getProviderAdapter() {
+        return HibernateAdapter.CANONICAL;
     }
 
     @Tolerate
@@ -84,9 +116,9 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
 
     @Override
     public Map<String, String> build() {
-        var props = hack.build();
+        var props = StandardPersistenceProperties.super.build();
 
-        ComposingPersistenceProperties.work("hibernate.default_schema", getSchema(), props::put);
+        StandardPersistenceProperties.work("hibernate.default_schema", getSchema(), props::put);
         Class<?> d = getDialect();
         if (d != void.class) props.put("hibernate.dialect", d.getName());
         Class<?> p = getJtaPlatform();
@@ -100,6 +132,6 @@ public class HibernatePersistenceProperties implements PersistenceProperties {
         getFormatSql().work("hibernate.format_sql", props::put);
         getUseSqlComments().work("hibernate.use_sql_comments", props::put);
         getNewGeneratorMappings().work("hibernate.id.new_generator_mappings", props::put);
-        return Map.copyOf(props);
+        return props;
     }
 }

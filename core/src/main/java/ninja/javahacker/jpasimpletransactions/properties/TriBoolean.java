@@ -31,7 +31,6 @@ public enum TriBoolean {
     }
 
     public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
-        if (this == UNSPECIFIED) return;
-        acceptor.accept(key, this == TRUE ? "true" : "false");
+        if (this != UNSPECIFIED) acceptor.accept(key, this == TRUE ? "true" : "false");
     }
 }
