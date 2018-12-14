@@ -3,14 +3,9 @@ package ninja.javahacker.jpasimpletransactions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.Map;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.experimental.PackagePrivate;
-import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
 /**
@@ -34,50 +29,10 @@ public class Connector implements AutoCloseable {
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
-    @PackagePrivate
-    Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
+    public Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
         this.persistenceUnitName = persistenceUnitName;
         this.emf = emf;
         this.managers = new ThreadLocal<>();
-    }
-
-    public static Connector withPersistenceXml(@NonNull String persistenceUnitName) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName);
-        return new Connector(persistenceUnitName, emf);
-    }
-
-    public static Connector withPersistenceXml(
-            @NonNull String persistenceUnitName,
-            @NonNull Map<String, String> properties)
-    {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName, properties);
-        return new Connector(persistenceUnitName, emf);
-    }
-
-    public static Connector withPersistenceXml(@NonNull PersistenceProperties properties) {
-        return withPersistenceXml(properties.getPersistenceUnitName(), properties.build());
-    }
-
-    public static Connector withoutXml(
-            @NonNull ProviderAdapter adapter,
-            @NonNull String persistenceUnitName,
-            @NonNull Collection<Class<?>> classes,
-            @NonNull Map<String, String> properties)
-    {
-        var spui = new SimplePersistenceUnitInfo(adapter.getUrl(), adapter.getJpaProvider(), persistenceUnitName, classes, properties);
-        var emf = adapter.createContainerEntityManagerFactory(spui, properties);
-        return new Connector(persistenceUnitName, emf);
-    }
-
-    public static Connector withoutXml(
-            @NonNull Collection<Class<?>> classes,
-            @NonNull PersistenceProperties properties)
-    {
-        return Connector.withoutXml(
-                properties.getProviderAdapter(),
-                properties.getPersistenceUnitName(),
-                classes,
-                properties.build());
     }
 
     public ExtendedEntityManager getEntityManager() {

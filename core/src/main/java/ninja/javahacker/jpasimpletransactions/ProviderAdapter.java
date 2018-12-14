@@ -1,14 +1,11 @@
 package ninja.javahacker.jpasimpletransactions;
 
-import java.net.URL;
 import java.sql.Connection;
-import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
-import javax.persistence.spi.PersistenceUnitInfo;
 import lombok.NonNull;
 
 /**
@@ -20,38 +17,33 @@ import lombok.NonNull;
  * @author Victor Williams Stafusa da Silva
  */
 public interface ProviderAdapter {
+
     public boolean recognizes(@NonNull EntityManager em);
+
+    public default EntityManager ensureRecognition(@NonNull EntityManager em) {
+        if (recognizes(em)) return em;
+        var a = em.getClass().getName();
+        var b = getClass().getName();
+        throw new IllegalArgumentException("That EntityManager (" + a + ") is not recognized by this ProviderAdapter (" + b + ").");
+    }
 
     public Connection getConnection(@NonNull EntityManager em);
 
     public PersistenceProvider getJpaProvider();
 
-    public default Optional<URL> getUrl() {
-        return Optional.empty();
-    }
-
     public default boolean shouldTryToReconnect(@NonNull RuntimeException e) {
         return false;
-    }
-
-    /*public default EntityManagerFactory createEntityManagerFactory(
-            @NonNull String unit,
-            @NonNull Map<String, String> properties)
-    {
-        return getJpaProvider().createEntityManagerFactory(unit, properties);
-    }*/
-
-    public default EntityManagerFactory createContainerEntityManagerFactory(
-            @NonNull PersistenceUnitInfo unit,
-            @NonNull Map<String, String> properties)
-    {
-        return getJpaProvider().createContainerEntityManagerFactory(unit, properties);
     }
 
     public static ProviderAdapter findFor(@NonNull EntityManager em) {
         for (ProviderAdapter impl : ServiceLoader.load(ProviderAdapter.class)) {
             if (impl.recognizes(em)) return impl;
         }
-        throw new UnsupportedOperationException();
+        var a = em.getClass().getName();
+        throw new UnsupportedOperationException("That EntityManager (" + a + ") is not recognized by any know ProviderAdapter.");
+    }
+
+    public static Stream<ProviderAdapter> all() {
+        return ServiceLoader.load(ProviderAdapter.class).stream().map(Provider::get);
     }
 }

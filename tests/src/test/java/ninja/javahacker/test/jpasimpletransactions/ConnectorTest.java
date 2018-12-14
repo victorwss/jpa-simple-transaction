@@ -1,30 +1,7 @@
 package ninja.javahacker.test.jpasimpletransactions;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.ServiceLoader.Provider;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import ninja.javahacker.jpasimpletransactions.Connector;
-import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
-import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkAdapter;
-import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.hibernate.HibernateAdapter;
-import ninja.javahacker.jpasimpletransactions.hibernate.HibernatePersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.openjpa.OpenJpaAdapter;
-import ninja.javahacker.jpasimpletransactions.openjpa.OpenJpaPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.openjpa.Support;
-import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationAction;
-import org.hibernate.dialect.HSQLDialect;
-import org.hsqldb.jdbc.JDBCDriver;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
@@ -32,53 +9,45 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 public class ConnectorTest {
 
-    private <C extends ProviderAdapter> Optional<C> load(Class<C> c) {
-        return ServiceLoader
-                .load(ProviderAdapter.class)
-                .stream()
-                .filter(p -> p.type() == c)
-                .findAny()
-                .map(Provider::get)
-                .map(c::cast);
-    }
-
-    private static interface GetEm {
-        public EntityManager getIt();
-    }
-
-    @DisplayName("testAdapter")
     @ParameterizedTest(name = "{0}")
-    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JPAConfiguration#providers")
-    public void testAdapter(String t, Class<? extends ProviderAdapter> provider) throws Exception {
-        Assertions.assertTrue(load(provider).isPresent());
+    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
+    public void testPersistenceUnit(String t, JpaConfiguration config) throws Exception {
+        var con = config.getProperties().connect();
+        Assertions.assertEquals(con.getPersistenceUnitName(), "test-1");
     }
 
-    @DisplayName("testSimpleConnect")
     @ParameterizedTest(name = "{0}")
-    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JPAConfiguration#properties")
-    public void testSimpleConnect(String t, PersistenceProperties prop) throws Exception {
-        var con = Connector.withoutXml(List.of(Fruit.class), prop);
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(con.getPersistenceUnitName(), "test-1"),
-                () -> Assertions.assertThrows(IllegalStateException.class, () -> con.getEntityManager()),
-                () -> Assertions.assertNotNull(con.transact(GetEm.class, con::getEntityManager))
-        );
+    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
+    public void testEntityManagerOnTransaction(String t, JpaConfiguration config) throws Exception {
+        var con = config.getProperties().connect();
+        con.transact(Runnable.class, () -> Assertions.assertAll(
+                () -> Assertions.assertNotNull(con.getEntityManager()),
+                () -> Assertions.assertTrue(config.getAdapter().recognizes(con.getEntityManager())),
+                () -> Assertions.assertSame(con.getEntityManager(), config.getAdapter().ensureRecognition(con.getEntityManager())),
+                () -> Assertions.assertTrue(con.getEntityManager().getTransaction().isActive())
+        )).run();
     }
 
-    @Test
-    public void testAdapterList() throws Exception {
-        var a = ServiceLoader
-                .load(ProviderAdapter.class)
-                .stream()
-                .map(Provider::get)
-                .collect(Collectors.toList());
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
+    public void testConnectionOnTransaction(String t, JpaConfiguration config) throws Exception {
+        var con = config.getProperties().connect();
+        con.transact(Runnable.class,
+                () -> Assertions.assertEquals(config.getAdapter().getConnection(con.getEntityManager()), con.getEntityManager().getConnection())
+        ).run();
+    }
 
-        System.out.println(a);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
+    public void testEntityManagerOutOfTransaction(String t, JpaConfiguration config) throws Exception {
+        var con = config.getProperties().connect();
         Assertions.assertAll(
-                () -> Assertions.assertEquals(3, a.size()),
-                () -> Assertions.assertTrue(a.contains(new EclipselinkAdapter())),
-                () -> Assertions.assertTrue(a.contains(new HibernateAdapter())),
-                () -> Assertions.assertTrue(a.contains(new OpenJpaAdapter()))
+                () -> Assertions.assertThrows(IllegalStateException.class, con::getEntityManager),
+                () -> con.transact(Runnable.class, () -> Assertions.assertAll(
+                        () -> Assertions.assertNotNull(con.getEntityManager()),
+                        () -> Assertions.assertTrue(con.getEntityManager().getTransaction().isActive())
+                )).run(),
+                () -> Assertions.assertThrows(IllegalStateException.class, con::getEntityManager)
         );
     }
 }

@@ -1,4 +1,4 @@
-package ninja.javahacker.jpasimpletransactions.properties;
+package ninja.javahacker.jpasimpletransactions.config;
 
 import java.sql.Driver;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import lombok.NonNull;
  * @param <E> The properties class for the specific JPA vendor.
  * @author Victor Williams Stafusa da Silva
  */
-public interface StandardPersistenceProperties<E extends StandardPersistenceProperties<E>> extends PersistenceProperties {
+public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>> extends ConnectorFactory {
 
     public E withPersistenceUnitName(@NonNull String persistenceUnitName);
 
@@ -106,8 +106,7 @@ public interface StandardPersistenceProperties<E extends StandardPersistenceProp
         return withExtras(Map.of());
     }
 
-    @Override
-    public default Map<String, String> build() {
+    public default Map<String, String> getProperties() {
         Map<String, String> props = new HashMap<>(64);
         Class<? extends Driver> d = getDriver();
         if (d != Driver.class) props.put("javax.persistence.jdbc.driver", d.getName());

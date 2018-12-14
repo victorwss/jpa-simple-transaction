@@ -3,6 +3,7 @@ package ninja.javahacker.jpasimpletransactions.openjpa;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import lombok.NonNull;
+import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.openjpa.persistence.PersistenceProviderImpl;
@@ -22,13 +23,12 @@ public final class OpenJpaAdapter implements ProviderAdapter {
 
     @Override
     public boolean recognizes(@NonNull EntityManager em) {
-        return em instanceof OpenJPAEntityManager;
+        return ExtendedEntityManager.unwrap(em) instanceof OpenJPAEntityManager;
     }
 
     @Override
     public Connection getConnection(@NonNull EntityManager em) {
-        if (!recognizes(em)) throw new UnsupportedOperationException();
-        OpenJPAEntityManager oem = (OpenJPAEntityManager) em;
+        OpenJPAEntityManager oem = (OpenJPAEntityManager) ExtendedEntityManager.unwrap(ensureRecognition(em));
         return (Connection) oem.getConnection();
     }
 

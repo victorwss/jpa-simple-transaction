@@ -1,4 +1,4 @@
-package ninja.javahacker.jpasimpletransactions;
+package ninja.javahacker.jpasimpletransactions.config;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -20,34 +20,35 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.ToString;
-import lombok.experimental.PackagePrivate;
+import lombok.experimental.FieldDefaults;
 
 /**
  * A simple minimalist implementation of the {@link PersistenceUnitInfo} interface.
  * @author Victor Williams Stafusa da Silva
  */
-@PackagePrivate
 @ToString
-final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
-    private final Optional<URL> url;
-    private final PersistenceProvider provider;
-    private final String persistenceUnitName;
-    private final List<String> classes;
-    private final Map<String, String> properties;
+    Optional<URL> url;
+    Class<? extends PersistenceProvider> providerClass;
+    String persistenceUnitName;
+    List<String> classes;
+    Map<String, String> properties;
 
     @SuppressFBWarnings("OI_OPTIONAL_ISSUES_CHECKING_REFERENCE")
     public SimplePersistenceUnitInfo(
             @NonNull Optional<URL> url,
-            @NonNull PersistenceProvider provider,
+            @NonNull Class<? extends PersistenceProvider> providerClass,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
             @NonNull Map<String, String> properties)
     {
         this.url = url;
-        this.provider = provider;
+        this.providerClass = providerClass;
         this.persistenceUnitName = persistenceUnitName;
         this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
         this.properties = new HashMap<>();
@@ -61,7 +62,7 @@ final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
 
     @Override
     public String getPersistenceProviderClassName() {
-        return provider.getClass().getName();
+        return providerClass.getName();
     }
 
     @Override

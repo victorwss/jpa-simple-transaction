@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import lombok.NonNull;
+import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import org.hibernate.Session;
 import org.hibernate.exception.JDBCConnectionException;
@@ -24,14 +25,13 @@ public final class HibernateAdapter implements ProviderAdapter {
 
     @Override
     public boolean recognizes(@NonNull EntityManager em) {
-        return em instanceof Session;
+        return ExtendedEntityManager.unwrap(em) instanceof Session;
     }
 
     @Override
     @SuppressFBWarnings("FII_USE_FUNCTION_IDENTITY")
     public Connection getConnection(@NonNull EntityManager em) {
-        if (!recognizes(em)) throw new UnsupportedOperationException();
-        return ((Session) em).doReturningWork(c -> c);
+        return ((Session) ExtendedEntityManager.unwrap(ensureRecognition(em))).doReturningWork(c -> c);
     }
 
     @Override

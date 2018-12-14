@@ -1,4 +1,4 @@
-package ninja.javahacker.jpasimpletransactions.properties;
+package ninja.javahacker.jpasimpletransactions.config;
 
 import java.util.function.BiConsumer;
 import lombok.NonNull;

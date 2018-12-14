@@ -1,6 +1,7 @@
 package ninja.javahacker.jpasimpletransactions.openjpa;
 
 import java.sql.Driver;
+import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,11 +10,11 @@ import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationAction;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationActionTarget;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationSource;
-import ninja.javahacker.jpasimpletransactions.properties.StandardPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
+import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationActionTarget;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
+import ninja.javahacker.jpasimpletransactions.config.TriBoolean;
 
 /**
  * A collection of properties used to instantiate a {@link Connector}.
@@ -23,7 +24,7 @@ import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
 @Wither
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class OpenJpaPersistenceProperties implements StandardPersistenceProperties<OpenJpaPersistenceProperties> {
+public final class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpaConnectorFactory> {
 
     @NonNull String persistenceUnitName;
     @NonNull Class<? extends Driver> driver;
@@ -41,11 +42,12 @@ public final class OpenJpaPersistenceProperties implements StandardPersistencePr
     @NonNull String databaseMajorVersion;
     @NonNull String databaseMinorVersion;
     @NonNull Map<String, String> extras;
+    @NonNull List<Class<?>> entities;
 
     @NonNull TriBoolean dynamicEnhancementAgent;
     @NonNull Support runtimeUnenhancedClasses;
 
-    public OpenJpaPersistenceProperties() {
+    public OpenJpaConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;
         this.url = "";
@@ -62,6 +64,7 @@ public final class OpenJpaPersistenceProperties implements StandardPersistencePr
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
+        this.entities = List.of();
 
         this.dynamicEnhancementAgent = TriBoolean.UNSPECIFIED;
         this.runtimeUnenhancedClasses = Support.UNSPECIFIED;
@@ -73,13 +76,13 @@ public final class OpenJpaPersistenceProperties implements StandardPersistencePr
     }
 
     @Tolerate
-    public OpenJpaPersistenceProperties withDynamicEnhancementAgent(boolean newValue) {
+    public OpenJpaConnectorFactory withDynamicEnhancementAgent(boolean newValue) {
         return withDynamicEnhancementAgent(TriBoolean.from(newValue));
     }
 
     @Override
-    public Map<String, String> build() {
-        var props = StandardPersistenceProperties.super.build();
+    public Map<String, String> getProperties() {
+        var props = ProviderConnectorFactory.super.getProperties();
         getDynamicEnhancementAgent().work("openjpa.DynamicEnhancementAgent", props::put);
         getRuntimeUnenhancedClasses().work("openjpa.RuntimeUnenhancedClasses", props::put);
         return Map.copyOf(props);

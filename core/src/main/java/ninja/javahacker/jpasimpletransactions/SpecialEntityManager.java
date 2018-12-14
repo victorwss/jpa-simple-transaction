@@ -5,6 +5,7 @@ import java.sql.Connection;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
 import lombok.experimental.PackagePrivate;
@@ -18,8 +19,9 @@ import lombok.experimental.PackagePrivate;
 @PackagePrivate
 final class SpecialEntityManager implements ExtendedEntityManager {
 
+    @Getter
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
-    private EntityManager delegate;
+    private EntityManager wrapped;
 
     private final ProviderAdapter adapter;
 
@@ -33,24 +35,18 @@ final class SpecialEntityManager implements ExtendedEntityManager {
 
     @PackagePrivate
     void replace(@NonNull EntityManager em) {
-        if (this.delegate != null) this.delegate.close();
-        this.delegate = getRoot(em);
-    }
-
-    private static EntityManager getRoot(EntityManager em) {
-        EntityManager r = em instanceof SpecialEntityManager ? ((SpecialEntityManager) em).delegate : em;
-        if (r instanceof SpecialEntityManager) throw new AssertionError();
-        return r;
+        if (this.wrapped != null) this.wrapped.close();
+        this.wrapped = ExtendedEntityManager.unwrap(em);
     }
 
     @Override
     public void remove(Object obj) {
-        if (obj != null && !isNew(obj)) delegate.remove(obj);
+        if (obj != null && !isNew(obj)) wrapped.remove(obj);
     }
 
     @Override
     public <T extends Object> ExtendedTypedQuery<T> createQuery(CriteriaQuery<T> cq) {
-        return ExtendedTypedQuery.wrap(delegate.createQuery(cq));
+        return ExtendedTypedQuery.wrap(wrapped.createQuery(cq));
     }
 
     @Override
@@ -59,17 +55,17 @@ final class SpecialEntityManager implements ExtendedEntityManager {
             justification = "False alarm, we're just delegating it untouched."
     )
     public <T extends Object> ExtendedTypedQuery<T> createQuery(String string, Class<T> type) {
-        return ExtendedTypedQuery.wrap(delegate.createQuery(string, type));
+        return ExtendedTypedQuery.wrap(wrapped.createQuery(string, type));
     }
 
     @Override
     public <T extends Object> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type) {
-        return ExtendedTypedQuery.wrap(delegate.createNamedQuery(string, type));
+        return ExtendedTypedQuery.wrap(wrapped.createNamedQuery(string, type));
     }
 
     @Override
     public Connection getConnection() {
-        return adapter.getConnection(delegate);
+        return adapter.getConnection(wrapped);
     }
 
     public ProviderAdapter getProviderAdapter() {

@@ -1,18 +1,22 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Driver;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Wither;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationAction;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationActionTarget;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationSource;
-import ninja.javahacker.jpasimpletransactions.properties.StandardPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
+import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationActionTarget;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
+import ninja.javahacker.jpasimpletransactions.config.TriBoolean;
 
 /**
  * A collection of properties used to instantiate a {@link Connector}.
@@ -22,7 +26,19 @@ import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
 @Wither
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class EclipselinkPersistenceProperties implements StandardPersistenceProperties<EclipselinkPersistenceProperties> {
+public class EclipselinkConnectorFactory implements ProviderConnectorFactory<EclipselinkConnectorFactory> {
+
+    private static final Optional<URL> NOWHERE;
+
+    public static final EclipselinkAdapter CANONICAL = new EclipselinkAdapter();
+
+    static {
+        try {
+            NOWHERE = Optional.of(new URL("http://0.0.0.0/"));
+        } catch (MalformedURLException x) {
+            throw new AssertionError(x);
+        }
+    }
 
     @NonNull String persistenceUnitName;
     @NonNull Class<? extends Driver> driver;
@@ -40,8 +56,9 @@ public class EclipselinkPersistenceProperties implements StandardPersistenceProp
     @NonNull String databaseMajorVersion;
     @NonNull String databaseMinorVersion;
     @NonNull Map<String, String> extras;
+    @NonNull List<Class<?>> entities;
 
-    public EclipselinkPersistenceProperties() {
+    public EclipselinkConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;
         this.url = "";
@@ -58,10 +75,16 @@ public class EclipselinkPersistenceProperties implements StandardPersistenceProp
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
+        this.entities = List.of();
     }
 
     @Override
     public EclipselinkAdapter getProviderAdapter() {
         return EclipselinkAdapter.CANONICAL;
+    }
+
+    @Override
+    public Optional<URL> getPersistenceUnitUrl() {
+        return NOWHERE;
     }
 }

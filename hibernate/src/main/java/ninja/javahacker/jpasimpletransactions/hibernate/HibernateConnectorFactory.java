@@ -1,6 +1,7 @@
 package ninja.javahacker.jpasimpletransactions.hibernate;
 
 import java.sql.Driver;
+import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,11 +10,12 @@ import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
 import lombok.experimental.Wither;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationAction;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationActionTarget;
-import ninja.javahacker.jpasimpletransactions.properties.SchemaGenerationSource;
-import ninja.javahacker.jpasimpletransactions.properties.StandardPersistenceProperties;
-import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
+import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationActionTarget;
+import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
+import ninja.javahacker.jpasimpletransactions.config.StandardConnectorFactory;
+import ninja.javahacker.jpasimpletransactions.config.TriBoolean;
 
 /**
  * A collection of properties used to instantiate a {@link Connector}.
@@ -23,7 +25,7 @@ import ninja.javahacker.jpasimpletransactions.properties.TriBoolean;
 @Wither
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HibernatePersistenceProperties implements StandardPersistenceProperties<HibernatePersistenceProperties> {
+public class HibernateConnectorFactory implements ProviderConnectorFactory<HibernateConnectorFactory> {
 
     @NonNull String persistenceUnitName;
     @NonNull Class<? extends Driver> driver;
@@ -41,6 +43,7 @@ public class HibernatePersistenceProperties implements StandardPersistenceProper
     @NonNull String databaseMajorVersion;
     @NonNull String databaseMinorVersion;
     @NonNull Map<String, String> extras;
+    @NonNull List<Class<?>> entities;
 
     @NonNull Class<?> dialect;
     @NonNull Class<?> jtaPlatform;
@@ -51,7 +54,7 @@ public class HibernatePersistenceProperties implements StandardPersistenceProper
     boolean multipleLinesCommands;
     @NonNull TriBoolean newGeneratorMappings;
 
-    public HibernatePersistenceProperties() {
+    public HibernateConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;
         this.url = "";
@@ -68,6 +71,7 @@ public class HibernatePersistenceProperties implements StandardPersistenceProper
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
+        this.entities = List.of();
 
         this.dialect = void.class;
         this.jtaPlatform = void.class;
@@ -79,46 +83,41 @@ public class HibernatePersistenceProperties implements StandardPersistenceProper
         this.newGeneratorMappings = TriBoolean.UNSPECIFIED;
     }
 
-    @Override
-    public HibernateAdapter getProviderAdapter() {
-        return HibernateAdapter.CANONICAL;
-    }
-
     @Tolerate
-    public HibernatePersistenceProperties withDialect(@NonNull String dialectName) throws ClassNotFoundException {
+    public HibernateConnectorFactory withDialect(@NonNull String dialectName) throws ClassNotFoundException {
         return withDialect(Class.forName(dialectName));
     }
 
     @Tolerate
-    public HibernatePersistenceProperties withJtaPlatform(@NonNull String jtaPlatformName) throws ClassNotFoundException {
+    public HibernateConnectorFactory withJtaPlatform(@NonNull String jtaPlatformName) throws ClassNotFoundException {
         return withJtaPlatform(Class.forName(jtaPlatformName));
     }
 
     @Tolerate
-    public HibernatePersistenceProperties withShowSql(boolean newValue) {
+    public HibernateConnectorFactory withShowSql(boolean newValue) {
         return withShowSql(TriBoolean.from(newValue));
     }
 
     @Tolerate
-    public HibernatePersistenceProperties withFormatSql(boolean newValue) {
+    public HibernateConnectorFactory withFormatSql(boolean newValue) {
         return withFormatSql(TriBoolean.from(newValue));
     }
 
     @Tolerate
-    public HibernatePersistenceProperties withUseSqlComments(boolean newValue) {
+    public HibernateConnectorFactory withUseSqlComments(boolean newValue) {
         return withUseSqlComments(TriBoolean.from(newValue));
     }
 
     @Tolerate
-    public HibernatePersistenceProperties withNewGeneratorMappings(boolean newValue) {
+    public HibernateConnectorFactory withNewGeneratorMappings(boolean newValue) {
         return withNewGeneratorMappings(TriBoolean.from(newValue));
     }
 
     @Override
-    public Map<String, String> build() {
-        var props = StandardPersistenceProperties.super.build();
+    public Map<String, String> getProperties() {
+        var props = ProviderConnectorFactory.super.getProperties();
 
-        StandardPersistenceProperties.work("hibernate.default_schema", getSchema(), props::put);
+        StandardConnectorFactory.work("hibernate.default_schema", getSchema(), props::put);
         Class<?> d = getDialect();
         if (d != void.class) props.put("hibernate.dialect", d.getName());
         Class<?> p = getJtaPlatform();
@@ -133,5 +132,10 @@ public class HibernatePersistenceProperties implements StandardPersistenceProper
         getUseSqlComments().work("hibernate.use_sql_comments", props::put);
         getNewGeneratorMappings().work("hibernate.id.new_generator_mappings", props::put);
         return props;
+    }
+
+    @Override
+    public HibernateAdapter getProviderAdapter() {
+        return HibernateAdapter.CANONICAL;
     }
 }

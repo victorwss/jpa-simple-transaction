@@ -1,4 +1,4 @@
-package ninja.javahacker.jpasimpletransactions.properties;
+package ninja.javahacker.jpasimpletransactions.config;
 
 import java.util.Locale;
 import java.util.function.BiConsumer;

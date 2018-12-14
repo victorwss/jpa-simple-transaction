@@ -37,6 +37,12 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable {
                 : new SpecialEntityManager(em, ProviderAdapter.findFor(em));
     }
 
+    public static EntityManager unwrap(@NonNull EntityManager em) {
+        EntityManager r = em instanceof SpecialEntityManager ? ((SpecialEntityManager) em).getWrapped() : em;
+        if (r instanceof SpecialEntityManager) throw new AssertionError();
+        return r;
+    }
+
     public default <T> Optional<T> findOptional(Class<T> type, Object id) {
         return Optional.ofNullable(find(type, id));
     }

@@ -5,6 +5,7 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 /**
+ * Enum for the values of the Open JPA property {@code openjpa.RuntimeUnenhancedClasses}.
  * @see "The property {@code openjpa.RuntimeUnenhancedClasses}."
  * @author Victor Williams Stafusa da Silva
  */

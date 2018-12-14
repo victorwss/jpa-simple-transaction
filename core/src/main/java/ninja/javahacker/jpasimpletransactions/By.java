@@ -2,6 +2,7 @@ package ninja.javahacker.jpasimpletransactions;
 
 import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.Wither;
 
 /**
  * Value-based class to describe the ordering of an <code>order by</code>
@@ -9,6 +10,7 @@ import lombok.Value;
  * @author Victor Williams Stfausa da Silva
  */
 @Value
+@Wither
 public class By {
     @NonNull
     String field;

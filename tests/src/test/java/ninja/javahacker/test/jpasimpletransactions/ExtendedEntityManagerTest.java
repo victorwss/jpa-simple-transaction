@@ -1,11 +1,8 @@
 package ninja.javahacker.test.jpasimpletransactions;
 
-import java.util.List;
 import java.util.function.IntSupplier;
 import ninja.javahacker.jpasimpletransactions.Connector;
-import ninja.javahacker.jpasimpletransactions.properties.PersistenceProperties;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,11 +31,10 @@ public class ExtendedEntityManagerTest {
         );
     }
 
-    @DisplayName("testSimpleOperations Y {1}")
-    @ParameterizedTest(name = "testSimpleOperations X {1}")
-    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JPAConfiguration#properties")
-    public void testSimpleOperations(String t, PersistenceProperties prop) throws Exception {
-        var c = Connector.withoutXml(List.of(Fruit.class), prop);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
+    public void testSimpleOperations(String t, JpaConfiguration config) throws Exception {
+        var c = config.getProperties().connect();
         var id = c.transact(IntSupplier.class, () -> insertFruit(c)).getAsInt();
         c.transact(Runnable.class, () -> selectFruit(c, id)).run();
     }
