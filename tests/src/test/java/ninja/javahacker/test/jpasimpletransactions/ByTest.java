@@ -70,4 +70,16 @@ public class ByTest {
                 () -> Assertions.assertEquals("By(field=goo, desc=false)", d.toString())
         );
     }
+
+    @Test
+    public void testWither() {
+        By a = By.desc("xoo").withDesc(false);
+        By b = By.asc("xoo").withField("woo");
+        By c = By.asc("goo").withField("loo").withDesc(true);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("By(field=xoo, desc=false)", a.toString()),
+                () -> Assertions.assertEquals("By(field=woo, desc=false)", b.toString()),
+                () -> Assertions.assertEquals("By(field=loo, desc=true)", c.toString())
+        );
+    }
 }

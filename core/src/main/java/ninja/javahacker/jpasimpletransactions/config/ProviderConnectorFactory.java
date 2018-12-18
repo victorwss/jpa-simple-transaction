@@ -54,6 +54,6 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
         PersistenceProvider pp = pa.getJpaProvider();
         var spui = new SimplePersistenceUnitInfo(getPersistenceUnitUrl(), pp.getClass(), pu, getEntities(), properties);
         var emf = pp.createContainerEntityManagerFactory(spui, properties);
-        return new Connector(pu, emf);
+        return Connector.create(pu, emf);
     }
 }

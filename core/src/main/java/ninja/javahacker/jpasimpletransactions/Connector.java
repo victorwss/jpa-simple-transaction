@@ -29,10 +29,17 @@ public class Connector implements AutoCloseable {
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
-    public Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
+    private Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
         this.persistenceUnitName = persistenceUnitName;
         this.emf = emf;
         this.managers = new ThreadLocal<>();
+    }
+
+    public static Connector create(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
+        return new Connector(persistenceUnitName, emf);
+        /*var con = new Connector(persistenceUnitName, emf);
+        Database.addConnector(con, false);
+        return con;*/
     }
 
     public ExtendedEntityManager getEntityManager() {

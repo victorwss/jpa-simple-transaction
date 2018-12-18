@@ -62,6 +62,6 @@ public class XmlConnectorFactory implements StandardConnectorFactory<XmlConnecto
     public Connector connect() {
         String pu = getPersistenceUnitName();
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(pu, getProperties());
-        return new Connector(pu, emf);
+        return Connector.create(pu, emf);
     }
 }

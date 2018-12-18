@@ -46,6 +46,7 @@ allprojects {
     ext.versionJunit = "5.3.1"
     ext.versionJsr305 = "3.0.2"
     ext.versionLombok = "1.18.4"
+    ext.versionMocker = "1.0.0"
     ext.versionOpenJpa = "3.0.0"
     ext.versionPmd = "6.9.0"
     ext.versionReifiedGenerics = "1.0.0"
@@ -351,5 +352,8 @@ project(':tests') {
 
         // JAXB.
         testRuntimeOnly group: 'javax.xml.bind', name: 'jaxb-api', version: versionJaxb
+
+        // Mocker.
+        testCompile group: 'ninja.javahacker', name: 'mocker', version: versionMocker
     }
 }

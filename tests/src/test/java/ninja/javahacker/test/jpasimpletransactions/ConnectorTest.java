@@ -33,7 +33,10 @@ public class ConnectorTest {
     public void testConnectionOnTransaction(String t, JpaConfiguration config) throws Exception {
         var con = config.getProperties().connect();
         con.transact(Runnable.class,
-                () -> Assertions.assertEquals(config.getAdapter().getConnection(con.getEntityManager()), con.getEntityManager().getConnection())
+                () -> {
+                    var c = con.getEntityManager();
+                    Assertions.assertEquals(config.getAdapter().getConnection(c), c.getConnection());
+                }
         ).run();
     }
 

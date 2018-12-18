@@ -24,7 +24,7 @@ public class Database {
     @NonNull
     @Synchronized
     public Connector getDefaultConnector() {
-        Connector defaultConnector = DEFAULT_CONNECTOR.get();
+        var defaultConnector = DEFAULT_CONNECTOR.get();
         if (defaultConnector == null) throw new NoSuchElementException("No registered default persistence unit.");
         return defaultConnector;
     }
@@ -32,9 +32,22 @@ public class Database {
     @NonNull
     @Synchronized
     public Connector getConnector(@NonNull String persistenceUnitName) {
-        Connector c = CONNECTOR_MAP.get(persistenceUnitName);
+        var c = CONNECTOR_MAP.get(persistenceUnitName);
         if (c != null) return c;
         throw new NoSuchElementException("No registered persistence unit named " + persistenceUnitName + ".");
+    }
+
+    @NonNull
+    @Synchronized
+    public Connector removeConnector(@NonNull String persistenceUnitName) {
+        return CONNECTOR_MAP.remove(persistenceUnitName);
+    }
+
+    @NonNull
+    @Synchronized
+    public void removeAllConnectors() {
+        CONNECTOR_MAP.clear();
+        DEFAULT_CONNECTOR.set(null);
     }
 
     public void setDefaultConnector(@NonNull Connector conn) {
@@ -47,7 +60,10 @@ public class Database {
 
     @Synchronized
     public void addConnector(@NonNull Connector conn, boolean defaultConnector) {
-        CONNECTOR_MAP.put(conn.getPersistenceUnitName(), conn);
+        var pn = conn.getPersistenceUnitName();
+        var c = CONNECTOR_MAP.get(pn);
+        if (c != null && c != conn) throw new IllegalArgumentException("Connector was already registered.");
+        CONNECTOR_MAP.put(pn, conn);
         if (defaultConnector) DEFAULT_CONNECTOR.set(conn);
     }
 
