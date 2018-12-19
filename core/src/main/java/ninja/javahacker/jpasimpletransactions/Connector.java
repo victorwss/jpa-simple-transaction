@@ -44,7 +44,7 @@ public class Connector implements AutoCloseable {
 
     public ExtendedEntityManager getEntityManager() {
         ExtendedEntityManager em = managers.get();
-        if (em == null) throw new IllegalStateException();
+        if (em == null) throw new IllegalStateException("Can't get the EntityManager outside of a transaction.");
         return em;
     }
 
