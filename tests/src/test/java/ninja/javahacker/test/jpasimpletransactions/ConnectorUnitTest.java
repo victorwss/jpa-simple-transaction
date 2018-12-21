@@ -54,7 +54,7 @@ public class ConnectorUnitTest {
     public void testClose() throws Exception {
         AtomicInteger a = new AtomicInteger(0);
         var emfc = Mocker.mock(EntityManagerFactory.class);
-        emfc.rule().when(EntityManagerFactory::close).then().go(() -> a.incrementAndGet()).delete().returnNothing();
+        emfc.rule().procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
         Connector.create("mumble", emfc.getTarget()).close();
         Assertions.assertEquals(1, a.get());
     }
@@ -78,20 +78,40 @@ public class ConnectorUnitTest {
         var mockEt = Mocker.mock(EntityTransaction.class);
         var et = mockEt.getTarget();
 
-        /*Mocker.SimplestAction h = () -> Assertions.assertEquals(2, x.getAndIncrement());
-        Mocker.SimplestAction g = () -> mockEmf.rule().when(e -> e.close()).then().go(h).delete().returnThe(em);
-        Mocker.SimplestAction f = () -> mockEt.rule().when(e -> e.commit()).then().go(g).delete().returnNothing();
+        mockEmf.rule("CREATE").function(e -> e.createEntityManager()).executes(call -> {
+            mockEmf.disable("CREATE");
+            mockEm.enable("TRANS");
+            return em;
+        });
+        mockEm.rule("TRANS").function(e -> e.getTransaction()).executes(call -> {
+            mockEm.disable("TRANS");
+            mockEt.enable("BEGIN");
+            return et;
+        });
+        mockEt.rule("BEGIN").procedure(e -> e.begin()).executes(call -> {
+            mockEm.disable("BEGIN");
+            Assertions.assertEquals(0, x.getAndIncrement());
+        });
         Runnable r = () -> {
             Assertions.assertEquals(1, x.getAndIncrement());
-            mockEm.rule().when(e -> e.getTransaction()).then().go(f).delete().returnThe(et);
+            mockEt.enable("TRANS2");
         };
-        Mocker.SimplestAction d = () -> Assertions.assertEquals(0, x.getAndIncrement());
-        Mocker.SimplestAction c = () -> mockEt.rule().when(e -> e.begin()).then().go(d).delete().returnNothing();
-        Mocker.SimplestAction b = () -> mockEm.rule().when(e -> e.getTransaction()).then().go(c).delete().returnThe(et);*/
-        mockEmf.rule().when(e -> e.createEntityManager()).then().returnNothing()/*.go(b).delete().returnThe(em)*/;
+        mockEm.rule("TRANS2").function(e -> e.getTransaction()).executes(call -> {
+            mockEm.disable("TRANS2");
+            mockEt.enable("COMMIT");
+            return et;
+        });
+        mockEt.rule("COMMIT").procedure(e -> e.commit()).executes(call -> {
+            mockEt.disable("COMMIT");
+            mockEm.enable("CLOSE");
+        });
+        mockEm.rule("CLOSE").procedure(e -> e.close()).executes(call -> {
+            mockEm.disable("CLOSE");
+            Assertions.assertEquals(2, x.getAndIncrement());
+        });
 
         var con = Connector.create("mumble", emf);
-        con.transact(Runnable.class, () -> {}).run();
+        con.transact(Runnable.class, r).run();
         Assertions.assertEquals(3, x.get());
     }
 }
