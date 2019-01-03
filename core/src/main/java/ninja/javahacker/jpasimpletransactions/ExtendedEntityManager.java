@@ -31,11 +31,11 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable {
         return obj;
     }
 
-    public static ExtendedEntityManager wrap(@NonNull EntityManager em) {
+    /*public static ExtendedEntityManager wrap(@NonNull EntityManager em) {
         return em instanceof SpecialEntityManager
                 ? (ExtendedEntityManager) em
                 : new SpecialEntityManager(em, ProviderAdapter.findFor(em));
-    }
+    }*/
 
     public static EntityManager unwrap(@NonNull EntityManager em) {
         EntityManager r = em instanceof SpecialEntityManager ? ((SpecialEntityManager) em).getWrapped() : em;

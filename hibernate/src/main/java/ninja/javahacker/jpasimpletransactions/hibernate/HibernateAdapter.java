@@ -3,10 +3,12 @@ package ninja.javahacker.jpasimpletransactions.hibernate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
@@ -21,6 +23,11 @@ public final class HibernateAdapter implements ProviderAdapter {
     public static final HibernateAdapter CANONICAL = new HibernateAdapter();
 
     public HibernateAdapter() {
+    }
+
+    @Override
+    public boolean recognizes(@NonNull EntityManagerFactory emf) {
+        return emf instanceof SessionFactory;
     }
 
     @Override

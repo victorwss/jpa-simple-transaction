@@ -2,7 +2,10 @@ package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
+import java.util.Optional;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import lombok.Getter;
@@ -23,20 +26,33 @@ final class SpecialEntityManager implements ExtendedEntityManager {
     @Delegate(types = EntityManager.class, excludes = DoNotDelegateEntityManager.class)
     private EntityManager wrapped;
 
+    @NonNull
     private final ProviderAdapter adapter;
 
+    @NonNull
+    private final String persistenceUnitName;
+
+    @NonNull
+    private final EntityManagerFactory emf;
+
+    @NonNull
+    private Optional<SpecialEntityTransaction> trans;
+
     public SpecialEntityManager(
-            @NonNull EntityManager em,
-            @NonNull ProviderAdapter adapter)
+            @NonNull ProviderAdapter adapter,
+            @NonNull String persistenceUnitName,
+            @NonNull EntityManagerFactory emf)
     {
+        this.persistenceUnitName = persistenceUnitName;
         this.adapter = adapter;
-        replace(em);
+        this.trans = Optional.empty();
+        this.emf = emf;
+        recreateEntityManager();
     }
 
-    @PackagePrivate
-    void replace(@NonNull EntityManager em) {
+    private void recreateEntityManager() {
         if (this.wrapped != null) this.wrapped.close();
-        this.wrapped = ExtendedEntityManager.unwrap(em);
+        this.wrapped = emf.createEntityManager();
     }
 
     @Override
@@ -68,8 +84,21 @@ final class SpecialEntityManager implements ExtendedEntityManager {
         return adapter.getConnection(wrapped);
     }
 
-    public ProviderAdapter getProviderAdapter() {
-        return adapter;
+    @Override
+    public EntityTransaction getTransaction() {
+        var inner = wrapped.getTransaction(); // Relays exceptions.
+        if (inner == null) throw new IllegalStateException(); // Should never happen with a sane wrapped EntityManager.
+
+        // Return the cached transction.
+        if (!trans.isEmpty()) {
+            var w = trans.get();
+            if (w.wrapped == inner) return w;
+        }
+
+        // Create a new SpecialEntityTransaction.
+        var t = new SpecialEntityTransaction(this, inner);
+        trans = Optional.of(t);
+        return t;
     }
 
     /**
@@ -83,5 +112,43 @@ final class SpecialEntityManager implements ExtendedEntityManager {
         public <T extends Object> TypedQuery<T> createQuery(String string, Class<T> type);
 
         public <T extends Object> TypedQuery<T> createNamedQuery(String string, Class<T> type);
+
+        public EntityTransaction getTransaction();
+    }
+
+    /**
+     * Exists only to suppress lombok's delegation on a few methods.
+     */
+    private static class SpecialEntityTransaction implements EntityTransaction {
+
+        @Delegate(types = EntityTransaction.class, excludes = DoNotDelegateEntityTransaction.class)
+        private final EntityTransaction wrapped;
+
+        private final SpecialEntityManager parent;
+
+        public SpecialEntityTransaction(@NonNull SpecialEntityManager parent, @NonNull EntityTransaction wrapped) {
+            this.parent = parent;
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public void begin() {
+            try {
+                wrapped.begin();
+            } catch (RuntimeException e) {
+                if (!parent.adapter.shouldTryToReconnect(e)) throw e;
+                parent.recreateEntityManager();
+                wrapped.begin();
+                Database.getListener().renewedConnection(parent.persistenceUnitName);
+            }
+            Database.getListener().startedTransaction(parent.persistenceUnitName);
+        }
+    }
+
+    /**
+     * Exists only to suppress lombok's delegation on a few methods.
+     */
+    private static interface DoNotDelegateEntityTransaction {
+        public void begin();
     }
 }

@@ -2,11 +2,13 @@ package ninja.javahacker.jpasimpletransactions.eclipselink;
 
 import java.sql.Connection;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import org.eclipse.persistence.jpa.JpaEntityManager;
+import org.eclipse.persistence.jpa.JpaEntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 
 /**
@@ -20,6 +22,11 @@ public final class EclipselinkAdapter implements ProviderAdapter {
     public static final EclipselinkAdapter CANONICAL = new EclipselinkAdapter();
 
     public EclipselinkAdapter() {
+    }
+
+    @Override
+    public boolean recognizes(@NonNull EntityManagerFactory emf) {
+        return emf instanceof JpaEntityManagerFactory;
     }
 
     @Override

@@ -2,10 +2,12 @@ package ninja.javahacker.jpasimpletransactions.openjpa;
 
 import java.sql.Connection;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
+import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.PersistenceProviderImpl;
 
 /**
@@ -19,6 +21,11 @@ public final class OpenJpaAdapter implements ProviderAdapter {
     public static final OpenJpaAdapter CANONICAL = new OpenJpaAdapter();
 
     public OpenJpaAdapter() {
+    }
+
+    @Override
+    public boolean recognizes(@NonNull EntityManagerFactory emf) {
+        return emf instanceof OpenJPAEntityManagerFactory;
     }
 
     @Override

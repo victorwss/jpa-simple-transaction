@@ -11,6 +11,7 @@ import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Wither;
 import ninja.javahacker.jpasimpletransactions.Connector;
+import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 
 /**
  * A collection of properties used to instantiate a {@link Connector}.
@@ -62,6 +63,6 @@ public class XmlConnectorFactory implements StandardConnectorFactory<XmlConnecto
     public Connector connect() {
         String pu = getPersistenceUnitName();
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(pu, getProperties());
-        return Connector.create(pu, emf);
+        return Connector.create(pu, emf, ProviderAdapter.findFor(emf));
     }
 }

@@ -5,6 +5,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import ninja.javahacker.jpasimpletransactions.Connector;
+import ninja.javahacker.jpasimpletransactions.hibernate.HibernateAdapter;
 import ninja.javahacker.mocker.Mocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class ConnectorUnitTest {
         var emfc = Mocker.mock(EntityManagerFactory.class);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create(null, emfc.getTarget()),
+                () -> Connector.create(null, emfc.getTarget(), HibernateAdapter.CANONICAL),
                 nullMessage("persistenceUnitName"));
     }
 
@@ -31,7 +32,7 @@ public class ConnectorUnitTest {
     public void testBadConnectorCreate2() throws Exception {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create(null, null),
+                () -> Connector.create(null, null, HibernateAdapter.CANONICAL),
                 nullMessage("persistenceUnitName"));
     }
 
@@ -39,14 +40,32 @@ public class ConnectorUnitTest {
     public void testBadConnectorCreate3() throws Exception {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create("foo", null),
+                () -> Connector.create("foo", null, HibernateAdapter.CANONICAL),
+                nullMessage("emf"));
+    }
+
+    @Test
+    public void testBadConnectorCreate4() throws Exception {
+        var emfc = Mocker.mock(EntityManagerFactory.class);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> Connector.create("foo", emfc.getTarget(), null),
+                nullMessage("adapter"));
+    }
+
+    @Test
+    public void testBadConnectorCreate5() throws Exception {
+        var emfc = Mocker.mock(EntityManagerFactory.class);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> Connector.create("foo", null, null),
                 nullMessage("emf"));
     }
 
     @Test
     public void testUnitName() throws Exception {
         var emfc = Mocker.mock(EntityManagerFactory.class);
-        var con = Connector.create("mumble", emfc.getTarget());
+        var con = Connector.create("mumble", emfc.getTarget(), HibernateAdapter.CANONICAL);
         Assertions.assertEquals(con.getPersistenceUnitName(), "mumble");
     }
 
@@ -55,7 +74,7 @@ public class ConnectorUnitTest {
         AtomicInteger a = new AtomicInteger(0);
         var emfc = Mocker.mock(EntityManagerFactory.class);
         emfc.rule().procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
-        Connector.create("mumble", emfc.getTarget()).close();
+        Connector.create("mumble", emfc.getTarget(), HibernateAdapter.CANONICAL).close();
         Assertions.assertEquals(1, a.get());
     }
 
@@ -64,7 +83,7 @@ public class ConnectorUnitTest {
         var emfc = Mocker.mock(EntityManagerFactory.class);
         Assertions.assertThrows(
                 IllegalStateException.class,
-                () -> Connector.create("foo", emfc.getTarget()).getEntityManager(),
+                () -> Connector.create("foo", emfc.getTarget(), HibernateAdapter.CANONICAL).getEntityManager(),
                 "Can't get the EntityManager outside of a transaction.");
     }
 
@@ -89,12 +108,12 @@ public class ConnectorUnitTest {
             return et;
         });
         mockEt.rule("BEGIN").procedure(e -> e.begin()).executes(call -> {
-            mockEm.disable("BEGIN");
+            mockEt.disable("BEGIN");
             Assertions.assertEquals(0, x.getAndIncrement());
         });
         Runnable r = () -> {
             Assertions.assertEquals(1, x.getAndIncrement());
-            mockEt.enable("TRANS2");
+            mockEm.enable("TRANS2");
         };
         mockEm.rule("TRANS2").function(e -> e.getTransaction()).executes(call -> {
             mockEm.disable("TRANS2");
@@ -110,7 +129,7 @@ public class ConnectorUnitTest {
             Assertions.assertEquals(2, x.getAndIncrement());
         });
 
-        var con = Connector.create("mumble", emf);
+        var con = Connector.create("mumble", emf, HibernateAdapter.CANONICAL);
         con.transact(Runnable.class, r).run();
         Assertions.assertEquals(3, x.get());
     }

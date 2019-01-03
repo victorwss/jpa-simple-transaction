@@ -25,19 +25,32 @@ public class Connector implements AutoCloseable {
     @Getter
     private final String persistenceUnitName;
 
+    @Getter
     private final EntityManagerFactory emf;
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
-    private Connector(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
+    @Getter
+    private final ProviderAdapter adapter;
+
+    private Connector(
+            @NonNull String persistenceUnitName,
+            @NonNull EntityManagerFactory emf,
+            @NonNull ProviderAdapter adapter)
+    {
         this.persistenceUnitName = persistenceUnitName;
         this.emf = emf;
         this.managers = new ThreadLocal<>();
+        this.adapter = adapter;
     }
 
-    public static Connector create(@NonNull String persistenceUnitName, @NonNull EntityManagerFactory emf) {
-        return new Connector(persistenceUnitName, emf);
-        /*var con = new Connector(persistenceUnitName, emf);
+    public static Connector create(
+            @NonNull String persistenceUnitName,
+            @NonNull EntityManagerFactory emf,
+            @NonNull ProviderAdapter adapter)
+    {
+        return new Connector(persistenceUnitName, emf, adapter);
+        /*var con = new Connector(persistenceUnitName, emf, adapter);
         Database.addConnector(con, false);
         return con;*/
     }
@@ -49,7 +62,7 @@ public class Connector implements AutoCloseable {
     }
 
     private SpecialEntityManager createNewEntityManager() {
-        SpecialEntityManager em = (SpecialEntityManager) ExtendedEntityManager.wrap(emf.createEntityManager());
+        var em = new SpecialEntityManager(adapter, persistenceUnitName, emf);
         managers.set(em);
         return em;
     }
@@ -88,15 +101,7 @@ public class Connector implements AutoCloseable {
             Database.getListener().connectorStarted(persistenceUnitName);
             managers.set(actual);
             try {
-                try {
-                    actual.getTransaction().begin();
-                } catch (RuntimeException e) {
-                    if (!actual.getProviderAdapter().shouldTryToReconnect(e)) throw e;
-                    Database.getListener().renewedConnection(persistenceUnitName);
-                    actual.replace(createNewEntityManager());
-                    actual.getTransaction().begin();
-                }
-                Database.getListener().startedTransaction(persistenceUnitName);
+                actual.getTransaction().begin();
                 E result = trans.get();
                 ok = true;
                 return result;
