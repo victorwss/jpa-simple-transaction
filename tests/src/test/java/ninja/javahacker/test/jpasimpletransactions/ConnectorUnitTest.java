@@ -4,8 +4,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 import ninja.javahacker.jpasimpletransactions.Connector;
-import ninja.javahacker.jpasimpletransactions.hibernate.HibernateAdapter;
+import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import ninja.javahacker.mocker.Mocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,41 +24,43 @@ public class ConnectorUnitTest {
 
     @Test
     public void testBadConnectorCreate1() throws Exception {
-        var emfc = Mocker.mock(EntityManagerFactory.class);
+        var emf = Mocker.mock(EntityManagerFactory.class).getTarget();
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create(null, emfc.getTarget(), HibernateAdapter.CANONICAL),
+                () -> Connector.create(null, emf, pa),
                 nullMessage("persistenceUnitName"));
     }
 
     @Test
     public void testBadConnectorCreate2() throws Exception {
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create(null, null, HibernateAdapter.CANONICAL),
+                () -> Connector.create(null, null, pa),
                 nullMessage("persistenceUnitName"));
     }
 
     @Test
     public void testBadConnectorCreate3() throws Exception {
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create("foo", null, HibernateAdapter.CANONICAL),
+                () -> Connector.create("foo", null, pa),
                 nullMessage("emf"));
     }
 
     @Test
     public void testBadConnectorCreate4() throws Exception {
-        var emfc = Mocker.mock(EntityManagerFactory.class);
+        var emf = Mocker.mock(EntityManagerFactory.class).getTarget();
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> Connector.create("foo", emfc.getTarget(), null),
+                () -> Connector.create("foo", emf, null),
                 nullMessage("adapter"));
     }
 
     @Test
     public void testBadConnectorCreate5() throws Exception {
-        var emfc = Mocker.mock(EntityManagerFactory.class);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create("foo", null, null),
@@ -64,8 +69,9 @@ public class ConnectorUnitTest {
 
     @Test
     public void testUnitName() throws Exception {
-        var emfc = Mocker.mock(EntityManagerFactory.class);
-        var con = Connector.create("mumble", emfc.getTarget(), HibernateAdapter.CANONICAL);
+        var emf = Mocker.mock(EntityManagerFactory.class).getTarget();
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
+        var con = Connector.create("mumble", emf, pa);
         Assertions.assertEquals(con.getPersistenceUnitName(), "mumble");
     }
 
@@ -73,64 +79,136 @@ public class ConnectorUnitTest {
     public void testClose() throws Exception {
         AtomicInteger a = new AtomicInteger(0);
         var emfc = Mocker.mock(EntityManagerFactory.class);
-        emfc.rule().procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
-        Connector.create("mumble", emfc.getTarget(), HibernateAdapter.CANONICAL).close();
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
+        emfc.enabled().procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
+        Connector.create("mumble", emfc.getTarget(), pa).close();
         Assertions.assertEquals(1, a.get());
     }
 
     @Test
     public void testBadGetEntityManager() throws Exception {
-        var emfc = Mocker.mock(EntityManagerFactory.class);
+        var emf = Mocker.mock(EntityManagerFactory.class).getTarget();
+        var pa = Mocker.mock(ProviderAdapter.class).getTarget();
         Assertions.assertThrows(
                 IllegalStateException.class,
-                () -> Connector.create("foo", emfc.getTarget(), HibernateAdapter.CANONICAL).getEntityManager(),
+                () -> Connector.create("foo", emf, pa).getEntityManager(),
                 "Can't get the EntityManager outside of a transaction.");
     }
 
-    @Test
-    public void testTransact() throws Exception {
+    public static interface Work<E> {
+        public E work();
+    }
+
+    public static interface SimpleWork extends Work<String> {
+    }
+
+    private static class CustomException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+    }
+
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    private static class CommitTest<E> {
+        Mocker<EntityManagerFactory> mockEmf = Mocker.mock(EntityManagerFactory.class);
+        EntityManagerFactory emf = mockEmf.getTarget();
+        Mocker<EntityManager> mockEm = Mocker.mock(EntityManager.class);
+        EntityManager em = mockEm.getTarget();
+        Mocker<EntityTransaction> mockEt = Mocker.mock(EntityTransaction.class);
+        EntityTransaction et = mockEt.getTarget();
+        Mocker<ProviderAdapter> mockPa = Mocker.mock(ProviderAdapter.class);
+        ProviderAdapter pa = mockPa.getTarget();
+        E out;
+        Work<E> r;
         AtomicInteger x = new AtomicInteger(0);
-        var mockEmf = Mocker.mock(EntityManagerFactory.class);
-        var emf = mockEmf.getTarget();
-        var mockEm = Mocker.mock(EntityManager.class);
-        var em = mockEm.getTarget();
-        var mockEt = Mocker.mock(EntityTransaction.class);
-        var et = mockEt.getTarget();
 
-        mockEmf.rule("CREATE").function(e -> e.createEntityManager()).executes(call -> {
-            mockEmf.disable("CREATE");
-            mockEm.enable("TRANS");
-            return em;
-        });
-        mockEm.rule("TRANS").function(e -> e.getTransaction()).executes(call -> {
-            mockEm.disable("TRANS");
-            mockEt.enable("BEGIN");
-            return et;
-        });
-        mockEt.rule("BEGIN").procedure(e -> e.begin()).executes(call -> {
-            mockEt.disable("BEGIN");
-            Assertions.assertEquals(0, x.getAndIncrement());
-        });
-        Runnable r = () -> {
-            Assertions.assertEquals(1, x.getAndIncrement());
-            mockEm.enable("TRANS2");
-        };
-        mockEm.rule("TRANS2").function(e -> e.getTransaction()).executes(call -> {
-            mockEm.disable("TRANS2");
-            mockEt.enable("COMMIT");
-            return et;
-        });
-        mockEt.rule("COMMIT").procedure(e -> e.commit()).executes(call -> {
-            mockEt.disable("COMMIT");
-            mockEm.enable("CLOSE");
-        });
-        mockEm.rule("CLOSE").procedure(e -> e.close()).executes(call -> {
-            mockEm.disable("CLOSE");
-            Assertions.assertEquals(2, x.getAndIncrement());
-        });
+        public CommitTest(E out) {
+            this.out = out;
+            mockEmf.enabled("CREATE").function(e -> e.createEntityManager()).executes(call -> {
+                mockEmf.disable("CREATE");
+                mockEm.enable("TRANS");
+                return em;
+            });
+            mockEm.disabled("TRANS").function(e -> e.getTransaction()).executes(call -> {
+                mockEm.disable("TRANS");
+                mockEt.enable("BEGIN");
+                return et;
+            });
+            mockEt.disabled("BEGIN").procedure(e -> e.begin()).executes(call -> {
+                mockEt.disable("BEGIN");
+                Assertions.assertEquals(0, x.getAndIncrement());
+            });
+            r = () -> {
+                Assertions.assertEquals(1, x.getAndIncrement());
+                mockEt.enable("COMMIT");
+                return out;
+            };
+            mockEt.disabled("COMMIT").procedure(e -> e.commit()).executes(call -> {
+                mockEt.disable("COMMIT");
+                mockEm.enable("CLOSE");
+            });
+            mockEm.disabled("CLOSE").procedure(e -> e.close()).executes(call -> {
+                mockEm.disable("CLOSE");
+                Assertions.assertEquals(2, x.getAndIncrement());
+            });
+        }
+    }
 
-        var con = Connector.create("mumble", emf, HibernateAdapter.CANONICAL);
-        con.transact(Runnable.class, r).run();
-        Assertions.assertEquals(3, x.get());
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    private static class RollbackTest {
+        Mocker<EntityManagerFactory> mockEmf = Mocker.mock(EntityManagerFactory.class);
+        EntityManagerFactory emf = mockEmf.getTarget();
+        Mocker<EntityManager> mockEm = Mocker.mock(EntityManager.class);
+        EntityManager em = mockEm.getTarget();
+        Mocker<EntityTransaction> mockEt = Mocker.mock(EntityTransaction.class);
+        EntityTransaction et = mockEt.getTarget();
+        Mocker<ProviderAdapter> mockPa = Mocker.mock(ProviderAdapter.class);
+        ProviderAdapter pa = mockPa.getTarget();
+        Work<Object> r;
+        AtomicInteger x = new AtomicInteger(0);
+
+        public RollbackTest() {
+            mockEmf.enabled("CREATE").function(e -> e.createEntityManager()).executes(call -> {
+                mockEmf.disable("CREATE");
+                mockEm.enable("TRANS");
+                return em;
+            });
+            mockEm.disabled("TRANS").function(e -> e.getTransaction()).executes(call -> {
+                mockEm.disable("TRANS");
+                mockEt.enable("BEGIN");
+                return et;
+            });
+            mockEt.disabled("BEGIN").procedure(e -> e.begin()).executes(call -> {
+                mockEt.disable("BEGIN");
+                Assertions.assertEquals(0, x.getAndIncrement());
+            });
+            r = () -> {
+                Assertions.assertEquals(1, x.getAndIncrement());
+                mockEt.enable("ROLLBACK");
+                throw new CustomException();
+            };
+            mockEt.disabled("ROLLBACK").procedure(e -> e.rollback()).executes(call -> {
+                mockEt.disable("ROLLBACK");
+                mockEm.enable("CLOSE");
+            });
+            mockEm.disabled("CLOSE").procedure(e -> e.close()).executes(call -> {
+                mockEm.disable("CLOSE");
+                Assertions.assertEquals(2, x.getAndIncrement());
+            });
+        }
+    }
+
+    @Test
+    public void testTransactCommit1() throws Exception {
+        var fixture = new CommitTest<>("blarg");
+        var con = Connector.create("mumble", fixture.emf, fixture.pa);
+        Assertions.assertSame(fixture.out, con.transact(Work.class, fixture.r).work());
+        Assertions.assertEquals(3, fixture.x.get());
+    }
+
+    @Test
+    public void testTransactRollback() throws Exception {
+        var fixture = new RollbackTest();
+        var con = Connector.create("mumble", fixture.emf, fixture.pa);
+        Assertions.assertThrows(CustomException.class, () -> con.transact(Work.class, fixture.r).work());
+        Assertions.assertEquals(3, fixture.x.get());
     }
 }

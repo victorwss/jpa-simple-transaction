@@ -89,13 +89,13 @@ final class SpecialEntityManager implements ExtendedEntityManager {
         var inner = wrapped.getTransaction(); // Relays exceptions.
         if (inner == null) throw new IllegalStateException(); // Should never happen with a sane wrapped EntityManager.
 
-        // Return the cached transction.
+        // Return the cached transaction.
         if (!trans.isEmpty()) {
             var w = trans.get();
             if (w.wrapped == inner) return w;
         }
 
-        // Create a new SpecialEntityTransaction.
+        // Create a new SpecialEntityTransaction and caches it.
         var t = new SpecialEntityTransaction(this, inner);
         trans = Optional.of(t);
         return t;
@@ -117,7 +117,7 @@ final class SpecialEntityManager implements ExtendedEntityManager {
     }
 
     /**
-     * Exists only to suppress lombok's delegation on a few methods.
+     * {@link EntityTransaction} implementation that tries to reconnect at the {@link #begin()} method.
      */
     private static class SpecialEntityTransaction implements EntityTransaction {
 

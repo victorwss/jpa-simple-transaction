@@ -2,8 +2,10 @@ package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import lombok.Getter;
 import lombok.NonNull;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
@@ -26,7 +28,7 @@ public class Connector implements AutoCloseable {
     private final String persistenceUnitName;
 
     @Getter
-    private final EntityManagerFactory emf;
+    private final EntityManagerFactory entityManagerFactory;
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
@@ -39,7 +41,7 @@ public class Connector implements AutoCloseable {
             @NonNull ProviderAdapter adapter)
     {
         this.persistenceUnitName = persistenceUnitName;
-        this.emf = emf;
+        this.entityManagerFactory = emf;
         this.managers = new ThreadLocal<>();
         this.adapter = adapter;
     }
@@ -62,7 +64,7 @@ public class Connector implements AutoCloseable {
     }
 
     private SpecialEntityManager createNewEntityManager() {
-        var em = new SpecialEntityManager(adapter, persistenceUnitName, emf);
+        var em = new SpecialEntityManager(adapter, persistenceUnitName, entityManagerFactory);
         managers.set(em);
         return em;
     }
@@ -85,7 +87,15 @@ public class Connector implements AutoCloseable {
      * @see #execute(XSupplier)
      */
     private static interface XSupplier<E> {
-        public E get() throws Throwable;
+        public E get() throws InvocationTargetException, IllegalAccessException;
+
+        public default E getOrRethrow() throws Throwable {
+            try {
+                return get();
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
+        }
     }
 
     @SuppressFBWarnings(
@@ -100,17 +110,18 @@ public class Connector implements AutoCloseable {
         try (SpecialEntityManager actual = createNewEntityManager()) {
             Database.getListener().connectorStarted(persistenceUnitName);
             managers.set(actual);
+            EntityTransaction et = actual.getTransaction();
             try {
-                actual.getTransaction().begin();
-                E result = trans.get();
+                et.begin();
+                E result = trans.getOrRethrow();
                 ok = true;
                 return result;
             } finally {
                 if (ok) {
-                    actual.getTransaction().commit();
+                    et.commit();
                     Database.getListener().finishedWithCommit(persistenceUnitName);
                 } else {
-                    actual.getTransaction().rollback();
+                    et.rollback();
                     Database.getListener().finishedWithRollback(persistenceUnitName);
                 }
             }
@@ -122,6 +133,6 @@ public class Connector implements AutoCloseable {
 
     @Override
     public void close() {
-        emf.close();
+        entityManagerFactory.close();
     }
 }
