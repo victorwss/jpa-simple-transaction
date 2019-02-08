@@ -1,8 +1,8 @@
 package ninja.javahacker.jpasimpletransactions.hibernate;
 
 import java.sql.Driver;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -43,7 +43,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
     @NonNull String databaseMajorVersion;
     @NonNull String databaseMinorVersion;
     @NonNull Map<String, String> extras;
-    @NonNull List<Class<?>> entities;
+    @NonNull Set<Class<?>> entities;
 
     @NonNull Class<?> dialect;
     @NonNull Class<?> jtaPlatform;
@@ -71,7 +71,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
-        this.entities = List.of();
+        this.entities = Set.of();
 
         this.dialect = void.class;
         this.jtaPlatform = void.class;

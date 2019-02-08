@@ -3,9 +3,9 @@ package ninja.javahacker.jpasimpletransactions.eclipselink;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Driver;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -56,7 +56,7 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
     @NonNull String databaseMajorVersion;
     @NonNull String databaseMinorVersion;
     @NonNull Map<String, String> extras;
-    @NonNull List<Class<?>> entities;
+    @NonNull Set<Class<?>> entities;
 
     public EclipselinkConnectorFactory() {
         this.persistenceUnitName = "";
@@ -75,7 +75,7 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
-        this.entities = List.of();
+        this.entities = Set.of();
     }
 
     @Override

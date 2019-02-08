@@ -2,9 +2,9 @@ package ninja.javahacker.jpasimpletransactions.config;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.persistence.spi.PersistenceProvider;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.Connector;
@@ -20,24 +20,24 @@ import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
  */
 public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>> extends StandardConnectorFactory<E> {
 
-    public List<Class<?>> getEntities();
+    public Set<Class<?>> getEntities();
 
-    public E withEntities(@NonNull List<Class<?>> entities);
+    public E withEntities(@NonNull Set<Class<?>> entities);
 
     public default E addEntity(@NonNull Class<?> entityClass) {
         var m = new ArrayList<>(getEntities());
         m.add(entityClass);
-        return withEntities(List.copyOf(m));
+        return withEntities(Set.copyOf(m));
     }
 
     public default E removeEntity(@NonNull Class<?> entityClass) {
         var m = new ArrayList<>(getEntities());
         m.remove(entityClass);
-        return withEntities(List.copyOf(m));
+        return withEntities(Set.copyOf(m));
     }
 
     public default E clearEntities() {
-        return withEntities(List.of());
+        return withEntities(Set.of());
     }
 
     public ProviderAdapter getProviderAdapter();
