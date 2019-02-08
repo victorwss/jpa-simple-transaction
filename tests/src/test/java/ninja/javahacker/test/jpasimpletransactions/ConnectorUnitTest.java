@@ -5,7 +5,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import ninja.javahacker.jpasimpletransactions.Connector;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
@@ -80,7 +79,8 @@ public class ConnectorUnitTest {
         AtomicInteger a = new AtomicInteger(0);
         var emfc = Mocker.mock(EntityManagerFactory.class);
         var pa = Mocker.mock(ProviderAdapter.class).getTarget();
-        emfc.enabled().procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
+        emfc.rule("X").procedure(EntityManagerFactory::close).executes(call -> a.incrementAndGet());
+        emfc.enable("X");
         Connector.create("mumble", emfc.getTarget(), pa).close();
         Assertions.assertEquals(1, a.get());
     }
@@ -122,17 +122,17 @@ public class ConnectorUnitTest {
 
         public CommitTest(E out) {
             this.out = out;
-            mockEmf.enabled("CREATE").function(e -> e.createEntityManager()).executes(call -> {
+            mockEmf.rule("CREATE").function(e -> e.createEntityManager()).executes(call -> {
                 mockEmf.disable("CREATE");
                 mockEm.enable("TRANS");
                 return em;
             });
-            mockEm.disabled("TRANS").function(e -> e.getTransaction()).executes(call -> {
+            mockEm.rule("TRANS").function(e -> e.getTransaction()).executes(call -> {
                 mockEm.disable("TRANS");
                 mockEt.enable("BEGIN");
                 return et;
             });
-            mockEt.disabled("BEGIN").procedure(e -> e.begin()).executes(call -> {
+            mockEt.rule("BEGIN").procedure(e -> e.begin()).executes(call -> {
                 mockEt.disable("BEGIN");
                 Assertions.assertEquals(0, x.getAndIncrement());
             });
@@ -141,14 +141,15 @@ public class ConnectorUnitTest {
                 mockEt.enable("COMMIT");
                 return out;
             };
-            mockEt.disabled("COMMIT").procedure(e -> e.commit()).executes(call -> {
+            mockEt.rule("COMMIT").procedure(e -> e.commit()).executes(call -> {
                 mockEt.disable("COMMIT");
                 mockEm.enable("CLOSE");
             });
-            mockEm.disabled("CLOSE").procedure(e -> e.close()).executes(call -> {
+            mockEm.rule("CLOSE").procedure(e -> e.close()).executes(call -> {
                 mockEm.disable("CLOSE");
                 Assertions.assertEquals(2, x.getAndIncrement());
             });
+            mockEmf.enable("CREATE");
         }
     }
 
@@ -166,17 +167,17 @@ public class ConnectorUnitTest {
         AtomicInteger x = new AtomicInteger(0);
 
         public RollbackTest() {
-            mockEmf.enabled("CREATE").function(e -> e.createEntityManager()).executes(call -> {
+            mockEmf.rule("CREATE").function(e -> e.createEntityManager()).executes(call -> {
                 mockEmf.disable("CREATE");
                 mockEm.enable("TRANS");
                 return em;
             });
-            mockEm.disabled("TRANS").function(e -> e.getTransaction()).executes(call -> {
+            mockEm.rule("TRANS").function(e -> e.getTransaction()).executes(call -> {
                 mockEm.disable("TRANS");
                 mockEt.enable("BEGIN");
                 return et;
             });
-            mockEt.disabled("BEGIN").procedure(e -> e.begin()).executes(call -> {
+            mockEt.rule("BEGIN").procedure(e -> e.begin()).executes(call -> {
                 mockEt.disable("BEGIN");
                 Assertions.assertEquals(0, x.getAndIncrement());
             });
@@ -185,14 +186,15 @@ public class ConnectorUnitTest {
                 mockEt.enable("ROLLBACK");
                 throw new CustomException();
             };
-            mockEt.disabled("ROLLBACK").procedure(e -> e.rollback()).executes(call -> {
+            mockEt.rule("ROLLBACK").procedure(e -> e.rollback()).executes(call -> {
                 mockEt.disable("ROLLBACK");
                 mockEm.enable("CLOSE");
             });
-            mockEm.disabled("CLOSE").procedure(e -> e.close()).executes(call -> {
+            mockEm.rule("CLOSE").procedure(e -> e.close()).executes(call -> {
                 mockEm.disable("CLOSE");
                 Assertions.assertEquals(2, x.getAndIncrement());
             });
+            mockEmf.enable("CREATE");
         }
     }
 
