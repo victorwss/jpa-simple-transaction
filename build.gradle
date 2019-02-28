@@ -276,6 +276,20 @@ project(':core') {
     }
 }
 
+project(':ninjdao') {
+    ext.moduleName = "ninja.javahacker.ninjdao"
+    jar {
+        baseName = "ninjdao"
+        inputs.property("moduleName", moduleName)
+        manifest {
+            attributes("Automatic-Module-Name": moduleName)
+        }
+    }
+    dependencies {
+        api project(':core')
+    }
+}
+
 project(':hibernate') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.hibernate"
     jar {
