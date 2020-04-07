@@ -7,9 +7,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
-import lombok.experimental.Wither;
 import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
 import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
 import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationActionTarget;
@@ -17,11 +17,11 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
 import ninja.javahacker.jpasimpletransactions.config.TriBoolean;
 
 /**
- * A collection of properties used to instantiate a {@link Connector}.
+ * Implementation of {@link ProviderConnectorFactory} for Open JPA.
  * @author Victor Williams Stafusa da Silva
  */
 @Value
-@Wither
+@With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpaConnectorFactory> {

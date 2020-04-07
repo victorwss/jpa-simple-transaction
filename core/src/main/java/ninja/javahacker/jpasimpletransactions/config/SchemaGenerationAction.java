@@ -6,9 +6,14 @@ import lombok.Value;
 
 /**
  * Specifies the strategy used for automatic schema generation or validation.
- * @see PersistenceProperties#getSchemaGenerationAction()
- * @see PersistenceProperties#setSchemaGenerationAction(SchemaGenerationAction)
- * @see "The property {@code javax.persistence.schema-generation.database.action}."
+ * <p>Used to set the property {@code javax.persistence.schema-generation.database.action}.</p>
+ * @see StandardConnectorFactory#getSchemaGenerationAction()
+ * @see StandardConnectorFactory#withSchemaGenerationAction(SchemaGenerationAction)
+ * @see #unspecified()
+ * @see #none()
+ * @see #drop()
+ * @see #create()
+ * @see #dropAndCreate()
  * @author Victor Williams Stafusa da Silva
  */
 @Value

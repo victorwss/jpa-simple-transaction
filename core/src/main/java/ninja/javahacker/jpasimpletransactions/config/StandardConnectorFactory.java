@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
+import ninja.javahacker.jpasimpletransactions.Connector;
 
 /**
- * Used as a building block acting as a delegate to wrap
- * {@link DefaultPersistenceProperties} instances into composed properties
- * classes for specific JPA vendors.
+ * A collection of properties used to instantiate a {@link Connector}.
  *
  * @param <E> The properties class for the specific JPA vendor.
  * @author Victor Williams Stafusa da Silva

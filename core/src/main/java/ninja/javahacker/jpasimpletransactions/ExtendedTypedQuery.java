@@ -13,7 +13,7 @@ import lombok.NonNull;
 
 /**
  * Extends the {@link TypedQuery} interface adding several useful methods into it
- * and deprecating tose ones receiving {@link Date} or {@link Calendar} in favor of
+ * and deprecating those ones receiving {@link Date} or {@link Calendar} in favor of
  * those which works with the newer {@link java.time} package.
  * @author Victor Williams Stafusa da Silva
  */

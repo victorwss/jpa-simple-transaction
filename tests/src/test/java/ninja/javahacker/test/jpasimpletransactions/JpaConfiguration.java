@@ -52,11 +52,13 @@ public final class JpaConfiguration {
 
     public static Stream<Arguments> all() {
         var ojpa = new OpenJpaConnectorFactory()
-                .withDynamicEnhancementAgent(false)
+                .withDynamicEnhancementAgent(true)
                 .withRuntimeUnenhancedClasses(Support.SUPPORTED)
                 .withDriver(JDBCDriver.class);
-        var a = new JpaConfiguration(HibernateAdapter.CANONICAL, new HibernateConnectorFactory());
-        var b = new JpaConfiguration(EclipselinkAdapter.CANONICAL, new EclipselinkConnectorFactory());
+        var hib = new HibernateConnectorFactory();
+        var el = new EclipselinkConnectorFactory();
+        var a = new JpaConfiguration(HibernateAdapter.CANONICAL, hib);
+        var b = new JpaConfiguration(EclipselinkAdapter.CANONICAL, el);
         var c = new JpaConfiguration(OpenJpaAdapter.CANONICAL, ojpa);
         return Stream.of(a, b, c).map(x -> Arguments.of(x.getName(), x));
     }

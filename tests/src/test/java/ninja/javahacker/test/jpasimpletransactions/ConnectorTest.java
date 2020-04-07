@@ -9,14 +9,14 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 public class ConnectorTest {
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{displayName} {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testPersistenceUnit(String t, JpaConfiguration config) throws Exception {
         var con = config.getProperties().connect();
         Assertions.assertEquals(con.getPersistenceUnitName(), "test-1");
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{displayName} {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testEntityManagerOnTransaction(String t, JpaConfiguration config) throws Exception {
         var con = config.getProperties().connect();
@@ -28,7 +28,7 @@ public class ConnectorTest {
         )).run();
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{displayName} {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testConnectionOnTransaction(String t, JpaConfiguration config) throws Exception {
         var con = config.getProperties().connect();
@@ -40,7 +40,7 @@ public class ConnectorTest {
         ).run();
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "{displayName} {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testEntityManagerOutOfTransaction(String t, JpaConfiguration config) throws Exception {
         var con = config.getProperties().connect();

@@ -5,17 +5,7 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 /**
- * Specifies the values true, false, or unspecified.
- * @see PersistenceProperties#getCreateDatabaseSchemas()
- * @see PersistenceProperties#withCreateDatabaseSchemas(TriBoolean)
- * @see PersistenceProperties#getShowSql()
- * @see PersistenceProperties#withShowSql(TriBoolean)
- * @see PersistenceProperties#getFormatSql()
- * @see PersistenceProperties#withFormatSql(TriBoolean)
- * @see PersistenceProperties#getUseSqlComments()
- * @see PersistenceProperties#withUseSqlComments(TriBoolean)
- * @see PersistenceProperties#getNewGeneratorMappings()
- * @see PersistenceProperties#withNewGeneratorMappings(TriBoolean)
+ * An enum that defines the values true, false, or unspecified.
  * @author Victor Williams Stafusa da Silva
  */
 public enum TriBoolean {

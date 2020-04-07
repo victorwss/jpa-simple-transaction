@@ -8,17 +8,17 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.Wither;
 import ninja.javahacker.jpasimpletransactions.Connector;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 
 /**
- * A collection of properties used to instantiate a {@link Connector}.
+ * A collection of properties used to instantiate a {@link Connector}, dynamically choosing a JPA provider.
  * @author Victor Williams Stafusa da Silva
  */
 @Value
-@Wither
+@With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class XmlConnectorFactory implements StandardConnectorFactory<XmlConnectorFactory> {

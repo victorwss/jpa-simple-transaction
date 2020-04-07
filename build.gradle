@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.spotbugs" version "1.6.10"
+    id "com.github.spotbugs" version "4.0.5"
     id "java-library"
     id "maven-publish"
     id "checkstyle"
@@ -15,9 +15,9 @@ repositories {
 
 allprojects {
     group = "ninja.javahacker.jpasimpletransactions"
-    version = "0.5.0"
+    version = "0.5.0-b20200406"
 
-    ext.javaCompiler = "11"
+    ext.javaCompiler = "13"
     ext.doclint = false
     ext.extraCompilerArgs = [
         "--add-opens", "jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -31,26 +31,25 @@ allprojects {
         "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
     ]
 
-    ext.versionApiguardian = "1.0.0"
-    ext.versionCheckstyle = "8.17"
-    ext.versionEclipselink = "2.7.3"
-    ext.versionFbContrib = "7.4.3.sb"
-    ext.versionFindSecBugs = "1.8.0"
-    ext.versionHibernate = "5.4.1.Final"
-    ext.versionHibernateAnnotations = "5.1.0.Final"
-    ext.versionHsqldb = "2.4.1"
-    ext.versionJaCoCo = "0.8.3"
+    ext.versionApiguardian = "1.1.0"
+    ext.versionCheckstyle = "8.31"
+    ext.versionEclipselink = "2.7.6"
+    ext.versionSbContrib = "7.4.7"
+    ext.versionFindSecBugs = "1.10.1"
+    ext.versionHibernate = "5.4.13.Final" //"6.0.0.Alpha4"
+    ext.versionHsqldb = "2.5.0"
+    ext.versionJaCoCo = "0.8.5"
     ext.versionJaxb = "2.4.0-b180830.0359"
     ext.versionJcip = "1.0"
-    ext.versionJpa = "2.2"
-    ext.versionJunit = "5.4.0"
+    ext.versionJakartaJpa = "2.2.3"
+    ext.versionJunit = "5.6.1"
     ext.versionJsr305 = "3.0.2"
-    ext.versionLombok = "1.18.6"
-    ext.versionMocker = "1.0.0"
-    ext.versionOpenJpa = "3.0.0"
-    ext.versionPmd = "6.11.0"
-    ext.versionReifiedGenerics = "1.0.0"
-    ext.versionSpotBugs = "3.1.11"
+    ext.versionLombok = "1.18.12"
+    ext.versionMocker = "1.0.1-b20200406"
+    ext.versionOpenJpa = "3.1.1"
+    ext.versionPmd = "6.22.0"
+    ext.versionReifiedGenerics = "1.0.1-b20200406"
+    ext.versionSpotBugs = "4.0.1"
 }
 
 println "Using Java " + org.gradle.api.JavaVersion.current() + "."
@@ -75,7 +74,7 @@ subprojects {
     dependencies {
 
         // JPA
-        api group: 'javax.persistence', name: 'javax.persistence-api', version: versionJpa
+        api group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: versionJakartaJpa
 
         // JUnit
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versionJunit
@@ -109,7 +108,7 @@ subprojects {
         api group: 'net.jcip', name: 'jcip-annotations', version: versionJcip
         api group: 'com.github.spotbugs', name: 'spotbugs-annotations', version: versionSpotBugs
         spotbugsPlugins group: 'com.h3xstream.findsecbugs', name: 'findsecbugs-plugin', version: versionFindSecBugs
-        spotbugsPlugins group: 'com.mebigfatguy.fb-contrib', name: 'fb-contrib', version: versionFbContrib
+        spotbugsPlugins group: 'com.mebigfatguy.sb-contrib', name: 'sb-contrib', version: versionSbContrib
     }
 
     task createFolders(description: 'Creates the source folders if they do not exist.') doLast {
@@ -122,11 +121,11 @@ subprojects {
     }
 
     checkstyleMain {
-        configFile = rootProject.file("config/checkstyle/main.xml")
+        configFile = rootProject.file("${rootDir}/config/checkstyle/main.xml")
     }
 
     checkstyleTest {
-        configFile = rootProject.file("config/checkstyle/test.xml")
+        configFile = rootProject.file("${rootDir}/config/checkstyle/test.xml")
     }
 
     checkstyle {
@@ -150,32 +149,30 @@ subprojects {
 
     compileJava {
         if (doclint) options.compilerArgs << "-Xdoclint:all"
+        sourceSets {
+            main.java.srcDirs = ['src/main/java']
+            main.resources.srcDirs = ['src/main/resources']
+        }
     }
 
     /*task delombok {
         description 'Delomboks the source code'
         ant.taskdef(classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: configurations.compileOnly.asPath, name: 'delombok')
-        ant.mkdir(dir: 'build/src-delomboked') 
+        ant.mkdir(dir: 'build/src-delomboked')
         ant.delombok(verbose: 'true', encoding: 'UTF-8', to: 'build/src-delomboked', from: 'src/main/java')
     }*/
 
-    /*tasks.withType(Javadoc) {
+    tasks.withType(Javadoc) {
         //dependsOn delombok
-        sourceSets {
-            main {
-                java {
-                    srcDirs = ['build/src-delomboked']
-                }
-                resources {
-                    srcDirs = ['src/resources']
-                }
-            }
-        }
+        /*sourceSets {
+            main.java.srcDirs = ['build/src-delomboked']
+            main.resources.srcDirs = ['src/resources']
+        }*/
         options.encoding = "UTF-8"
         options.docEncoding = "UTF-8"
         options.addBooleanOption('html5', true)
         options.tags = ["apiNote:a:API Note:", "implSpec:a:Implementation Requirements:", "implNote:a:Implementation Note:"]
-    }*/
+    }
 
     spotbugs {
         toolVersion = versionSpotBugs
@@ -184,8 +181,7 @@ subprojects {
         omitVisitors = ["WeakExceptionMessaging", "OverlyPermissiveMethod"]
     }
 
-    tasks.withType(com.github.spotbugs.SpotBugsTask) {
-        pluginClasspath = project.configurations.spotbugsPlugins
+    tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
         reports {
             xml.enabled = false
             html.enabled = true
@@ -193,25 +189,15 @@ subprojects {
     }
 
     spotbugsTest.enabled = false
-
-    jar {
-        //baseName = artifactBaseName
-        duplicatesStrategy = "exclude"
-        /*inputs.property("moduleName", moduleName)
-        manifest {
-            attributes("Automatic-Module-Name": moduleName)
-        }*/
-    }
-
     task sourcesJar(type: Jar) {
         from sourceSets.main.allSource
         classifier "sources"
     }
 
-    /*task javadocJar(type: Jar) {
+    task javadocJar(type: Jar) {
         from javadoc
         classifier "javadoc"
-    }*/
+    }
 
     test {
         useJUnitPlatform()
@@ -235,7 +221,7 @@ subprojects {
                 artifactId jar.baseName
                 from components.java
                 artifact sourcesJar
-                //artifact javadocJar
+                artifact javadocJar
                 pom {
                     developers {
                         developer {
@@ -268,7 +254,7 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
 project(':core') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.core"
     jar {
-        baseName = "jpa-simple-transactions-core"
+        archiveBaseName = "jpa-simple-transactions-core"
         inputs.property("moduleName", moduleName)
         manifest {
             attributes("Automatic-Module-Name": moduleName)
@@ -276,10 +262,10 @@ project(':core') {
     }
 }
 
-project(':ninjdao') {
-    ext.moduleName = "ninja.javahacker.ninjdao"
+project(':ninjadao') {
+    ext.moduleName = "ninja.javahacker.ninjadao"
     jar {
-        baseName = "ninjdao"
+        archiveBaseName = "ninjadao"
         inputs.property("moduleName", moduleName)
         manifest {
             attributes("Automatic-Module-Name": moduleName)
@@ -293,7 +279,7 @@ project(':ninjdao') {
 project(':hibernate') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.hibernate"
     jar {
-        baseName = "jpa-simple-transactions-hibernate"
+        archiveBaseName = "jpa-simple-transactions-hibernate"
         inputs.property("moduleName", moduleName)
         manifest {
             attributes("Automatic-Module-Name": moduleName)
@@ -304,14 +290,26 @@ project(':hibernate') {
 
         // Hibernate.
         implementation group: 'org.hibernate', name: 'hibernate-core', version: versionHibernate
-        implementation group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version: versionHibernateAnnotations
+        //implementation group: 'org.hibernate.orm', name: 'hibernate-core', version: versionHibernate
+
+        implementation('org.hibernate:hibernate-core:${versionHibernate}') {
+            exclude group: 'javax.persistence', module: 'javax.persistence-api'
+            //exclude group: 'org.junit.jupiter', module: 'junit-jupiter-engine'
+            //exclude group: 'org.junit.jupiter', module: 'junit-vintage-engine'
+        }
+
+        /*implementation('org.hibernate.orm:hibernate-core:${versionHibernate}') {
+            exclude group: 'javax.persistence', module: 'javax.persistence-api'
+            exclude group: 'org.junit.jupiter', module: 'junit-jupiter-engine'
+            exclude group: 'org.junit.jupiter', module: 'junit-vintage-engine'
+        }*/
     }
 }
 
 project(':eclipselink') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.eclipselink"
     jar {
-        baseName = "jpa-simple-transactions-eclipselink"
+        archiveBaseName = "jpa-simple-transactions-eclipselink"
         inputs.property("moduleName", moduleName)
         manifest {
             attributes("Automatic-Module-Name": moduleName)
@@ -328,7 +326,7 @@ project(':eclipselink') {
 project(':openjpa') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.openjpa"
     jar {
-        baseName = "jpa-simple-transactions-openjpa"
+        archiveBaseName = "jpa-simple-transactions-openjpa"
         inputs.property("moduleName", moduleName)
         manifest {
             attributes("Automatic-Module-Name": moduleName)
@@ -352,22 +350,18 @@ project(':tests') {
         }
     }
     dependencies {
-        api project(':core')
-        api project(':hibernate')
-        api project(':eclipselink')
-        api project(':openjpa')
-
-        // Hibernate.
-        implementation group: 'org.hibernate', name: 'hibernate-core', version: versionHibernate
-        implementation group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version: versionHibernateAnnotations
+        testImplementation project(':core')
+        testImplementation project(':hibernate')
+        testImplementation project(':eclipselink')
+        testImplementation project(':openjpa')
 
         // HSQLDB.
-        testCompile group: 'org.hsqldb', name: 'hsqldb', version: versionHsqldb
+        testImplementation group: 'org.hsqldb', name: 'hsqldb', version: versionHsqldb
 
         // JAXB.
         testRuntimeOnly group: 'javax.xml.bind', name: 'jaxb-api', version: versionJaxb
 
         // Mocker.
-        testCompile group: 'ninja.javahacker', name: 'mocker', version: versionMocker
+        testImplementation group: 'ninja.javahacker', name: 'mocker', version: versionMocker
     }
 }
