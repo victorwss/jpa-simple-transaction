@@ -15,7 +15,7 @@ repositories {
 
 allprojects {
     group = "ninja.javahacker.jpasimpletransactions"
-    version = "0.5.0-b20200406"
+    version = "0.5.0-b20200410"
 
     ext.javaCompiler = "13"
     ext.doclint = false
@@ -189,6 +189,11 @@ subprojects {
     }
 
     spotbugsTest.enabled = false
+
+    jar {
+        duplicatesStrategy = "exclude"
+    }
+
     task sourcesJar(type: Jar) {
         from sourceSets.main.allSource
         classifier "sources"
@@ -253,6 +258,7 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
 
 project(':core') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.core"
+    description = "JPA Simple Transactions Core"
     jar {
         archiveBaseName = "jpa-simple-transactions-core"
         inputs.property("moduleName", moduleName)
@@ -264,6 +270,7 @@ project(':core') {
 
 project(':ninjadao') {
     ext.moduleName = "ninja.javahacker.ninjadao"
+    description = "Ninja DAO"
     jar {
         archiveBaseName = "ninjadao"
         inputs.property("moduleName", moduleName)
@@ -278,6 +285,7 @@ project(':ninjadao') {
 
 project(':hibernate') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.hibernate"
+    description = "JPA Simple Transactions for Hibernate"
     jar {
         archiveBaseName = "jpa-simple-transactions-hibernate"
         inputs.property("moduleName", moduleName)
@@ -290,24 +298,19 @@ project(':hibernate') {
 
         // Hibernate.
         implementation group: 'org.hibernate', name: 'hibernate-core', version: versionHibernate
-        //implementation group: 'org.hibernate.orm', name: 'hibernate-core', version: versionHibernate
 
+        //implementation('org.hibernate.orm:hibernate-core:${versionHibernate}') {
         implementation('org.hibernate:hibernate-core:${versionHibernate}') {
             exclude group: 'javax.persistence', module: 'javax.persistence-api'
             //exclude group: 'org.junit.jupiter', module: 'junit-jupiter-engine'
             //exclude group: 'org.junit.jupiter', module: 'junit-vintage-engine'
         }
-
-        /*implementation('org.hibernate.orm:hibernate-core:${versionHibernate}') {
-            exclude group: 'javax.persistence', module: 'javax.persistence-api'
-            exclude group: 'org.junit.jupiter', module: 'junit-jupiter-engine'
-            exclude group: 'org.junit.jupiter', module: 'junit-vintage-engine'
-        }*/
     }
 }
 
 project(':eclipselink') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.eclipselink"
+    description = "JPA Simple Transactions for Eclipselink"
     jar {
         archiveBaseName = "jpa-simple-transactions-eclipselink"
         inputs.property("moduleName", moduleName)
@@ -325,6 +328,7 @@ project(':eclipselink') {
 
 project(':openjpa') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.openjpa"
+    description = "JPA Simple Transactions for Open JPA"
     jar {
         archiveBaseName = "jpa-simple-transactions-openjpa"
         inputs.property("moduleName", moduleName)
@@ -342,6 +346,7 @@ project(':openjpa') {
 
 project(':tests') {
     ext.moduleName = "ninja.javahacker.jpasimpletransactions.tests"
+    description = "JPA Simple Transactions unit tests"
     jar {
         baseName = "jpa-simple-transactions-tests"
         inputs.property("moduleName", moduleName)
