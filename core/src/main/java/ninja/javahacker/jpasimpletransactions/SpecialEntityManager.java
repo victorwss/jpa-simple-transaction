@@ -61,8 +61,8 @@ final class SpecialEntityManager implements ExtendedEntityManager {
     }
 
     @Override
-    public <T extends Object> ExtendedTypedQuery<T> createQuery(CriteriaQuery<T> cq) {
-        return ExtendedTypedQuery.wrap(wrapped.createQuery(cq));
+    public <T extends Object> ExtendedTypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        return ExtendedTypedQuery.wrap(wrapped.createQuery(criteriaQuery));
     }
 
     @Override
@@ -70,13 +70,13 @@ final class SpecialEntityManager implements ExtendedEntityManager {
             value = "SQL_INJECTION_JPA",
             justification = "False alarm, we're just delegating it untouched."
     )
-    public <T extends Object> ExtendedTypedQuery<T> createQuery(String string, Class<T> type) {
-        return ExtendedTypedQuery.wrap(wrapped.createQuery(string, type));
+    public <T extends Object> ExtendedTypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return ExtendedTypedQuery.wrap(wrapped.createQuery(qlString, resultClass));
     }
 
     @Override
-    public <T extends Object> ExtendedTypedQuery<T> createNamedQuery(String string, Class<T> type) {
-        return ExtendedTypedQuery.wrap(wrapped.createNamedQuery(string, type));
+    public <T extends Object> ExtendedTypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return ExtendedTypedQuery.wrap(wrapped.createNamedQuery(name, resultClass));
     }
 
     @Override

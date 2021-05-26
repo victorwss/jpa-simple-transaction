@@ -1,11 +1,12 @@
-rootProject.name = 'JPA-Simple-Transactions'
+rootProject.name = "JPA-Simple-Transactions"
 
 def subDirs = rootDir.listFiles(new FileFilter() {
+    @Override
     public boolean accept(File file) {
-        return file.isDirectory() && !['config', 'libs', 'build', 'gradle'].contains(file.name) && !file.name.contains('.')
+        return file.isDirectory() && !["config", "libs", "build", "gradle"].contains(file.name) && !file.name.contains(".")
     }
 });
 
 subDirs.each { File dir ->
-    include dir.name
+    include(dir.name)
 }

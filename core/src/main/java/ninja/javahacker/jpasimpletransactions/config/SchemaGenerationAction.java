@@ -1,46 +1,59 @@
 package ninja.javahacker.jpasimpletransactions.config;
 
-import java.util.function.BiConsumer;
-import lombok.NonNull;
-import lombok.Value;
-
 /**
  * Specifies the strategy used for automatic schema generation or validation.
- * <p>Used to set the property {@code javax.persistence.schema-generation.database.action}.</p>
+ * <p>Used to set the property {@code [javax|jakarta].persistence.schema-generation.database.action}.</p>
+ * <p>The {@code [javax|jakarta].persistence.schema-generation.database.action} property is used to specify the action taken
+ * by the persistence provider when an application is deployed.</p>
  * @see StandardConnectorFactory#getSchemaGenerationAction()
  * @see StandardConnectorFactory#withSchemaGenerationAction(SchemaGenerationAction)
- * @see #unspecified()
- * @see #none()
- * @see #drop()
- * @see #create()
- * @see #dropAndCreate()
+ * @see <a href="https://docs.oracle.com/javaee/7/tutorial/persistence-intro005.htm">Database Schema Creation</a>
  * @author Victor Williams Stafusa da Silva
  */
-@Value
-public class SchemaGenerationAction {
-    private final String name;
+public enum SchemaGenerationAction {
 
-    public static SchemaGenerationAction unspecified() {
-        return new SchemaGenerationAction("");
+    /**
+     * Defines that the strategy for schema generation or validation is left unspecified. If the property is not set,
+     * the persistence provider will not create or drop any database artifacts.
+     */
+    UNSPECIFIED(""),
+
+    /**
+     * Defines that the strategy for schema generation or validation is that no schema creation or deletion will take place.
+     */
+    NONE("none"),
+
+    /**
+     * Defines that the strategy for schema generation or validation is that any artifacts in the database will be deleted
+     * on application deployment.
+     */
+    DROP("drop"),
+
+    /**
+     * Defines that the strategy for schema generation or validation is that the provider will create the database artifacts
+     * on application deployment. The artifacts will remain unchanged after application redeployment.
+     */
+    CREATE("create"),
+
+    /**
+     * Defines that the strategy for schema generation or validation is that any artifacts in the database will be deleted,
+     * and the provider will create the database artifacts on deployment.
+     */
+    DROP_AND_CREATE("drop-and-create");
+
+    private final String code;
+
+    private SchemaGenerationAction(String code) {
+        this.code = code;
     }
 
-    public static SchemaGenerationAction none() {
-        return new SchemaGenerationAction("none");
-    }
-
-    public static SchemaGenerationAction drop() {
-        return new SchemaGenerationAction("drop");
-    }
-
-    public static SchemaGenerationAction create() {
-        return new SchemaGenerationAction("create");
-    }
-
-    public static SchemaGenerationAction dropAndCreate() {
-        return new SchemaGenerationAction("drop-and-create");
-    }
-
-    public void work(@NonNull String key, @NonNull BiConsumer<String, String> acceptor) {
-        if (!name.isEmpty()) acceptor.accept(key, name);
+    /**
+     * Returns {@code ""}, {@code "none"}, {@code "drop"}, {@code "create"} or {@code "drop-and-create"}
+     * depending on which elements of the enum {@code this} is.
+     * @return {@code ""}, {@code "none"}, {@code "drop"}, {@code "create"} or {@code "drop-and-create"}
+     *     depending on which elements of the enum {@code this} is.
+     */
+    public String getCode() {
+        return code;
     }
 }

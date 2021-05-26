@@ -32,17 +32,14 @@ public final class JpaConfiguration {
     @NonNull
     ProviderAdapter adapter;
 
-    private JpaConfiguration(
-            @NonNull ProviderAdapter adapter,
-            @NonNull ProviderConnectorFactory<?> prop)
-    {
+    private JpaConfiguration(@NonNull ProviderAdapter adapter, @NonNull ProviderConnectorFactory<?> prop) {
         this.adapter = adapter;
         this.properties = prop
                 .withPersistenceUnitName("test-1")
                 .withUrl("jdbc:hsqldb:mem:test1")
                 .withUser("sa")
                 .withPassword("")
-                .withSchemaGenerationAction(SchemaGenerationAction.dropAndCreate())
+                .withSchemaGenerationAction(SchemaGenerationAction.DROP_AND_CREATE)
                 .addEntity(Fruit.class);
     }
 

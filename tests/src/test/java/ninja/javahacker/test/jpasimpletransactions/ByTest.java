@@ -12,7 +12,7 @@ public class ByTest {
     public void testSimple1() {
         By b = By.asc("foo");
         Assertions.assertAll(
-                () -> Assertions.assertFalse(b.isDesc()),
+                () -> Assertions.assertFalse(b.isDescending()),
                 () -> Assertions.assertEquals("foo", b.getField())
         );
     }
@@ -21,7 +21,7 @@ public class ByTest {
     public void testSimple2() {
         By b = By.desc("xoo");
         Assertions.assertAll(
-                () -> Assertions.assertTrue(b.isDesc()),
+                () -> Assertions.assertTrue(b.isDescending()),
                 () -> Assertions.assertEquals("xoo", b.getField())
         );
     }
@@ -64,22 +64,10 @@ public class ByTest {
         By c = By.desc("goo");
         By d = By.asc("goo");
         Assertions.assertAll(
-                () -> Assertions.assertEquals("By(field=xoo, desc=true)", a.toString()),
-                () -> Assertions.assertEquals("By(field=xoo, desc=false)", b.toString()),
-                () -> Assertions.assertEquals("By(field=goo, desc=true)", c.toString()),
-                () -> Assertions.assertEquals("By(field=goo, desc=false)", d.toString())
-        );
-    }
-
-    @Test
-    public void testWither() {
-        By a = By.desc("xoo").withDesc(false);
-        By b = By.asc("xoo").withField("woo");
-        By c = By.asc("goo").withField("loo").withDesc(true);
-        Assertions.assertAll(
-                () -> Assertions.assertEquals("By(field=xoo, desc=false)", a.toString()),
-                () -> Assertions.assertEquals("By(field=woo, desc=false)", b.toString()),
-                () -> Assertions.assertEquals("By(field=loo, desc=true)", c.toString())
+                () -> Assertions.assertEquals("By(field=xoo, descending=true)", a.toString()),
+                () -> Assertions.assertEquals("By(field=xoo, descending=false)", b.toString()),
+                () -> Assertions.assertEquals("By(field=goo, descending=true)", c.toString()),
+                () -> Assertions.assertEquals("By(field=goo, descending=false)", d.toString())
         );
     }
 }

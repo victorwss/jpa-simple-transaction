@@ -1,4 +1,4 @@
-package ninja.javahacker.ninjdao;
+package ninja.javahacker.ninjadao;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MaxResults {
-    public int value() default 0;
+public @interface Select {
+    public String value();
 }

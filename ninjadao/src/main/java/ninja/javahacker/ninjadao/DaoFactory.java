@@ -1,4 +1,4 @@
-package ninja.javahacker.ninjdao;
+package ninja.javahacker.ninjadao;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -39,7 +39,7 @@ public class DaoFactory {
         ExtendedEntityManager em = giver.get();
         boolean execute = m.isAnnotationPresent(Execute.class);
         String jpql = execute ? m.getAnnotation(Execute.class).value() : m.getAnnotation(Select.class).value();
-        ExtendedTypedQuery<X> q = em.createQuery(jpql, ret.raw());
+        ExtendedTypedQuery<X> q = em.createQuery(jpql, ret.asClass());
 
         var idx = 0;
         for (Parameter p : m.getParameters()) {
@@ -61,7 +61,7 @@ public class DaoFactory {
             var pt = (ParameterizedType) r;
             if (pt.getRawType() == Stream.class) return (X) q.getResultStream();
             if (pt.getRawType() == List.class) return (X) q.getResultList();
-            if (pt.getRawType() == Optional.class) return (X) q.getSingleOptionalResult();
+            if (pt.getRawType() == Optional.class) return (X) q.getOptionalResult();
         }
         throw new AssertionError();
     }
@@ -86,13 +86,17 @@ public class DaoFactory {
         }
         if (isStatic(m)) {
             if (m.isAnnotationPresent(Select.class)) {
-                throw new UnsupportedOperationException("The @Select annotation can't be applied to static method, "
+                throw new UnsupportedOperationException("The @Select annotation can't be applied to a static method, "
                         + "so it can't be applied to the method " + m.toGenericString() + ".");
             }
             if (m.isAnnotationPresent(Execute.class)) {
-                throw new UnsupportedOperationException("The @Execute annotation can't be applied to static method, "
+                throw new UnsupportedOperationException("The @Execute annotation can't be applied to a static method, "
                         + "so it can't be applied to the method " + m.toGenericString() + ".");
             }
+        }
+        if (m.isAnnotationPresent(Select.class) && m.isAnnotationPresent(Execute.class)) {
+            throw new UnsupportedOperationException("The method " + m.toGenericString()
+                    + " can't feature both the @Select and the @Execute anotations.");
         }
 
         int maxResults = -1;
@@ -123,10 +127,6 @@ public class DaoFactory {
             throw new UnsupportedOperationException("Can't feature both the annotations "
                     + "@FirstResult and @MaxResults at the same parameter.");
         }
-        if (m.isAnnotationPresent(Select.class) && m.isAnnotationPresent(Execute.class)) {
-            throw new UnsupportedOperationException("The method " + m.toGenericString()
-                    + " can't feature both the @Select and the @Execute anotations.");
-        }
         if (m.isAnnotationPresent(Select.class)) {
             if (ret instanceof ParameterizedType
                     ? !List.of(Stream.class, List.class, Optional.class).contains(((ParameterizedType) ret).getRawType())
@@ -153,13 +153,13 @@ public class DaoFactory {
             }
             if (!isEquals(m) && !isHashCode(m) && !isToString(m) && !isStatic(m) && !m.isDefault()) {
                 throw new UnsupportedOperationException("Method " + m.toGenericString()
-                        + " is lacking the @Select or @Execute annottion.");
+                        + " is lacking the @Select or @Execute annotation.");
             }
         }
     }
 
     private static boolean is(@NonNull Method m, @NonNull String name, @NonNull Class<?>... params) {
-        return Arrays.equals(m.getParameterTypes(), params) && name.equals(m.getName());
+        return name.equals(m.getName()) && Arrays.equals(m.getParameterTypes(), params);
     }
 
     private static boolean isEquals(Method m) {
@@ -179,7 +179,7 @@ public class DaoFactory {
     }
 
     private static boolean isFinalize(Method m) {
-        return is(m, "clone") || is(m, "finalize");
+        return is(m, "finalize");
     }
 
     private static boolean isStatic(Method m) {
@@ -191,7 +191,7 @@ public class DaoFactory {
     }
 
     public <E> E daoFor(ReifiedGeneric<E> type) {
-        Class<E> targetInterface = type.raw();
+        Class<E> targetInterface = type.asClass();
         if (!targetInterface.isInterface()) throw new IllegalArgumentException();
 
         for (Method m : targetInterface.getMethods()) {
@@ -203,7 +203,7 @@ public class DaoFactory {
             if (isToString(m)) return "Dao[" + type + "] from " + toString();
             if (isHashCode(m)) return System.identityHashCode(p);
             if (isEquals(m)) return a[0] == p;
-            if (m.isDefault()) return m.invoke(p, a);
+            if (m.isDefault()) return InvocationHandler.invokeDefault(p, m, a);
             throw new AssertionError();
         };
         ClassLoader ccl = Thread.currentThread().getContextClassLoader();

@@ -1,4 +1,4 @@
-package ninja.javahacker.ninjdao;
+package ninja.javahacker.ninjadao;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

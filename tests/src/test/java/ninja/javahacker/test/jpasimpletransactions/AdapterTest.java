@@ -28,18 +28,16 @@ public class AdapterTest {
                 .map(c::cast);
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest(name = "testAdapterIdentityless {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testAdapterIdentityless(String t, JpaConfiguration config) throws Exception {
         var adapter = config.getAdapter();
-        var canonical = adapter.getClass().getField("CANONICAL").get(null);
-        var newi = adapter.getClass().getConstructor().newInstance();
-        var loaded = load(adapter.getClass()).orElseThrow(AssertionError::new);
         Assertions.assertAll(
-                () -> Assertions.assertSame(adapter, canonical),
-                () -> Assertions.assertEquals(adapter, newi),
-                () -> Assertions.assertEquals(adapter, loaded),
-                () -> Assertions.assertEquals(newi, loaded)
+                () -> Assertions.assertSame(adapter, adapter.getClass().getField("CANONICAL").get(null)),
+                () -> Assertions.assertEquals(adapter, adapter.getClass().getConstructor().newInstance()),
+                () -> Assertions.assertEquals(adapter, load(adapter.getClass()).orElseThrow(AssertionError::new)),
+                () -> Assertions.assertTrue(ProviderAdapter.all().collect(Collectors.toList()).contains(adapter)),
+                () -> Assertions.assertTrue(ProviderAdapter.all().collect(Collectors.toList()).contains(adapter))
         );
     }
 
@@ -51,7 +49,6 @@ public class AdapterTest {
                 .map(Provider::get)
                 .collect(Collectors.toList());
 
-        System.out.println(a);
         Assertions.assertAll(
                 () -> Assertions.assertEquals(3, a.size()),
                 () -> Assertions.assertTrue(a.contains(EclipselinkAdapter.CANONICAL)),
@@ -60,12 +57,24 @@ public class AdapterTest {
         );
     }
 
-    @ParameterizedTest(name = "{0}")
+    @Test
+    public void testAdapterListProvided() throws Exception {
+        var a = ProviderAdapter.all().collect(Collectors.toList());
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(3, a.size()),
+                () -> Assertions.assertTrue(a.contains(EclipselinkAdapter.CANONICAL)),
+                () -> Assertions.assertTrue(a.contains(HibernateAdapter.CANONICAL)),
+                () -> Assertions.assertTrue(a.contains(OpenJpaAdapter.CANONICAL))
+        );
+    }
+
+    @ParameterizedTest(name = "testAdapterProvider {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testAdapterProvider(String t, JpaConfiguration config) throws Exception {
         var adapter = config.getAdapter();
         var provider = adapter.getJpaProvider();
         Assertions.assertNotNull(provider);
-        Assertions.assertEquals(provider, adapter.getJpaProvider());
+        Assertions.assertSame(provider, adapter.getJpaProvider());
     }
 }

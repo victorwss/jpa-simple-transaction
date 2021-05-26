@@ -1,24 +1,20 @@
-package ninja.javahacker.jpasimpletransactions.eclipselink;
+package ninja.javahacker.jpasimpletransactions.config;
 
-import java.net.URL;
 import java.sql.Driver;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
-import ninja.javahacker.jpasimpletransactions.config.OptionalBoolean;
-import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
-import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
-import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationActionTarget;
-import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
+import ninja.javahacker.jpasimpletransactions.Connector;
+import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 
 /**
- * Implementation of {@link ProviderConnectorFactory} for Eclipselink.
+ * A collection of properties used to instantiate a {@link Connector}, dynamically choosing a JPA provider.
  * @author Victor Williams Stafusa da Silva
  */
 @Value
@@ -26,7 +22,7 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("checkstyle:javadoctagcontinuationindentation")
-public class EclipselinkConnectorFactory implements ProviderConnectorFactory<EclipselinkConnectorFactory> {
+public class DynamicConnectorFactory implements StandardConnectorFactory<DynamicConnectorFactory> {
 
     /**
      * The persistence unit's name.
@@ -237,19 +233,10 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
     @NonNull Map<String, String> extras;
 
     /**
-     * The set of explicitly declared entity classes that should be recognized as entity types.
-     * -- GETTER --
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     * -- WITH --
-     * {@inheritDoc}
-     * @param entities {@inheritDoc}
-     * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * Sole public constructor. Creates an empty instance.
+     * To be something useful, the instance should be built by further call to {@code withXXX} methods.
      */
-    @NonNull Set<Class<?>> entities;
-
-    public EclipselinkConnectorFactory() {
+    public DynamicConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;
         this.url = "";
@@ -266,25 +253,16 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
         this.databaseMajorVersion = "";
         this.databaseMinorVersion = "";
         this.extras = Map.of();
-        this.entities = Set.of();
     }
 
     /**
      * {@inheritDoc}
-     * @implNote This implementation always returns {@link #NOWHERE}.
-     * @return {@inheritDoc}
-     */
-    public Optional<URL> getPersistenceUnitUrl() {
-        return Optional.of(NOWHERE);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @implNote This returns {@link EclipselinkAdapter#CANONICAL}.
      * @return {@inheritDoc}
      */
     @Override
-    public EclipselinkAdapter getProviderAdapter() {
-        return EclipselinkAdapter.CANONICAL;
+    public Connector connect() {
+        String pu = getPersistenceUnitName();
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(pu, getProperties());
+        return Connector.create(pu, emf, ProviderAdapter.findFor(emf));
     }
 }

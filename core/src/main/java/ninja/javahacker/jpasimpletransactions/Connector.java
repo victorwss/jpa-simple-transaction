@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
 /**
  * Class responsible for managing the lifecycle of an {@link EntityManagerFactory}
- * and its {@link SpecialEntityManager}s and also automatically demarking transaction
+ * and its {@link SpecialEntityManager}s and also automatically marking transaction
  * scopes.
  *
  * <p>Each instance of this class is responsible for managing a single instance of
@@ -24,14 +25,29 @@ import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
  */
 public class Connector implements AutoCloseable {
 
+    /**
+     * The name of the persistence unit used by this {@code Connector}.
+     * -- GETTER --
+     * @return The name of the persistence unit used by this {@code Connector}.
+     */
     @Getter
     private final String persistenceUnitName;
 
+    /**
+     * The {@link EntityManagerFactory} used for creating {@link EntityManager}s within this {@code Connector}.
+     * -- GETTER --
+     * @return The {@link EntityManagerFactory} used for creating {@link EntityManager}s within this {@code Connector}.
+     */
     @Getter
     private final EntityManagerFactory entityManagerFactory;
 
     private final ThreadLocal<SpecialEntityManager> managers;
 
+    /**
+     * The persistence provider used by this {@code Connector}.
+     * -- GETTER --
+     * @return The persistence provider used by this {@code Connector}.
+     */
     @Getter
     private final ProviderAdapter adapter;
 
@@ -46,6 +62,15 @@ public class Connector implements AutoCloseable {
         this.adapter = adapter;
     }
 
+    /**
+     * Creates a connector which wraps a given {@link EntityManagerFactory} with a given persistence provider (wrapped by the
+     * {@link ProviderAdapter} with the specified name of a persistence unit.
+     * @param persistenceUnitName The name of the persistence unit.
+     * @param emf The {@link EntityManagerFactory} responsible for creating {@link EntityManager}s.
+     * @param adapter The persistence provider wrapped into a {@link ProviderAdapter}.
+     * @return An instance of this class.
+     * @throws IllegalArgumentException If any parameter is {@code null}.
+     */
     public static Connector create(
             @NonNull String persistenceUnitName,
             @NonNull EntityManagerFactory emf,
@@ -57,6 +82,12 @@ public class Connector implements AutoCloseable {
         return con;*/
     }
 
+    /**
+     * Obtains the {@link EntityManager} (or more precisely, an {@link ExtendedEntityManager}) that is responsible for the persistence
+     * within the active transaction in the current thread.
+     * @return The {@link ExtendedEntityManager} responsible for the persistence  within the active transaction in the current thread.
+     * @throws IllegalStateException If there is no active transaction.
+     */
     public ExtendedEntityManager getEntityManager() {
         ExtendedEntityManager em = managers.get();
         if (em == null) throw new IllegalStateException("Can't get the EntityManager outside of a transaction.");
@@ -69,15 +100,37 @@ public class Connector implements AutoCloseable {
         return em;
     }
 
-    public <A> A transact(@NonNull Class<A> type, @NonNull A operation) {
-        if (!type.isInterface()) throw new IllegalArgumentException();
-        InvocationHandler ih = (p, m, args) -> execute(() -> m.invoke(operation, args));
+    /**
+     * Given an interface {@code iface} of type {@code <A>} and an implementation called {@code impl}, returns a new implementation
+     * that wraps the given one by adding a transaction context on each of its methods. This transactional context is reentrant, so
+     * nested calls of the methods don't create additional contexts. The persistence context of the transactions is provided by the
+     * {@link #getEntityManager()} method.
+     * @param <A> The type of the interface to be wrapped.
+     * @param iface The actual class object representing the interface to be wrapped.
+     * @param impl The implementation to be wrapped.
+     * @return The wrapped implementation.
+     * @throws IllegalArgumentException If any parameter is {@code null}.
+     */
+    public <A> A transact(@NonNull Class<A> iface, @NonNull A impl) {
+        if (!iface.isInterface()) throw new IllegalArgumentException();
+        InvocationHandler ih = (p, m, args) -> execute(() -> m.invoke(impl, args));
         ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-        return type.cast(Proxy.newProxyInstance(ccl, new Class<?>[] {type}, ih));
+        return iface.cast(Proxy.newProxyInstance(ccl, new Class<?>[] {iface}, ih));
     }
 
-    public <A> A transact(@NonNull ReifiedGeneric<A> type, @NonNull A operation) {
-        return transact(type.raw(), operation);
+    /**
+     * Given an interface {@code iface} of type {@code <A>} and an implementation called {@code impl}, returns a new implementation
+     * that wraps the given one by adding a transaction context on each of its methods. This transactional context is reentrant, so
+     * nested calls of the methods don't create additional contexts. The persistence context of the transactions is provided by the
+     * {@link #getEntityManager()} method.
+     * @param <A> The type of the interface to be wrapped.
+     * @param type The generic type containing the {@code iface} class object representing the interface to be wrapped.
+     * @param impl The implementation to be wrapped.
+     * @return The wrapped implementation.
+     * @throws IllegalArgumentException If any parameter is {@code null}.
+     */
+    public <A> A transact(@NonNull ReifiedGeneric<A> type, @NonNull A impl) {
+        return transact(type.asClass(), impl);
     }
 
     /**
@@ -98,10 +151,17 @@ public class Connector implements AutoCloseable {
         }
     }
 
+    /**
+     * Executes the given lambda inside a transaction context.
+     * @param trans The lambda to execute inside the transaction context.
+     * @throws IllegalArgumentException If {@code trans} is {@code null}.
+     * @throws Throwable Whatever is thrown by the lambda. Forces a rollback in the transaction.
+     */
     @SuppressFBWarnings(
             value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
             justification = "try-with-resources - It's either SpotBugs fault or javac fault, but definitely not our fault."
     )
+    @SuppressWarnings({"PMD.CloseResource"})
     private <E> E execute(@NonNull XSupplier<E> trans) throws Throwable {
         SpecialEntityManager alreadyExists = managers.get();
         if (alreadyExists != null) return trans.get();
@@ -131,6 +191,9 @@ public class Connector implements AutoCloseable {
         }
     }
 
+    /**
+     * Closes the {@code Connector} and its subjacent {@link EntityManagerFactory}.
+     */
     @Override
     public void close() {
         entityManagerFactory.close();

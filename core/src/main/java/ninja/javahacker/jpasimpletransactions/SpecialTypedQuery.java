@@ -27,6 +27,7 @@ import lombok.experimental.PackagePrivate;
 )
 @PackagePrivate
 class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
+
     @Delegate(types = DelegatedParts.class)
     private final TypedQuery<X> delegate;
 
@@ -50,92 +51,92 @@ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
     }
 
     @Override
-    public SpecialTypedQuery<X> setMaxResults(int i) {
-        delegate.setMaxResults(i);
+    public SpecialTypedQuery<X> setMaxResults(int maxResults) {
+        delegate.setMaxResults(maxResults);
         return this;
     }
 
     @Override
-    public SpecialTypedQuery<X> setFirstResult(int i) {
-        delegate.setFirstResult(i);
+    public SpecialTypedQuery<X> setFirstResult(int startPosition) {
+        delegate.setFirstResult(startPosition);
         return this;
     }
 
     @Override
-    public SpecialTypedQuery<X> setHint(String string, Object o) {
-        delegate.setHint(string, o);
+    public SpecialTypedQuery<X> setHint(String hintName, Object value) {
+        delegate.setHint(hintName, value);
         return this;
     }
 
     @Override
-    public <T> SpecialTypedQuery<X> setParameter(Parameter<T> prmtr, T t) {
-        delegate.setParameter(prmtr, t);
-        return this;
-    }
-
-    @Deprecated
-    @Override
-    public SpecialTypedQuery<X> setParameter(Parameter<Calendar> prmtr, Calendar clndr, TemporalType tt) {
-        delegate.setParameter(prmtr, clndr, tt);
+    public <T> SpecialTypedQuery<X> setParameter(Parameter<T> param, T value) {
+        delegate.setParameter(param, value);
         return this;
     }
 
     @Deprecated
     @Override
-    public SpecialTypedQuery<X> setParameter(Parameter<Date> prmtr, Date date, TemporalType tt) {
-        delegate.setParameter(prmtr, date, tt);
-        return this;
-    }
-
-    @Override
-    public SpecialTypedQuery<X> setParameter(String string, Object o) {
-        delegate.setParameter(string, o);
+    public SpecialTypedQuery<X> setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(param, value, temporalType);
         return this;
     }
 
     @Deprecated
     @Override
-    public SpecialTypedQuery<X> setParameter(String string, Calendar clndr, TemporalType tt) {
-        delegate.setParameter(string, clndr, tt);
+    public SpecialTypedQuery<X> setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
+        delegate.setParameter(param, value, temporalType);
+        return this;
+    }
+
+    @Override
+    public SpecialTypedQuery<X> setParameter(String name, Object value) {
+        delegate.setParameter(name, value);
         return this;
     }
 
     @Deprecated
     @Override
-    public SpecialTypedQuery<X> setParameter(String string, Date date, TemporalType tt) {
-        delegate.setParameter(string, date, tt);
-        return this;
-    }
-
-    @Override
-    public SpecialTypedQuery<X> setParameter(int i, Object o) {
-        delegate.setParameter(i, o);
+    public SpecialTypedQuery<X> setParameter(String name, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(name, value, temporalType);
         return this;
     }
 
     @Deprecated
     @Override
-    public SpecialTypedQuery<X> setParameter(int i, Calendar clndr, TemporalType tt) {
-        delegate.setParameter(i, clndr, tt);
+    public SpecialTypedQuery<X> setParameter(String name, Date value, TemporalType temporalType) {
+        delegate.setParameter(name, value, temporalType);
+        return this;
+    }
+
+    @Override
+    public SpecialTypedQuery<X> setParameter(int position, Object value) {
+        delegate.setParameter(position, value);
         return this;
     }
 
     @Deprecated
     @Override
-    public SpecialTypedQuery<X> setParameter(int i, Date date, TemporalType tt) {
-        delegate.setParameter(i, date, tt);
+    public SpecialTypedQuery<X> setParameter(int position, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(position, value, temporalType);
+        return this;
+    }
+
+    @Deprecated
+    @Override
+    public SpecialTypedQuery<X> setParameter(int position, Date value, TemporalType temporalType) {
+        delegate.setParameter(position, value, temporalType);
         return this;
     }
 
     @Override
-    public SpecialTypedQuery<X> setFlushMode(FlushModeType fmt) {
-        delegate.setFlushMode(fmt);
+    public SpecialTypedQuery<X> setFlushMode(FlushModeType flushMode) {
+        delegate.setFlushMode(flushMode);
         return this;
     }
 
     @Override
-    public SpecialTypedQuery<X> setLockMode(LockModeType lmt) {
-        delegate.setLockMode(lmt);
+    public SpecialTypedQuery<X> setLockMode(LockModeType lockMode) {
+        delegate.setLockMode(lockMode);
         return this;
     }
 
@@ -153,26 +154,26 @@ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
 
         public Set<Parameter<?>> getParameters();
 
-        public Parameter<?> getParameter(String string);
+        public Parameter<?> getParameter(String name);
 
-        public <T> Parameter<T> getParameter(String string, Class<T> type);
+        public <T> Parameter<T> getParameter(String name, Class<T> type);
 
-        public Parameter<?> getParameter(int i);
+        public Parameter<?> getParameter(int position);
 
-        public <T> Parameter<T> getParameter(int i, Class<T> type);
+        public <T> Parameter<T> getParameter(int position, Class<T> type);
 
-        public boolean isBound(Parameter<?> prmtr);
+        public boolean isBound(Parameter<?> param);
 
-        public <T> T getParameterValue(Parameter<T> prmtr);
+        public <T> T getParameterValue(Parameter<T> param);
 
-        public Object getParameterValue(String string);
+        public Object getParameterValue(String name);
 
-        public Object getParameterValue(int i);
+        public Object getParameterValue(int position);
 
         public FlushModeType getFlushMode();
 
         public LockModeType getLockMode();
 
-        public <T> T unwrap(Class<T> type);
+        public <X> X unwrap(Class<X> type);
     }
 }

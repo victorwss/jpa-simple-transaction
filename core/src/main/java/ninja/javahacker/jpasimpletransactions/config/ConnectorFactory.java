@@ -8,7 +8,15 @@ import ninja.javahacker.jpasimpletransactions.Connector;
  */
 public interface ConnectorFactory {
 
+    /**
+     * Gets the persistence unit's name.
+     * @return The persistence unit's name.
+     */
     public String getPersistenceUnitName();
 
+    /**
+     * Creates a new {@link Connector}.
+     * @return A new {@link Connector}.
+     */
     public Connector connect();
 }
