@@ -337,7 +337,8 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
         if (isMultipleLinesCommands()) {
             props.put(
                     "hibernate.hbm2ddl.import_files_sql_extractor",
-                    "org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor");
+                    "org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor"
+            );
         }
         f.accept("hibernate.show_sql", getShowSql().getCode());
         f.accept("hibernate.format_sql", getFormatSql().getCode());

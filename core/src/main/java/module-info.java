@@ -1,6 +1,7 @@
 /**
  * Simplifies the development of JPA applications without needing configuration files.
  */
+@SuppressWarnings({ "requires-automatic", "requires-transitive-automatic" })
 module ninja.javahacker.jpasimpletransactions.core {
     requires transitive java.persistence;
     requires transitive java.sql;

@@ -1,3 +1,4 @@
+@SuppressWarnings({ "requires-automatic", "requires-transitive-automatic" })
 open module ninja.javahacker.jpasimpletransactions.test {
     requires static lombok;
     requires static com.github.spotbugs.annotations;

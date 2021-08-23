@@ -87,6 +87,7 @@ public final class EclipselinkAdapter implements ProviderAdapter {
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public EclipselinkConnectorFactory config() {
         return new EclipselinkConnectorFactory();
     }

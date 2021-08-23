@@ -274,6 +274,7 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * @implNote This implementation always returns {@link #NOWHERE}.
      * @return {@inheritDoc}
      */
+    @Override
     public Optional<URL> getPersistenceUnitUrl() {
         return Optional.of(NOWHERE);
     }

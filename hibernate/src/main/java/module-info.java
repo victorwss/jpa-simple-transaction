@@ -1,6 +1,7 @@
 /**
  * Hibernate provider for JPA Simple Transactions.
  */
+@SuppressWarnings({ "requires-automatic", "requires-transitive-automatic" })
 module ninja.javahacker.jpasimpletransactions.hibernate {
     requires transitive static lombok;
     requires transitive static com.github.spotbugs.annotations;
