@@ -14,15 +14,26 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import javax.persistence.EntityManager;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ExtendedTypedQuery;
+import ninja.javahacker.reifiedgeneric.MalformedReifiedGenericException;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
-public class DaoFactory {
+/**
+ * Factory object that receives references for interfaces specifying database operations with JPQL
+ * and creates dynamic implementations of them.
+ * @author Victor Williams Stafusa da Silva
+ */
+public final class DaoFactory {
 
     private final Supplier<ExtendedEntityManager> giver;
 
+    /**
+     * Produces an instance from something capable of supplying {@link EntityManager}s.
+     * @param giver Something capable of supplying {@link EntityManager}s.
+     */
     public DaoFactory(@NonNull Supplier<ExtendedEntityManager> giver) {
         this.giver = giver;
     }
@@ -96,7 +107,7 @@ public class DaoFactory {
         }
         if (m.isAnnotationPresent(Select.class) && m.isAnnotationPresent(Execute.class)) {
             throw new UnsupportedOperationException("The method " + m.toGenericString()
-                    + " can't feature both the @Select and the @Execute anotations.");
+                    + " can't feature both the @Select and the @Execute annotations.");
         }
 
         int maxResults = -1;
@@ -152,8 +163,8 @@ public class DaoFactory {
                         + m.toGenericString() + " which lacks a @Select or an @Execute annotation.");
             }
             if (!isEquals(m) && !isHashCode(m) && !isToString(m) && !isStatic(m) && !m.isDefault()) {
-                throw new UnsupportedOperationException("Method " + m.toGenericString()
-                        + " is lacking the @Select or @Execute annotation.");
+                throw new UnsupportedOperationException("The method " + m.toGenericString()
+                        + " should have either the @Select or @Execute annotation.");
             }
         }
     }
@@ -186,11 +197,35 @@ public class DaoFactory {
         return Modifier.isStatic(m.getModifiers());
     }
 
+    /**
+     * Creates a dynamic implementation of Data Access Object implementation from a given interface.
+     * The method implementations are entirely derived from the method annotations {@link Select}, {@link Execute},
+     * {@link MaxResults} and {@link FirstResult}.
+     * @param <E> The type of the interface.
+     * @param type The type of the interface.
+     * @return An implementation of the interface.
+     * @throws IllegalArgumentException If {@code type} is {@code null} or is not an interface.
+     * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
+     * @throws UnsupportedOperationException If some method can't be implemented for some reason, likely a bad combination of
+     *     parameters, return type, modifiers, annotations and/or method name.
+     */
     public <E> E daoFor(Class<E> type) {
         return daoFor(ReifiedGeneric.of(type));
     }
 
-    public <E> E daoFor(ReifiedGeneric<E> type) {
+    /**
+     * Creates a dynamic implementation of Data Access Object implementation from a given interface.
+     * The method implementations are entirely derived from the method annotations {@link Select}, {@link Execute},
+     * {@link MaxResults} and {@link FirstResult}.
+     * @param <E> The type of the interface.
+     * @param type The type of the interface as a {@link ReifiedGeneric}.
+     * @return An implementation of the interface.
+     * @throws IllegalArgumentException If {@code type} is {@code null} or is not an interface.
+     * @throws MalformedReifiedGenericException If {@code type} is not a {@link ParameterizedType} nor a {@link Class}.
+     * @throws UnsupportedOperationException If some method can't be implemented for some reason, likely a bad combination of
+     *     parameters, return type, modifiers, annotations and/or method name.
+     */
+    public <E> E daoFor(@NonNull ReifiedGeneric<E> type) {
         Class<E> targetInterface = type.asClass();
         if (!targetInterface.isInterface()) throw new IllegalArgumentException();
 
@@ -211,16 +246,29 @@ public class DaoFactory {
         return targetInterface.cast(proxy);
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "DaoFactory[" + giver.toString() + "]";
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return giver.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     * @param other {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof DaoFactory)) return false;
