@@ -250,9 +250,38 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      */
     @NonNull Set<Class<?>> entities;
 
+    /**
+     * Defines if a dynamic enhancement agent should be used at runtime.
+     * -- GETTER --
+     * Tells if a dynamic enhancement agent should be used at runtime.
+     * @return If a dynamic enhancement agent should be used at runtime.
+     * -- WITH --
+     * Defines if a dynamic enhancement agent should be used at runtime.
+     * @param dynamicEnhancementAgent The definition about if a dynamic enhancement agent should be used at runtime.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     definition about if a dynamic enhancement agent should be used at runtime instead.
+     * @throws IllegalArgumentException If {@code dynamicEnhancementAgent} is {@code null}.
+     */
     @NonNull OptionalBoolean dynamicEnhancementAgent;
+
+    /**
+     * The strategy used to handle unenhanced classes at runtime.
+     * -- GETTER --
+     * The strategy used to handle unenhanced classes at runtime.
+     * @return The strategy used to handle unenhanced classes at runtime.
+     * -- WITH --
+     * Sets the strategy used to handle unenhanced classes at runtime.
+     * @param runtimeUnenhancedClasses The strategy used to handle unenhanced classes at runtime.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     strategy used to handle unenhanced classes at runtime instead.
+     * @throws IllegalArgumentException If {@code runtimeUnenhancedClasses} is {@code null}.
+     */
     @NonNull Support runtimeUnenhancedClasses;
 
+    /**
+     * Sole public constructor. Creates an empty instance.
+     * To be something useful, the instance should be built by further call to {@code withXXX} methods.
+     */
     public OpenJpaConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;
@@ -286,6 +315,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
         return OpenJpaAdapter.CANONICAL;
     }
 
+    /**
+     * Defines if a dynamic enhancement agent should be used at runtime.
+     * @param newValue The definition about if a dynamic enhancement agent should be used at runtime.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     definition about if a dynamic enhancement agent should be used at runtime instead.
+     */
     @Tolerate
     public OpenJpaConnectorFactory withDynamicEnhancementAgent(boolean newValue) {
         return withDynamicEnhancementAgent(OptionalBoolean.from(newValue));

@@ -249,6 +249,10 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      */
     @NonNull Set<Class<?>> entities;
 
+    /**
+     * Sole public constructor. Creates an empty instance.
+     * To be something useful, the instance should be built by further call to {@code withXXX} methods.
+     */
     public EclipselinkConnectorFactory() {
         this.persistenceUnitName = "";
         this.driver = Driver.class;

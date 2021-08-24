@@ -37,10 +37,6 @@ public final class OpenJpaAdapter implements ProviderAdapter {
     private OpenJpaAdapter(int x) {
     }
 
-    public static OpenJpaAdapter provider() {
-        return CANONICAL;
-    }
-
     /**
      * {@inheritDoc}
      * @param emf {@inheritDoc}
