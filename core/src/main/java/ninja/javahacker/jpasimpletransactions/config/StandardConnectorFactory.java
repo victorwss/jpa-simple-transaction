@@ -347,11 +347,11 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
 
         var gc = getSchemaGenerationCreate();
         f.accept("javax.persistence.schema-generation.create-source", gc.getStrategy());
-        f.accept("javax.persistence.schema-generation.create-script-source", gc.getScript());
+        f.accept("javax.persistence.schema-generation.create-script-source", gc.getScriptPath());
 
         var gd = getSchemaGenerationDrop();
         f.accept("javax.persistence.schema-generation.drop-source", gd.getStrategy());
-        f.accept("javax.persistence.schema-generation.drop-script-source", gd.getScript());
+        f.accept("javax.persistence.schema-generation.drop-script-source", gd.getScriptPath());
 
         var sssl = getSchemaScriptStoreLocation();
         f.accept("javax.persistence.schema-generation.scripts.action", sssl.getStrategy());

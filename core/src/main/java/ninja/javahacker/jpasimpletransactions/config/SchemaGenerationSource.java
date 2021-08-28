@@ -1,5 +1,7 @@
 package ninja.javahacker.jpasimpletransactions.config;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -30,6 +32,7 @@ import lombok.Value;
  * @author Victor Williams Stafusa da Silva
  */
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaGenerationSource {
 
     /**
@@ -49,7 +52,7 @@ public class SchemaGenerationSource {
      * @return The location of the user-provided script or an empty string ({@code ""}) if there is none.
      */
     @NonNull
-    private final String script;
+    private final String scriptPath;
 
     /**
      * Defines that the strategy for schema generation is undefined.
@@ -71,36 +74,36 @@ public class SchemaGenerationSource {
     /**
      * Defines that the strategy for schema generation is to use a provided script for creating
      * or deleting the database artifacts.
-     * @param script The location of the script relative to the root of the persistence unit.
+     * @param scriptPath The location of the script relative to the root of the persistence unit.
      *     For example, {@code "META-INF/sql/some-script.sql"}.
      * @return An object representing the strategy detailed above.
      * @throws IllegalArgumentException If the {@code script} is {@code null}.
      */
-    public static SchemaGenerationSource script(@NonNull String script) {
-        return new SchemaGenerationSource("script", script);
+    public static SchemaGenerationSource script(@NonNull String scriptPath) {
+        return new SchemaGenerationSource("script", scriptPath);
     }
 
     /**
      * Defines that the strategy for schema generation is to use a combination of object/relational metadata,
      * then a user-provided script to create or delete the database artifacts.
-     * @param script The location of the script relative to the root of the persistence unit.
+     * @param scriptPath The location of the script relative to the root of the persistence unit.
      *     For example, {@code "META-INF/sql/some-script.sql"}.
      * @return An object representing the strategy detailed above.
      * @throws IllegalArgumentException If the {@code script} is {@code null}.
      */
-    public static SchemaGenerationSource metadataThenScript(@NonNull String script) {
-        return new SchemaGenerationSource("metadata-then-script", script);
+    public static SchemaGenerationSource metadataThenScript(@NonNull String scriptPath) {
+        return new SchemaGenerationSource("metadata-then-script", scriptPath);
     }
 
     /**
      * Defines that the strategy for schema generation is to use a combination of a user-provided script,
      * then the object/relational metadata to create or delete the database artifacts.
-     * @param script The location of the script relative to the root of the persistence unit.
+     * @param scriptPath The location of the script relative to the root of the persistence unit.
      *     For example, {@code "META-INF/sql/some-script.sql"}.
      * @return An object representing the strategy detailed above.
      * @throws IllegalArgumentException If the {@code script} is {@code null}.
      */
-    public static SchemaGenerationSource scriptThenMetadata(@NonNull String script) {
-        return new SchemaGenerationSource("script-then-metadata", script);
+    public static SchemaGenerationSource scriptThenMetadata(@NonNull String scriptPath) {
+        return new SchemaGenerationSource("script-then-metadata", scriptPath);
     }
 }

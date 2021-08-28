@@ -1,6 +1,5 @@
 package ninja.javahacker.jpasimpletransactions;
 
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 
 /**
@@ -10,12 +9,27 @@ import lombok.NonNull;
  */
 public interface ConnectorListener {
 
-    public default void connectorStarted(@NonNull String persistenceUnit) {
+    /**
+     * Called when a connector is registered for some persistence unit.
+     * @param persistenceUnit The name of the persistence unit which the connector was registered.
+     * @param defaultConnector If the connector is the default connector.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
+     */
+    public default void connectorRegistered(@NonNull String persistenceUnit, boolean defaultConnector) {
+    }
+
+    /**
+     * Called when an operation starts within a connector.
+     * @param persistenceUnit The name of the persistence unit which the operation started.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
+     */
+    public default void operationStarted(@NonNull String persistenceUnit) {
     }
 
     /**
      * Called when a transaction starts.
      * @param persistenceUnit The name of the persistence unit which the transaction started.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */
     public default void startedTransaction(@NonNull String persistenceUnit) {
     }
@@ -23,6 +37,7 @@ public interface ConnectorListener {
     /**
      * Called when a broken connection to the database was restablished.
      * @param persistenceUnit The name of the persistence unit which the transaction started.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */
     public default void renewedConnection(@NonNull String persistenceUnit) {
     }
@@ -30,6 +45,7 @@ public interface ConnectorListener {
     /**
      * Called when a transaction finished with a commit.
      * @param persistenceUnit The name of the persistence unit that commited.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */
     public default void finishedWithCommit(@NonNull String persistenceUnit) {
     }
@@ -37,55 +53,25 @@ public interface ConnectorListener {
     /**
      * Called when a transaction finished with a rollback.
      * @param persistenceUnit The name of the persistence unit that rollback'd.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */
     public default void finishedWithRollback(@NonNull String persistenceUnit) {
     }
 
-    public default void connectorClosed(@NonNull String persistenceUnit) {
+    /**
+     * Called when an operation finishes within a connector.
+     * @param persistenceUnit The name of the persistence unit which the operation finished.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
+     */
+    public default void operationFinished(@NonNull String persistenceUnit) {
     }
 
     /**
-     * Creates a listener that broadcast its call to other listeners.
-     * @param list The listeners that will receive the broadcasted calls.
-     * @return A new listener that broadcast its call to the listeners in the given list.
-     * @throws IllegalArgumentException If {@code list} is {@code null}.
+     * Called when a connector is unregistered for some persistence unit.
+     * @param persistenceUnit The name of the persistence unit which the connector was registered.
+     * @param defaultConnector If the connector was the default connector.
+     * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */
-    public static ConnectorListener newBroadcaster(@NonNull Iterable<ConnectorListener> list) {
-
-        return new ConnectorListener() {
-            private void broadcast(BiConsumer<ConnectorListener, String> cons, String persistenceUnit) {
-                list.forEach(listener -> cons.accept(listener, persistenceUnit));
-            }
-
-            @Override
-            public void connectorStarted(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::connectorStarted, persistenceUnit);
-            }
-
-            @Override
-            public void startedTransaction(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::startedTransaction, persistenceUnit);
-            }
-
-            @Override
-            public void renewedConnection(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::renewedConnection, persistenceUnit);
-            }
-
-            @Override
-            public void finishedWithCommit(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::finishedWithCommit, persistenceUnit);
-            }
-
-            @Override
-            public void finishedWithRollback(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::finishedWithRollback, persistenceUnit);
-            }
-
-            @Override
-            public void connectorClosed(@NonNull String persistenceUnit) {
-                broadcast(ConnectorListener::connectorClosed, persistenceUnit);
-            }
-        };
+    public default void connectorUnregistered(@NonNull String persistenceUnit, boolean defaultConnector) {
     }
 }

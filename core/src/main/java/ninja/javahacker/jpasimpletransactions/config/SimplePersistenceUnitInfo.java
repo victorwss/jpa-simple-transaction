@@ -133,7 +133,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     @Override
     public List<URL> getJarFileUrls() {
         try {
-            return Collections.list(this.getClass().getClassLoader().getResources(""));
+            return Collections.list(getClassLoader().getResources(""));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

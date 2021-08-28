@@ -345,6 +345,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition about whether SQL instructions could be issued in multiple lines.
      */
+    @SuppressWarnings("checkstyle:AtclauseOrder")
     boolean multipleLinesCommands;
 
     /**

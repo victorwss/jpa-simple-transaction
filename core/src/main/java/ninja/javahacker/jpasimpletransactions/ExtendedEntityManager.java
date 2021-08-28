@@ -210,6 +210,13 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
     @Override
     public <T> ExtendedTypedQuery<T> createNamedQuery(String qlString, Class<T> resultClass);
 
+    /**
+     * Create a query selecting all the entities typed as {@code resultClass} ordered by the {@code orders} criterions.
+     * @param <T> The type of the entity to be queried.
+     * @param resultClass The entity type of the result.
+     * @param orders Ordering criteria for the results.
+     * @return {@code this}.
+     */
     public default <T> ExtendedTypedQuery<T> createQuery(@NonNull Class<T> resultClass, @NonNull By... orders) {
         return this.createQuery(resultClass, Collections.emptyMap(), orders);
     }

@@ -23,7 +23,7 @@ import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
  *
  * @author Victor Williams Stafusa da Silva
  */
-public class Connector implements AutoCloseable {
+public final class Connector implements AutoCloseable {
 
     /**
      * The name of the persistence unit used by this {@code Connector}.
@@ -168,7 +168,7 @@ public class Connector implements AutoCloseable {
 
         boolean ok = false;
         try (SpecialEntityManager actual = createNewEntityManager()) {
-            Database.getListener().connectorStarted(persistenceUnitName);
+            Database.getListener().operationStarted(persistenceUnitName);
             managers.set(actual);
             EntityTransaction et = actual.getTransaction();
             try {
@@ -187,7 +187,7 @@ public class Connector implements AutoCloseable {
             }
         } finally {
             managers.remove();
-            Database.getListener().connectorClosed(persistenceUnitName);
+            Database.getListener().operationFinished(persistenceUnitName);
         }
     }
 
@@ -197,5 +197,13 @@ public class Connector implements AutoCloseable {
     @Override
     public void close() {
         entityManagerFactory.close();
+    }
+
+    /**
+     * Tells if this is the default connector.
+     * @return {@code true} if this is the default connector or {@code false} otherwise.
+     */
+    public boolean isDefaultConnector() {
+        return this == Database.getDefaultConnectorIfDefined().orElse(null);
     }
 }

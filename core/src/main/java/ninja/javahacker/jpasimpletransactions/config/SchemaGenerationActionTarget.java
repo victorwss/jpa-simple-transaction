@@ -1,5 +1,7 @@
 package ninja.javahacker.jpasimpletransactions.config;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -22,6 +24,7 @@ import lombok.Value;
  * @author Victor Williams Stafusa da Silva
  */
 @Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaGenerationActionTarget {
 
     /**

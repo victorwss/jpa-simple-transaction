@@ -10,7 +10,7 @@ plugins {
 
 allprojects {
     group = "ninja.javahacker.jpasimpletransactions"
-    version = "0.7.0-2021-05-26"
+    version = "0.7.0-2021.08.26"
 }
 
 def versionJavaCompiler = "10"
@@ -285,13 +285,6 @@ project(":core") {
         archiveBaseName = "jpa-simple-transactions-core"
         inputs.property("moduleName", moduleName)
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
-    }
 }
 
 project(":ninjadao") {
@@ -304,12 +297,8 @@ project(":ninjadao") {
     dependencies {
         api(project(":core"))
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
+    compileJava {
+        dependsOn(":core:jar")
     }
 }
 
@@ -328,12 +317,8 @@ project(":hibernate") {
             exclude(group: "javax.persistence", module: "javax.persistence-api")
         }
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
+    compileJava {
+        dependsOn(":core:jar")
     }
 }
 
@@ -352,12 +337,8 @@ project(":eclipselink") {
             exclude(group: "org.eclipse.persistence", module: "jakarta.persistence")
         }
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
+    compileJava {
+        dependsOn(":core:jar")
     }
 }
 
@@ -378,12 +359,8 @@ project(":openjpa") {
             exclude(group: "org.apache.geronimo.specs", module: "geronimo-jms_1.1_spec")
         }
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
+    compileJava {
+        dependsOn(":core:jar")
     }
 }
 
@@ -396,10 +373,10 @@ project(":tests") {
     }
     dependencies {
         testImplementation(project(":core"))
+        testImplementation(project(":ninjadao"))
         testImplementation(project(":hibernate"))
         testImplementation(project(":eclipselink"))
         testImplementation(project(":openjpa"))
-        testImplementation(project(":ninjadao"))
 
         // HSQLDB.
         testImplementation(group: "org.hsqldb", name: "hsqldb", version: versionHsqldb)
@@ -410,11 +387,11 @@ project(":tests") {
         // Mocker.
         testImplementation(group: "ninja.javahacker", name: "mocker", version: versionMocker)
     }
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = moduleName
-            }
-        }
+    compileJava {
+        dependsOn(":core:jar")
+        dependsOn(":ninjadao:jar")
+        dependsOn(":hibernate:jar")
+        dependsOn(":eclipselink:jar")
+        dependsOn(":openjpa:jar")
     }
 }
