@@ -21,7 +21,7 @@ import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 @With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("checkstyle:javadoctagcontinuationindentation")
+@SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
 public class DynamicConnectorFactory implements StandardConnectorFactory<DynamicConnectorFactory> {
 
     /**

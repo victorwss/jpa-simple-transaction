@@ -26,7 +26,7 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
 @With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("checkstyle:javadoctagcontinuationindentation")
+@SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
 public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpaConnectorFactory> {
 
     /**

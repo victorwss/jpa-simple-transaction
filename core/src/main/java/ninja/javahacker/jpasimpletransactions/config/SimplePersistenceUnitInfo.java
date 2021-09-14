@@ -49,7 +49,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
      * @param properties The properties to be returned by the {@link #getProperties()} method.
      * @throws IllegalArgumentException If any parameter is {@code null}.
      */
-    @SuppressFBWarnings("OI_OPTIONAL_ISSUES_CHECKING_REFERENCE")
+    @SuppressFBWarnings({"OI_OPTIONAL_ISSUES_CHECKING_REFERENCE", "EI_EXPOSE_REP2"})
     public SimplePersistenceUnitInfo(
             @NonNull Optional<URL> url,
             @NonNull Class<? extends PersistenceProvider> providerClass,

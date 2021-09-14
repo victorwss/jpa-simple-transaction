@@ -26,7 +26,7 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
 @With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("checkstyle:javadoctagcontinuationindentation")
+@SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
 public class HibernateConnectorFactory implements ProviderConnectorFactory<HibernateConnectorFactory> {
 
     /**
@@ -40,6 +40,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String persistenceUnitName;
 
     /**
@@ -53,6 +54,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<? extends Driver> driver;
 
     /**
@@ -66,6 +68,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String url;
 
     /**
@@ -79,6 +82,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String user;
 
     /**
@@ -92,6 +96,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String password;
 
     /**
@@ -105,6 +110,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationAction schemaGenerationAction;
 
     /**
@@ -118,6 +124,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationSource schemaGenerationCreate;
 
     /**
@@ -131,6 +138,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationSource schemaGenerationDrop;
 
     /**
@@ -144,6 +152,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationActionTarget schemaScriptStoreLocation;
 
     /**
@@ -157,6 +166,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String loadScript;
 
     /**
@@ -170,6 +180,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String schemaGenerationConnection;
 
     /**
@@ -183,6 +194,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull OptionalBoolean createDatabaseSchemas;
 
     /**
@@ -196,6 +208,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseProductName;
 
     /**
@@ -209,6 +222,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseMajorVersion;
 
     /**
@@ -222,6 +236,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseMinorVersion;
 
     /**
@@ -235,6 +250,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Map<String, String> extras;
 
     /**
@@ -248,6 +264,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Set<Class<?>> entities;
 
     /**
@@ -262,6 +279,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     class that represents the dialect that Hibernate should use instead.
      * @throws IllegalArgumentException If {@code dialect} is {@code null}.
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<?> dialect;
 
     /**
@@ -276,6 +294,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     class that represents the JTA platform that Hibernate should use instead.
      * @throws IllegalArgumentException If {@code jtaPlatform} is {@code null}.
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<?> jtaPlatform;
 
     /**
@@ -290,6 +309,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     database schema.
      * @throws IllegalArgumentException If {@code schema} is {@code null}.
      */
+    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String schema;
 
     /**

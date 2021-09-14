@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.openjpa;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -73,6 +74,7 @@ public final class OpenJpaAdapter implements ProviderAdapter {
      * @return {@inheritDoc}
      */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public PersistenceProvider getJpaProvider() {
         return PROVIDER;
     }

@@ -75,6 +75,7 @@ public final class HibernateAdapter implements ProviderAdapter {
      * @return {@inheritDoc}
      */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public PersistenceProvider getJpaProvider() {
         return PROVIDER;
     }

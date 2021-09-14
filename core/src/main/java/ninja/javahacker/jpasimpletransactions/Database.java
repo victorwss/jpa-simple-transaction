@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -22,8 +23,8 @@ public class Database {
     /**
      * Obtains the default connector.
      * @return The default connector.
-     * @see #setDefaultConnector(Connector)
      * @throws NoSuchElementException If there is no default connector registered yet.
+     * @see #setDefaultConnector(Connector)
      */
     @NonNull
     public Connector getDefaultConnector() {
@@ -46,11 +47,11 @@ public class Database {
      * Obtains a connector through its persistence unit's name.
      * @param persistenceUnitName The connector's persistence unit name.
      * @return The connector for the given persistence unit name.
+     * @throws NoSuchElementException If there is no connector registered for the given persistence unit name.
+     * @throws IllegalArgumentException If {@code persistenceUnitName} is {@code null}.
      * @see #setDefaultConnector(Connector)
      * @see #setSecondaryConnector(Connector)
      * @see #addConnector(Connector, boolean)
-     * @throws NoSuchElementException If there is no connector registered for the given persistence unit name.
-     * @throws IllegalArgumentException If {@code persistenceUnitName} is {@code null}.
      */
     @NonNull
     @Synchronized
@@ -64,10 +65,10 @@ public class Database {
      * Forgets the connector with the given persistence unit name, if it is registered.
      * @param persistenceUnitName The connector's persistence unit name.
      * @return An {@link Optional} containing the connector with the given persistence unit name or an empty one if none was found.
+     * @throws IllegalArgumentException If {@code persistenceUnitName} is {@code null}.
      * @see #setDefaultConnector(Connector)
      * @see #setSecondaryConnector(Connector)
      * @see #addConnector(Connector, boolean)
-     * @throws IllegalArgumentException If {@code persistenceUnitName} is {@code null}.
      */
     @NonNull
     @Synchronized
@@ -182,6 +183,7 @@ public class Database {
      * @return The {@link ConnectorListener} instance which is responsible to broadcast messages to all
      *     registered {@link ConnectorListener}s.
      */
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public Broadcaster getListener() {
         return MASTER_LISTENER;
     }

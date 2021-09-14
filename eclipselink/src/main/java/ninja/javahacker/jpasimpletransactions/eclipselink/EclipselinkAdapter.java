@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -79,6 +80,7 @@ public final class EclipselinkAdapter implements ProviderAdapter {
      * @return {@inheritDoc}
      */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public PersistenceProvider getJpaProvider() {
         return PROVIDER;
     }

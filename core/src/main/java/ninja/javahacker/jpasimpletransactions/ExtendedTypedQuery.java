@@ -92,12 +92,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(Parameter, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(Parameter, Object)
+     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(Parameter, Object)} on it.
      */
     @Deprecated
     @Override
@@ -110,12 +110,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(Parameter, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(Parameter, Object)
+     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(Parameter, Object)} on it.
      */
     @Deprecated
     @Override
@@ -138,12 +138,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(String, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(String, Object)
+     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(String, Object)} on it.
      */
     @Deprecated
     @Override
@@ -156,12 +156,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(String, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(String, Object)
+     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(String, Object)} on it.
      */
     @Deprecated
     @Override
@@ -184,12 +184,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(int, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(int, Object)
+     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(int, Object)} on it.
      */
     @Deprecated
     @Override
@@ -202,12 +202,12 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(int, Object)} on it.
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(int, Object)
+     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
+     *     other better suited date/time class from the {@link java.time} package and then simply use the
+     *     {@link #setParameter(int, Object)} on it.
      */
     @Deprecated
     @Override

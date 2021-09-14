@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.spotbugs") version "4.7.1"
+    id("com.github.spotbugs") version "4.7.5"
     id "java-library"
     id "maven-publish"
     id "checkstyle"
@@ -10,31 +10,31 @@ plugins {
 
 allprojects {
     group = "ninja.javahacker.jpasimpletransactions"
-    version = "0.7.0-2021.08.26"
+    version = "1.0.0-2021.09.14"
 }
 
 def versionJavaCompiler = "10"
 def doclint = true
 
 def versionApiguardian = "1.1.1"
-def versionCheckstyle = "8.42"
-def versionEclipselink = "2.7.8"
+def versionCheckstyle = "9.0"
+def versionEclipselink = "2.7.9"     //"3.1.0-M1"
 def versionSbContrib = "7.4.7"
 def versionFindSecBugs = "1.11.0"
-def versionHibernate = "5.4.31.Final" //"6.0.0.Alpha7"
+def versionHibernate = "5.5.7.Final" //"6.0.0.Alpha9"
 def versionHsqldb = "2.6.0"
-def versionJaCoCo = "0.8.6"
+def versionJaCoCo = "0.8.7"
 def versionJaxb = "2.4.0-b180830.0359"
 def versionJcip = "1.0"
-def versionJakartaJpa = "2.2.3"
-def versionJunit = "5.8.0-M1"
+def versionJakartaJpa = "2.2.3"      //"3.0.0"
+def versionJunit = "5.8.0"
 def versionJsr305 = "3.0.2"
 def versionLombok = "1.18.20"
-def versionMocker = "1.1.0-2021.05.26"
+def versionMocker = "1.1.0-2021.09.14"
 def versionOpenJpa = "3.2.0"
-def versionPmd = "6.34.0"
-def versionReifiedGenerics = "1.1.0-2021.08.24"
-def versionSpotBugs = "4.2.3"
+def versionPmd = "6.38.0"
+def versionReifiedGenerics = "1.1.0-2021.09.14"
+def versionSpotBugs = "4.4.1"
 
 // Do not change anything below here.
 
@@ -108,7 +108,7 @@ subprojects {
         options.encoding = "UTF-8"
         options.debug = true
         options.fork = true
-        options.compilerArgs << "-parameters" << "-Xlint:all,-processing,-requires-transitive-automatic,-requires-automatic,-missing-explicit-ctor"
+        options.compilerArgs << "-parameters" << "-Xlint:all,-processing,-requires-transitive-automatic,-requires-automatic,-missing-explicit-ctor" << "-Xmaxwarns" << "1000" << "-Xmaxerrs" << "1000"
     }
 
     compileJava {
@@ -164,6 +164,13 @@ subprojects {
         options.header = "<b>${project.name}</b>"
         options.addBooleanOption("html5", true)
         options.tags = ["apiNote:a:API Note:", "implSpec:a:Implementation Requirements:", "implNote:a:Implementation Note:"]
+        if (doclint) {
+            //options.addBooleanOption("Xdoclint:all/protected", true)
+        } else {
+            options.addBooleanOption("Xdoclint:none", true)
+        }
+        options.addStringOption("Xmaxerrs", "1000")
+        options.addStringOption("Xmaxwarns", "1000")
         doFirst {
             options.modulePath += classpath
             classpath = files()
