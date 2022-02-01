@@ -94,6 +94,7 @@ public final class HibernateAdapter implements ProviderAdapter {
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public HibernateConnectorFactory config() {
         return new HibernateConnectorFactory();
     }
