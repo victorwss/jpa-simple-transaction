@@ -7,7 +7,6 @@ plugins {
     id("jacoco")
     id("pmd")
     id("project-report")
-    //id("org.gradlex.extra-java-module-info") version "1.3"
 }
 
 allprojects {
@@ -179,11 +178,11 @@ subprojects {
         options.header = "<b>${project.name}</b>"
         options.addBooleanOption("html5", true)
         options.tags = ["apiNote:a:API Note:", "implSpec:a:Implementation Requirements:", "implNote:a:Implementation Note:"]
-        //if (doclint) {
-        //    options.addBooleanOption("Xdoclint:all/protected", true)
-        //} else {
+        if (doclint) {
+            options.addBooleanOption("Xdoclint:all/protected", true)
+        } else {
             options.addBooleanOption("Xdoclint:none", true)
-        //}
+        }
         options.addStringOption("Xmaxerrs", "1000")
         options.addStringOption("Xmaxwarns", "1000")
         doFirst {
@@ -390,11 +389,7 @@ project(":openjpa") {
         doc(project(":core"))
 
         // OpenJPA.
-        api(group: "org.apache.openjpa", name: "openjpa", version: versionOpenJpa) {
-            //exclude(group: "org.apache.geronimo.specs", module: "geronimo-jpa_2.2_spec")
-            exclude(group: "org.apache.geronimo.specs", module: "geronimo-jta_1.1_spec")
-            //exclude(group: "org.apache.geronimo.specs", module: "geronimo-jms_1.1_spec")
-        }
+        api(group: "org.apache.openjpa", name: "openjpa", version: versionOpenJpa)
     }
     compileJava {
         dependsOn(":core:jar")
@@ -438,19 +433,3 @@ project(":tests") {
     delombok.enabled = false
     javadoc.enabled = false
 }
-
-/*project(":javax-jakarta-persistence") {
-    def moduleName = "ninja.javahacker.javaxjakarta.persistence"
-    description = "Convert javax.persistence to jakarta.persistence Objects."
-    jar {
-        archiveBaseName = "javax-jakarta-persistence"
-        inputs.property("moduleName", moduleName)
-    }
-    dependencies {
-        // Javax persistence.
-        api(group: "javax.persistence", name: "javax.persistence-api", version: versionJavaxJpa)
-    }
-    compileJava {
-        dependsOn(":core:jar")
-    }
-}*/
