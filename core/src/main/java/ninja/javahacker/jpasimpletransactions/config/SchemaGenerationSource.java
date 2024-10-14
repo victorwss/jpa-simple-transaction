@@ -9,15 +9,15 @@ import lombok.Value;
  * Specifies the strategy used for executing custom scripts on creating and dropping database artifacts.
  * <p>Used to set the following properties:</p>
  * <ul>
- * <li>{@code [javax|jakarta].persistence.schema-generation.create-source}.</li>
- * <li>{@code [javax|jakarta].persistence.schema-generation.create-script-source}.</li>
- * <li>{@code [javax|jakarta].persistence.schema-generation.drop-source}.</li>
- * <li>{@code [javax|jakarta].persistence.schema-generation.drop-script-source}.</li>
+ * <li>{@code jakarta.persistence.schema-generation.create-source}.</li>
+ * <li>{@code jakarta.persistence.schema-generation.create-script-source}.</li>
+ * <li>{@code jakarta.persistence.schema-generation.drop-source}.</li>
+ * <li>{@code jakarta.persistence.schema-generation.drop-script-source}.</li>
  * </ul>
  * <p>By default, the object/relational metadata in the persistence unit is used to create the database artifacts.
  * You may also supply scripts used by the provider to create and delete the database artifacts.
- * The {@code [javax|jakarta].persistence.schema-generation.create-source} and
- * {@code [javax|jakarta].persistence.schema-generation.drop-source} properties control how the provider will
+ * The {@code jakarta.persistence.schema-generation.create-source} and
+ * {@code jakarta.persistence.schema-generation.drop-source} properties control how the provider will
  * create or delete the database artifacts.</p>
  * @see StandardConnectorFactory#getSchemaGenerationCreate()
  * @see StandardConnectorFactory#withSchemaGenerationCreate(SchemaGenerationSource)

@@ -2,6 +2,8 @@ package ninja.javahacker.ninjadao;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -12,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ExtendedTypedQuery;
@@ -54,9 +56,12 @@ public final class DaoFactory {
 
         var idx = 0;
         for (Parameter p : m.getParameters()) {
+            var name = p.isNamePresent() ? p.getName()
+                    : p.isAnnotationPresent(Named.class) ? p.getAnnotation(Named.class).value()
+                    : "" + idx;
             q = p.isAnnotationPresent(FirstResult.class) ? q.setFirstResult((int) params[idx])
                     : p.isAnnotationPresent(MaxResults.class) ? q.setMaxResults((int) params[idx])
-                    : q.setParameter(p.getName(), params[idx]);
+                    : q.setParameter(name, params[idx]);
             idx++;
         }
 
@@ -65,7 +70,9 @@ public final class DaoFactory {
             int result = q.executeUpdate();
             if (r == void.class) return null;
             if (r == int.class || r == Integer.class) return (X) Integer.valueOf(result);
+            if (r == long.class || r == Long.class) return (X) Long.valueOf(result);
             if (r == OptionalInt.class) return (X) OptionalInt.of(result);
+            if (r == OptionalLong.class) return (X) OptionalLong.of(result);
         } else {
             if (r instanceof Class<?>) return q.getSingleResult();
             if (!(r instanceof ParameterizedType)) throw new AssertionError();
@@ -109,6 +116,15 @@ public final class DaoFactory {
             throw new UnsupportedOperationException("The method " + m.toGenericString()
                     + " can't feature both the @Select and the @Execute annotations.");
         }
+        if (isEquals(m)) {
+            Parameter p1 = m.getParameters()[0];
+            if (p1.isAnnotationPresent(FirstResult.class)) {
+                throw new UnsupportedOperationException("The equals(Object) method can't have @FirstResult in its parameter.");
+            }
+            if (p1.isAnnotationPresent(MaxResults.class)) {
+                throw new UnsupportedOperationException("The equals(Object) method can't have @MaxResults in its parameter.");
+            }
+        }
 
         int maxResults = -1;
         int firstResult = -1;
@@ -131,6 +147,9 @@ public final class DaoFactory {
                     throw new UnsupportedOperationException("The parameter annotated with @MaxResults must be of type 'int'.");
                 }
                 maxResults = idx;
+            }
+            if (!p.isNamePresent() && !p.isAnnotationPresent(Named.class)) {
+                throw new UnsupportedOperationException("The parameter " + idx + " has no name in the classfile the @Named annotation.");
             }
             idx++;
         }

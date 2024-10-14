@@ -1,17 +1,19 @@
 package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.CacheRetrieveMode;
+import jakarta.persistence.CacheStoreMode;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.TypedQuery;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Parameter;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
 import lombok.experimental.PackagePrivate;
@@ -33,6 +35,11 @@ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
 
     public SpecialTypedQuery(@NonNull TypedQuery<X> query) {
         this.delegate = query;
+    }
+
+    @Override
+    public X getSingleResultOrNull() {
+        return delegate.getSingleResultOrNull();
     }
 
     @Override
@@ -140,6 +147,24 @@ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
         return this;
     }
 
+    @Override
+    public SpecialTypedQuery<X> setTimeout(Integer timeout) {
+        delegate.setTimeout(timeout);
+        return this;
+    }
+
+    @Override
+    public SpecialTypedQuery<X> setCacheStoreMode(CacheStoreMode mode) {
+        delegate.setCacheStoreMode(mode);
+        return this;
+    }
+
+    @Override
+    public SpecialTypedQuery<X> setCacheRetrieveMode(CacheRetrieveMode mode) {
+        delegate.setCacheRetrieveMode(mode);
+        return this;
+    }
+
     /**
      * Exists only to tell lombok which methods should be delegated.
      */
@@ -149,6 +174,12 @@ class SpecialTypedQuery<X> implements ExtendedTypedQuery<X> {
         public int getMaxResults();
 
         public int getFirstResult();
+
+        public Integer getTimeout();
+
+        public CacheStoreMode getCacheStoreMode();
+
+        public CacheRetrieveMode getCacheRetrieveMode();
 
         public Map<String, Object> getHints();
 

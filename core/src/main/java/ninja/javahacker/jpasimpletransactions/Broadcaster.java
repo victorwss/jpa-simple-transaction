@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import lombok.NonNull;
-import lombok.Synchronized;
 
 /**
  * An implementation of a {@link ConnectorListener} that broadcasts its call to others {@link ConnectorListener}.
@@ -113,7 +112,6 @@ public final class Broadcaster implements ConnectorListener {
      * Register a {@link ConnectorListener} that will receive notification of database events.
      * @param listener The {@link ConnectorListener} that will receive notification of database events.
      */
-    @Synchronized
     public void add(@NonNull ConnectorListener listener) {
         list.add(listener);
     }
@@ -122,7 +120,6 @@ public final class Broadcaster implements ConnectorListener {
      * Unregister a {@link ConnectorListener}, so it won't receive notification of database events anymore.
      * @param listener The {@link ConnectorListener} that won't receive notification of database events anymore.
      */
-    @Synchronized
     public void remove(@NonNull ConnectorListener listener) {
         list.remove(listener);
     }
@@ -130,7 +127,6 @@ public final class Broadcaster implements ConnectorListener {
     /**
      * Unregister all the registered {@link ConnectorListener}s.
      */
-    @Synchronized
     public void clear() {
         list.clear();
     }

@@ -2,8 +2,15 @@ package ninja.javahacker.jpasimpletransactions.config;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.SharedCacheMode;
+import jakarta.persistence.ValidationMode;
+import jakarta.persistence.spi.ClassTransformer;
+import jakarta.persistence.spi.PersistenceProvider;
+import jakarta.persistence.spi.PersistenceUnitInfo;
+import jakarta.persistence.spi.PersistenceUnitTransactionType;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,12 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import javax.persistence.SharedCacheMode;
-import javax.persistence.ValidationMode;
-import javax.persistence.spi.ClassTransformer;
-import javax.persistence.spi.PersistenceProvider;
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -37,16 +38,18 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     @NonNull Class<? extends PersistenceProvider> providerClass;
     @NonNull String persistenceUnitName;
     @NonNull List<String> classes;
+    @NonNull Class<? extends Annotation> scopeAnnotation;
     @NonNull Map<String, String> properties;
 
     /**
      * Creates an instance of a {@code SimplePersistenceUnitInfo} with a minimal set of needed data for that.
-     * @param url An {@link Optional} containg the {@link URL} that should be returned by the {@link #getPersistenceUnitRootUrl()} method.
+     * @param url An {@link Optional} containing the {@link URL} that should be returned by the {@link #getPersistenceUnitRootUrl()} method.
      *     If there is no such  {@link URL}, an empty {@link Optional}.
      * @param providerClass The class to be returned by the {@link #getPersistenceProviderClassName()} method.
      * @param persistenceUnitName The name to be returned by the {@link #getPersistenceUnitName()} method.
      * @param classes The class to be returned by the {@link #getManagedClassNames()} method.
      * @param properties The properties to be returned by the {@link #getProperties()} method.
+     * @param scopeAnnotation The annotation for denoting this scope, to be returned by the {@link #getScopeAnnotationName()} method.
      * @throws IllegalArgumentException If any parameter is {@code null}.
      */
     @SuppressFBWarnings({"OI_OPTIONAL_ISSUES_CHECKING_REFERENCE", "EI_EXPOSE_REP2"})
@@ -55,12 +58,14 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
             @NonNull Class<? extends PersistenceProvider> providerClass,
             @NonNull String persistenceUnitName,
             @NonNull Collection<Class<?>> classes,
+            @NonNull Class<? extends Annotation> scopeAnnotation,
             @NonNull Map<String, String> properties)
     {
         this.url = url;
         this.providerClass = providerClass;
         this.persistenceUnitName = persistenceUnitName;
-        this.classes = classes.stream().map(Class::getName).collect(Collectors.toList());
+        this.classes = classes.stream().map(Class::getName).collect(Collectors.toUnmodifiableList());
+        this.scopeAnnotation = scopeAnnotation;
         this.properties = new HashMap<>();
         this.properties.putAll(properties);
     }
@@ -86,8 +91,31 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     /**
      * {@inheritDoc}
      * @return {@inheritDoc}
+     * @implSpec This implementation gives the class name informed at the constructor.
+     */
+    @Override
+    public String getScopeAnnotationName() {
+        return scopeAnnotation.getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     * @implSpec This implementation always returns an empty list.
+     */
+    @Override
+    public List<String> getQualifierAnnotationNames() {
+        return List.of();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     * @deprecated {@inheritDoc}
      * @implSpec This implementation always returns {@link PersistenceUnitTransactionType#RESOURCE_LOCAL} in this method.
      */
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
     @Override
     public PersistenceUnitTransactionType getTransactionType() {
         return PersistenceUnitTransactionType.RESOURCE_LOCAL;
@@ -122,7 +150,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
      */
     @Override
     public List<String> getMappingFileNames() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**
@@ -132,8 +160,10 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
      */
     @Override
     public List<URL> getJarFileUrls() {
+        ClassLoader cl = getClassLoader();
+        if (cl == null) return List.of();
         try {
-            return Collections.list(getClassLoader().getResources(""));
+            return Collections.list(cl.getResources(""));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -155,7 +185,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
      */
     @Override
     public List<String> getManagedClassNames() {
-        return Collections.unmodifiableList(classes);
+        return classes;
     }
 
     /**
@@ -202,11 +232,11 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     /**
      * {@inheritDoc}
      * @return {@inheritDoc}
-     * @implSpec This implementation always returns {@code "2.2"} in this method.
+     * @implSpec This implementation always returns {@code "3.1"} in this method.
      */
     @Override
     public String getPersistenceXMLSchemaVersion() {
-        return "2.2";
+        return "3.2";
     }
 
     /**

@@ -31,10 +31,10 @@ public class ExtendedEntityManagerTest {
         );
     }
 
-    @ParameterizedTest(name = "{displayName} {0}")
+    @ParameterizedTest(name = "{displayName} - {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testSimpleOperations(String t, JpaConfiguration config) throws Exception {
-        var c = config.getProperties().connect();
+        var c = config.connect();
         var id = c.transact(IntSupplier.class, () -> insertFruit(c)).getAsInt();
         c.transact(Runnable.class, () -> selectFruit(c, id)).run();
     }

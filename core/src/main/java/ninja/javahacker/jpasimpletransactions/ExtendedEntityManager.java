@@ -1,20 +1,21 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.PersistenceUnitUtil;
+import jakarta.persistence.PessimisticLockException;
+import jakarta.persistence.TransactionRequiredException;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.metamodel.Attribute;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.LockTimeoutException;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.PersistenceException;
-import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.PessimisticLockException;
-import javax.persistence.TransactionRequiredException;
-import javax.persistence.criteria.CriteriaQuery;
 import lombok.NonNull;
 
 /**
@@ -37,11 +38,34 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
      * {@inheritDoc}
      * @param entity {@inheritDoc}
      * @return {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws PersistenceException {@inheritDoc} Also possible if the argument is {@code null}.
+     */
+    @Override
+    public default <T> Class<? extends T> getClass(@NonNull T entity) {
+        return getEntityManagerFactory().getPersistenceUnitUtil().getClass(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @return {@inheritDoc}
      * @throws IllegalArgumentException If the argument is {@code null}.
      */
     @Override
     public default Object getIdentifier(@NonNull Object entity) {
         return getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException If the argument is {@code null}.
+     */
+    @Override
+    public default Object getVersion(@NonNull Object entity) {
+        return getEntityManagerFactory().getPersistenceUnitUtil().getVersion(entity);
     }
 
     /**
@@ -57,6 +81,19 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
 
     /**
      * {@inheritDoc}
+     * @param <E> {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @param attribute {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException If the argument is {@code null}.
+     */
+    @Override
+    public default <E> boolean isLoaded(@NonNull E entity, @NonNull Attribute<? super E, ?> attribute) {
+        return getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(entity, attribute);
+    }
+
+    /**
+     * {@inheritDoc}
      * @param entity {@inheritDoc}
      * @param attributeName {@inheritDoc}
      * @return {@inheritDoc}
@@ -68,6 +105,51 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
     }
 
     /**
+     * {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @param entityClass {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException If either argument is {@code null}.
+     */
+    @Override
+    public default boolean isInstance(@NonNull Object entity, @NonNull Class<?> entityClass) {
+        return getEntityManagerFactory().getPersistenceUnitUtil().isInstance(entity, entityClass);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param <E> {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @param attribute {@inheritDoc}
+     * @throws IllegalArgumentException If either argument is {@code null}.
+     */
+    @Override
+    public default <E> void load(@NonNull E entity, @NonNull Attribute<? super E, ?> attribute) {
+        getEntityManagerFactory().getPersistenceUnitUtil().load(entity, attribute);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @throws IllegalArgumentException If the argument is {@code null}.
+     */
+    @Override
+    public default void load(@NonNull Object entity) {
+        getEntityManagerFactory().getPersistenceUnitUtil().load(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param entity {@inheritDoc}
+     * @param attributeName {@inheritDoc}
+     * @throws IllegalArgumentException If either argument is {@code null}.
+     */
+    @Override
+    public default void load(@NonNull Object entity, @NonNull String attributeName) {
+        getEntityManagerFactory().getPersistenceUnitUtil().load(entity, attributeName);
+    }
+
+    /**
      * Save a given object in the database regardless the fact of it being a new entity or an existing one.
      * This will only insert it in the database if it is a new entity.
      * @param <T> The type of the entity to save.
@@ -75,6 +157,7 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
      * @return The saved instance.
      * @throws IllegalArgumentException If the argument is {@code null}.
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public default <T> T save(@NonNull T entity) {
         if (!isNew(entity)) {
             T other = merge(entity);
@@ -95,11 +178,11 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
 
     /**
      * Unwraps an {@link EntityManager} that has been decorated as an {@code ExtendedEntityManager}.
-     * @param em The {@link EntityManager} to undecorate.
+     * @param em The {@link EntityManager} to unwrap.
      * @return The undecorated {@link EntityManager} or {@code em} as is if not recognized as decorated.
      * @throws IllegalArgumentException If {@code em} is {@code null}.
      */
-    @SuppressWarnings("checkstyle:javadocmethod")
+    @SuppressWarnings("checkstyle:javadocmethod") // Checkstyle complains about AssertionError.
     public static EntityManager unwrap(@NonNull EntityManager em) {
         EntityManager r = em instanceof SpecialEntityManager ? ((SpecialEntityManager) em).getWrapped() : em;
         if (r instanceof SpecialEntityManager) throw new AssertionError();
@@ -240,7 +323,7 @@ public interface ExtendedEntityManager extends EntityManager, AutoCloseable, Per
 
     /**
      * Create a query selecting all the entities typed as {@code resultClass}, where their fields match the ones
-     * given in the {@code where} map and ordered by the {@code orders} criterions.
+     * given in the {@code where} map and ordered by the {@code orders} criteria.
      * @param <T> The type of the entity to be queried.
      * @param resultClass The entity type of the result.
      * @param where A map relating fields to their expected values.

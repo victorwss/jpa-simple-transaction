@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.sql.Driver;
 import java.util.Map;
@@ -11,6 +12,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
+import ninja.javahacker.jpasimpletransactions.SimpleScope;
 import ninja.javahacker.jpasimpletransactions.config.OptionalBoolean;
 import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
 import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
@@ -250,6 +252,19 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
     @NonNull Set<Class<?>> entities;
 
     /**
+     * The explicitly declared scoped annotation.
+     * -- GETTER --
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     * -- WITH --
+     * {@inheritDoc}
+     * @param scopedAnnotation {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     */
+    @NonNull Class<? extends Annotation> scopedAnnotation;
+
+    /**
      * Sole public constructor. Creates an empty instance.
      * To be something useful, the instance should be built by further call to {@code withXXX} methods.
      */
@@ -271,6 +286,7 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
         this.databaseMinorVersion = "";
         this.extras = Map.of();
         this.entities = Set.of();
+        this.scopedAnnotation = SimpleScope.class;
     }
 
     /**

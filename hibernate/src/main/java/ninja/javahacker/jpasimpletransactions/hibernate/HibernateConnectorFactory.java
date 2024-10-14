@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.hibernate;
 
+import java.lang.annotation.Annotation;
 import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
+import ninja.javahacker.jpasimpletransactions.SimpleScope;
 import ninja.javahacker.jpasimpletransactions.config.OptionalBoolean;
 import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
 import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
@@ -40,7 +42,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String persistenceUnitName;
 
     /**
@@ -54,7 +55,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<? extends Driver> driver;
 
     /**
@@ -68,7 +68,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String url;
 
     /**
@@ -82,7 +81,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String user;
 
     /**
@@ -96,7 +94,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String password;
 
     /**
@@ -110,7 +107,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationAction schemaGenerationAction;
 
     /**
@@ -124,7 +120,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationSource schemaGenerationCreate;
 
     /**
@@ -138,7 +133,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationSource schemaGenerationDrop;
 
     /**
@@ -152,7 +146,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull SchemaGenerationActionTarget schemaScriptStoreLocation;
 
     /**
@@ -166,7 +159,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String loadScript;
 
     /**
@@ -180,7 +172,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String schemaGenerationConnection;
 
     /**
@@ -194,7 +185,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull OptionalBoolean createDatabaseSchemas;
 
     /**
@@ -208,7 +198,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseProductName;
 
     /**
@@ -222,7 +211,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseMajorVersion;
 
     /**
@@ -236,7 +224,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String databaseMinorVersion;
 
     /**
@@ -250,7 +237,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Map<String, String> extras;
 
     /**
@@ -264,8 +250,20 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Set<Class<?>> entities;
+
+    /**
+     * The explicitly declared scoped annotation.
+     * -- GETTER --
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     * -- WITH --
+     * {@inheritDoc}
+     * @param scopedAnnotation {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     */
+    @NonNull Class<? extends Annotation> scopedAnnotation;
 
     /**
      * The class that represents the dialect that Hibernate should use.
@@ -276,10 +274,9 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * Defines the class that represents the dialect that Hibernate should use.
      * @param dialect The class that represents the dialect that Hibernate should use.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     class that represents the dialect that Hibernate should use instead.
+     *     class that represents the dialect that Hibernate should use.
      * @throws IllegalArgumentException If {@code dialect} is {@code null}.
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<?> dialect;
 
     /**
@@ -291,10 +288,9 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * Defines the class that represents the JTA platform that Hibernate should use.
      * @param jtaPlatform The class that represents the JTA platform that Hibernate should use.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     class that represents the JTA platform that Hibernate should use instead.
+     *     class that represents the JTA platform that Hibernate should use.
      * @throws IllegalArgumentException If {@code jtaPlatform} is {@code null}.
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull Class<?> jtaPlatform;
 
     /**
@@ -309,7 +305,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     database schema.
      * @throws IllegalArgumentException If {@code schema} is {@code null}.
      */
-    @SuppressWarnings("checkstyle:atclauseorder")
     @NonNull String schema;
 
     /**
@@ -365,7 +360,6 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition about whether SQL instructions could be issued in multiple lines.
      */
-    @SuppressWarnings("checkstyle:AtclauseOrder")
     boolean multipleLinesCommands;
 
     /**
@@ -390,7 +384,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
 
     /**
      * Sole public constructor. Creates an empty instance.
-     * To be something useful, the instance should be built by further call to {@code withXXX} methods.
+     * To be something useful, the instance should be built by further calls to {@code withXXX} methods.
      */
     public HibernateConnectorFactory() {
         this.persistenceUnitName = "";
@@ -410,7 +404,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
         this.databaseMinorVersion = "";
         this.extras = Map.of();
         this.entities = Set.of();
+        this.scopedAnnotation = SimpleScope.class;
 
+        // Update more from:
+        // https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#settings
         this.dialect = void.class;
         this.jtaPlatform = void.class;
         this.schema = "";
@@ -425,7 +422,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * Defines the class that represents the dialect that Hibernate should use.
      * @param dialectName The class name that represents the dialect that Hibernate should use.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     class that represents the dialect that Hibernate should use instead.
+     *     class that represents the dialect that Hibernate should use.
      * @throws IllegalArgumentException If {@code dialect} is {@code null}.
      * @throws ClassNotFoundException If {@code dialectName} isn't the name of some loadable class.
      */
@@ -438,7 +435,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * Defines the class that represents the JTA platform that Hibernate should use.
      * @param jtaPlatformName The class that represents the JTA platform that Hibernate should use.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     class that represents the JTA platform that Hibernate should use instead.
+     *     class that represents the JTA platform that Hibernate should use.
      * @throws IllegalArgumentException If {@code jtaPlatform} is {@code null}.
      * @throws ClassNotFoundException If {@code jtaPlatform} isn't the name of some loadable class.
      */
@@ -511,7 +508,7 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
         if (isMultipleLinesCommands()) {
             props.put(
                     "hibernate.hbm2ddl.import_files_sql_extractor",
-                    "org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor"
+                    "org.hibernate.tool.schema.internal.script.MultiLineSqlScriptExtractor"
             );
         }
         f.accept("hibernate.show_sql", getShowSql().getCode());

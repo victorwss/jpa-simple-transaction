@@ -2,12 +2,12 @@ package ninja.javahacker.jpasimpletransactions.config;
 
 /**
  * Specifies the strategy used for automatic schema generation or validation.
- * <p>Used to set the property {@code [javax|jakarta].persistence.schema-generation.database.action}.</p>
- * <p>The {@code [javax|jakarta].persistence.schema-generation.database.action} property is used to specify the action taken
+ * <p>Used to set the property {@code jakarta.persistence.schema-generation.database.action}.</p>
+ * <p>The {@code jakarta.persistence.schema-generation.database.action} property is used to specify the action taken
  * by the persistence provider when an application is deployed.</p>
  * @see StandardConnectorFactory#getSchemaGenerationAction()
  * @see StandardConnectorFactory#withSchemaGenerationAction(SchemaGenerationAction)
- * @see <a href="https://docs.oracle.com/javaee/7/tutorial/persistence-intro005.htm">Database Schema Creation</a>
+ * @see <a href="https://jakarta.ee/learn/docs/jakartaee-tutorial/current/persist/persistence-intro/persistence-intro.html#_database_schema_creation">Database Schema Creation</a>
  * @author Victor Williams Stafusa da Silva
  */
 public enum SchemaGenerationAction {

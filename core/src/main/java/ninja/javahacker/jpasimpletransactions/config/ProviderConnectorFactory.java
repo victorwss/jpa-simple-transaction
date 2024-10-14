@@ -1,13 +1,16 @@
 package ninja.javahacker.jpasimpletransactions.config;
 
+import jakarta.persistence.spi.PersistenceProvider;
+import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.persistence.spi.PersistenceProvider;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.Connector;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
@@ -24,16 +27,13 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
     /**
      * An {@link URL} representing a place that is not interesting nor usable for anything. Namely {@code "http://0.0.0.0/"}.
      */
-    public static final URL NOWHERE = new Supplier<>() {
-        @Override
-        public URL get() {
-            try {
-                return new URL("http://0.0.0.0/");
-            } catch (MalformedURLException x) {
-                throw new AssertionError(x);
-            }
+    public static final URL NOWHERE = ((Supplier<URL>) () -> {
+        try {
+            return new URI("http://0.0.0.0/").toURL();
+        } catch (URISyntaxException | MalformedURLException x) {
+            throw new AssertionError(x);
         }
-    }.get();
+    }).get();
 
     /**
      * Gets the set of explicitly declared entity classes that should be recognized as entity types.
@@ -44,7 +44,7 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
     /**
      * Set the entity classes that should be recognized as entity types.
      * @param entities The entity classes to define.
-     * @return A new instance of this class which is similar to {@code this}, but with the given entity classes instead.
+     * @return A new instance of this class which is similar to {@code this}, but with the given entity classes.
      * @throws IllegalArgumentException If {@code entities} is {@code null}.
      */
     public E withEntities(@NonNull Set<Class<?>> entities);
@@ -52,7 +52,7 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
     /**
      * Set the entity classes that should be recognized as entity types.
      * @param entities The entity classes to define.
-     * @return A new instance of this class which is similar to {@code this}, but with the given entity classes instead.
+     * @return A new instance of this class which is similar to {@code this}, but with the given entity classes.
      * @throws IllegalArgumentException If {@code entities} is {@code null}.
      */
     public default E withEntities(@NonNull Class<?>... entities) {
@@ -98,10 +98,10 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
     public ProviderAdapter getProviderAdapter();
 
     /**
-     * Returns an {@code Optional} containg the {@link URL} for the JAR file or directory that is the root of the persistence unit.
+     * Returns an {@code Optional} containing the {@link URL} for the JAR file or directory that is the root of the persistence unit.
      * If there is no such {@link URL} or if this was not implemented for the provider implementation, it will either return an empty
      * {@link Optional} or {@link #NOWHERE}, depending on what works considering the internal details of the persistence provider.
-     * @implSpec If implementator do not override this method, it will always return an empty {@link Optional}.
+     * @implSpec If the implementer does not override this method, it will always return an empty {@link Optional}.
      * @return The {@link URL} for the JAR file or directory that is the root of the persistence unit.
      */
     public default Optional<URL> getPersistenceUnitUrl() {
@@ -109,17 +109,39 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
     }
 
     /**
+     * Gets the explicitly declared scoped annotation.
+     * @return The explicitly declared scoped annotation.
+     */
+    public Class<? extends Annotation> getScopedAnnotation();
+
+    /**
+     * Gets the explicitly declared scoped annotation.
+     * @param scopedAnnotation The explicitly declared scoped annotation.
+     * @return A new instance of this class which is similar to {@code this}, but with the explicitly declared scoped annotation.
+     */
+    public E withScopedAnnotation(Class<? extends Annotation> scopedAnnotation);
+
+    /**
      * {@inheritDoc}
      * @return {@inheritDoc}
+     * @throws WrongProviderException {@inheritDoc}
      */
     @Override
-    public default Connector connect() {
+    public default Connector connect() throws WrongProviderException {
         String pu = getPersistenceUnitName();
         Map<String, String> properties = getProperties();
         ProviderAdapter pa = getProviderAdapter();
         PersistenceProvider pp = pa.getJpaProvider();
-        var spui = new SimplePersistenceUnitInfo(getPersistenceUnitUrl(), pp.getClass(), pu, getEntities(), properties);
+        var spui = new SimplePersistenceUnitInfo(
+                getPersistenceUnitUrl(),
+                pp.getClass(),
+                pu,
+                getEntities(),
+                getScopedAnnotation(),
+                properties
+        );
         var emf = pp.createContainerEntityManagerFactory(spui, properties);
+        if (emf == null) throw new WrongProviderException();
         return Connector.create(pu, emf, pa);
     }
 }

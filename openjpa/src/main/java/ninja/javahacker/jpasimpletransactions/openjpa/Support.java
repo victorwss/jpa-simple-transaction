@@ -9,7 +9,7 @@ import java.util.Locale;
 public enum Support {
 
     /**
-     * Used to represent that no setting about the usage of enenhanced classes should be defined.
+     * Used to represent that no setting about the usage of enhanced classes should be defined.
      */
     UNSPECIFIED,
 
@@ -20,11 +20,12 @@ public enum Support {
 
     /**
      * Used to represent that unenhanced classes should not be supported at runtime.
+     * Since the official documentation strongly recommends this, it was defined as default.
      */
     UNSUPPORTED,
 
     /**
-     * Used to represent that unenhanced classes should be supported at runtime, but a warning should be emmitted for them.
+     * Used to represent that unenhanced classes should be supported at runtime, but a warning should be emitted for them.
      */
     WARN;
 

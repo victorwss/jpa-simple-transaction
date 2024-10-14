@@ -35,7 +35,7 @@ public interface ConnectorListener {
     }
 
     /**
-     * Called when a broken connection to the database was restablished.
+     * Called when a broken connection to the database was reestablished.
      * @param persistenceUnit The name of the persistence unit which the transaction started.
      * @throws IllegalArgumentException If {@code persistenceUnit} is {@code null}.
      */

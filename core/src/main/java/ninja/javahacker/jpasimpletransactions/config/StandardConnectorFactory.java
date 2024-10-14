@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.config;
 
+import jakarta.persistence.PersistenceConfiguration;
 import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,7 +276,7 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
 
     /**
      * Replaces all the extra custom properties.
-     * @param extras A mapping containg all the new extra custom properties.
+     * @param extras A mapping containing all the new extra custom properties.
      * @return A new instance of this class which is similar to {@code this}, but with the new given custom extra properties.
      * @throws IllegalArgumentException If the given map is {@code null}.
      * @implSpec Further modifications to the given map should not be reflected into the produced instance.
@@ -321,7 +322,7 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * <p>Extra custom properties are not presented yet into this map. Those will be added later when the
      * {@link #getProperties()} method is called and might override the standard ones.</p>
      * @return The set of properties standard properties.
-     * @implSpec Subinterfaces and implementors should override this method and add provider-specific properties
+     * @implSpec Subinterfaces and implementers should override this method and add provider-specific properties
      *     by calling {@code super.getStandardProperties()} and adding into it such properties before returning it.
      */
     public default Map<String, String> getStandardProperties() {
@@ -329,37 +330,44 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
         BiConsumer<String, String> f = (key, value) -> {
             if (!value.isEmpty()) props.put(key, value);
         };
-
         var d = getDriver();
-        if (d != Driver.class) f.accept("javax.persistence.jdbc.driver", d.getName());
+        if (d != Driver.class) f.accept(PersistenceConfiguration.JDBC_DRIVER, d.getName());
 
-        f.accept("javax.persistence.jdbc.url", getUrl());
-        f.accept("javax.persistence.jdbc.user", getUser());
-        f.accept("javax.persistence.jdbc.password", getPassword());
-        f.accept("javax.persistence.database-product-name", getDatabaseProductName());
-        f.accept("javax.persistence.database-major-version", getDatabaseMajorVersion());
-        f.accept("javax.persistence.database-minor-version", getDatabaseMinorVersion());
-        f.accept("javax.persistence.sql-load-script-source", getLoadScript());
-        f.accept("javax.persistence.schema-generation.connection", getSchemaGenerationConnection());
+        f.accept(PersistenceConfiguration.JDBC_URL, getUrl());
+        f.accept(PersistenceConfiguration.JDBC_USER, getUser());
+        f.accept(PersistenceConfiguration.JDBC_PASSWORD, getPassword());
+        f.accept("jakarta.persistence.database-product-name", getDatabaseProductName());
+        f.accept("jakarta.persistence.database-major-version", getDatabaseMajorVersion());
+        f.accept("jakarta.persistence.database-minor-version", getDatabaseMinorVersion());
+        f.accept("jakarta.persistence.sql-load-script-source", getLoadScript());
+        f.accept("jakarta.persistence.schema-generation.connection", getSchemaGenerationConnection());
 
+        //JDBC_DATASOURCE
+        //LOCK_TIMEOUT
+        //QUERY_TIMEOUT
+        //VALIDATION_FACTORY
+        //VALIDATION_GROUP_PRE_PERSIST
+        //VALIDATION_GROUP_PRE_UPDATE
+        //VALIDATION_GROUP_PRE_REMOVE
+        //CACHE_MODE
         var ga = getSchemaGenerationAction();
-        f.accept("javax.persistence.schema-generation.database.action", ga.getCode());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_DATABASE_ACTION, ga.getCode());
 
         var gc = getSchemaGenerationCreate();
-        f.accept("javax.persistence.schema-generation.create-source", gc.getStrategy());
-        f.accept("javax.persistence.schema-generation.create-script-source", gc.getScriptPath());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_CREATE_SOURCE, gc.getStrategy());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_CREATE_SCRIPT_SOURCE, gc.getScriptPath());
 
         var gd = getSchemaGenerationDrop();
-        f.accept("javax.persistence.schema-generation.drop-source", gd.getStrategy());
-        f.accept("javax.persistence.schema-generation.drop-script-source", gd.getScriptPath());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_DROP_SOURCE, gd.getStrategy());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_DROP_SCRIPT_SOURCE, gd.getScriptPath());
 
         var sssl = getSchemaScriptStoreLocation();
-        f.accept("javax.persistence.schema-generation.scripts.action", sssl.getStrategy());
-        f.accept("javax.persistence.schema-generation.scripts.create-target", sssl.getCreateScript());
-        f.accept("javax.persistence.schema-generation.scripts.drop-target", sssl.getDropScript());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_SCRIPTS_ACTION, sssl.getStrategy());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_CREATE_TARGET, sssl.getCreateScript());
+        f.accept(PersistenceConfiguration.SCHEMAGEN_DROP_TARGET, sssl.getDropScript());
 
         var cds = getCreateDatabaseSchemas();
-        f.accept("javax.persistence.schema-generation.create-database-schemas", cds.getCode());
+        f.accept("jakarta.persistence.schema-generation.create-database-schemas", cds.getCode());
 
         return Map.copyOf(props);
     }
@@ -367,7 +375,7 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
     /**
      * Creates an immutable map containing all the properties defined in this {@code StandardConnectorFactory}
      * which have a value.
-     * @implSpec Subinterfaces and implementors generally should not override this method, or have little reason for doing so.
+     * @implSpec Subinterfaces and implementers generally should not override this method, or have little reason for doing so.
      *     Instead, it is preferable to override the {@link #getStandardProperties()}.
      *     If this method is overriden, a call to {@code super.getProperties()} should probably be performed.
      * @return The set of all defined properties, with custom extra properties possibly overriding the standard ones.

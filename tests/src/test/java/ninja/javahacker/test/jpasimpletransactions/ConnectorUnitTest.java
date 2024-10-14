@@ -1,9 +1,9 @@
 package ninja.javahacker.test.jpasimpletransactions;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import ninja.javahacker.jpasimpletransactions.Connector;
@@ -28,7 +28,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create(null, emf, pa),
-                nullMessage("persistenceUnitName"));
+                nullMessage("persistenceUnitName")
+        );
     }
 
     @Test
@@ -37,7 +38,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create(null, null, pa),
-                nullMessage("persistenceUnitName"));
+                nullMessage("persistenceUnitName")
+        );
     }
 
     @Test
@@ -46,7 +48,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create("foo", null, pa),
-                nullMessage("emf"));
+                nullMessage("emf")
+        );
     }
 
     @Test
@@ -55,7 +58,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create("foo", emf, null),
-                nullMessage("adapter"));
+                nullMessage("adapter")
+        );
     }
 
     @Test
@@ -63,7 +67,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> Connector.create("foo", null, null),
-                nullMessage("emf"));
+                nullMessage("emf")
+        );
     }
 
     @Test
@@ -92,7 +97,8 @@ public class ConnectorUnitTest {
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> Connector.create("foo", emf, pa).getEntityManager(),
-                "Can't get the EntityManager outside of a transaction.");
+                "Can't get the EntityManager outside of a transaction."
+        );
     }
 
     public static interface Work<E> {

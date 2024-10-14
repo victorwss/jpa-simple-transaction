@@ -1,11 +1,11 @@
 package ninja.javahacker.jpasimpletransactions.eclipselink;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.spi.PersistenceProvider;
 import java.sql.Connection;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.spi.PersistenceProvider;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
@@ -22,7 +22,7 @@ public final class EclipselinkAdapter implements ProviderAdapter {
     private static final PersistenceProvider PROVIDER = new org.eclipse.persistence.jpa.PersistenceProvider();
 
     /**
-     * Precreated instance. Use this to avoid needlessly reinstantiating this class if you can.
+     * Precreated instance. Use this to avoid needlessly re-instantiating this class if you can.
      */
     public static final EclipselinkAdapter CANONICAL = new EclipselinkAdapter(42);
 

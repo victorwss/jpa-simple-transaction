@@ -1,5 +1,6 @@
 package ninja.javahacker.jpasimpletransactions.openjpa;
 
+import java.lang.annotation.Annotation;
 import java.sql.Driver;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
+import ninja.javahacker.jpasimpletransactions.SimpleScope;
 import ninja.javahacker.jpasimpletransactions.config.OptionalBoolean;
 import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
 import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationAction;
@@ -251,6 +253,19 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
     @NonNull Set<Class<?>> entities;
 
     /**
+     * The explicitly declared scoped annotation.
+     * -- GETTER --
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     * -- WITH --
+     * {@inheritDoc}
+     * @param scopedAnnotation {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     */
+    @NonNull Class<? extends Annotation> scopedAnnotation;
+
+    /**
      * Defines if a dynamic enhancement agent should be used at runtime.
      * -- GETTER --
      * Tells if a dynamic enhancement agent should be used at runtime.
@@ -259,7 +274,7 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * Defines if a dynamic enhancement agent should be used at runtime.
      * @param dynamicEnhancementAgent The definition about if a dynamic enhancement agent should be used at runtime.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     definition about if a dynamic enhancement agent should be used at runtime instead.
+     *     definition about whether a dynamic enhancement agent should be used at runtime.
      * @throws IllegalArgumentException If {@code dynamicEnhancementAgent} is {@code null}.
      */
     @NonNull OptionalBoolean dynamicEnhancementAgent;
@@ -273,10 +288,38 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * Sets the strategy used to handle unenhanced classes at runtime.
      * @param runtimeUnenhancedClasses The strategy used to handle unenhanced classes at runtime.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     strategy used to handle unenhanced classes at runtime instead.
+     *     strategy used to handle unenhanced classes at runtime.
      * @throws IllegalArgumentException If {@code runtimeUnenhancedClasses} is {@code null}.
      */
     @NonNull Support runtimeUnenhancedClasses;
+
+    /**
+     * If OpenJPA's data cache should be used.
+     * -- GETTER --
+     * If OpenJPA's data cache should be used.
+     * @return If OpenJPA's data cache should be used.
+     * -- WITH --
+     * Sets if OpenJPA's data cache should be used.
+     * @param dataCache if OpenJPA's data cache should be used.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     setting about whether OpenJPA's data cache should be used.
+     * @throws IllegalArgumentException If {@code dataCache} is {@code null}.
+     */
+    @NonNull OptionalBoolean dataCache;
+
+    /**
+     * If OpenJPA's query cache should be used.
+     * -- GETTER --
+     * If OpenJPA's query cache should be used.
+     * @return If OpenJPA's query cache should be used.
+     * -- WITH --
+     * Sets if OpenJPA's query cache should be used.
+     * @param queryCache if OpenJPA's query cache should be used.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     setting about whether OpenJPA's query cache should be used.
+     * @throws IllegalArgumentException If {@code queryCache} is {@code null}.
+     */
+    @NonNull OptionalBoolean queryCache;
 
     /**
      * Sole public constructor. Creates an empty instance.
@@ -300,9 +343,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
         this.databaseMinorVersion = "";
         this.extras = Map.of();
         this.entities = Set.of();
+        this.scopedAnnotation = SimpleScope.class;
 
         this.dynamicEnhancementAgent = OptionalBoolean.UNSPECIFIED;
-        this.runtimeUnenhancedClasses = Support.UNSPECIFIED;
+        this.runtimeUnenhancedClasses = Support.UNSUPPORTED;
+        this.dataCache = OptionalBoolean.UNSPECIFIED;
+        this.queryCache = OptionalBoolean.UNSPECIFIED;
     }
 
     /**
@@ -319,11 +365,33 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * Defines if a dynamic enhancement agent should be used at runtime.
      * @param newValue The definition about if a dynamic enhancement agent should be used at runtime.
      * @return A new instance of this class which is similar to {@code this}, but with the given
-     *     definition about if a dynamic enhancement agent should be used at runtime instead.
+     *     definition about whether a dynamic enhancement agent should be used at runtime.
      */
     @Tolerate
     public OpenJpaConnectorFactory withDynamicEnhancementAgent(boolean newValue) {
         return withDynamicEnhancementAgent(OptionalBoolean.from(newValue));
+    }
+
+    /**
+     * Defines OpenJPA's data cache should be used.
+     * @param newValue The definition about if OpenJPA's data cache should be used.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     definition about whether OpenJPA's data cache should be used.
+     */
+    @Tolerate
+    public OpenJpaConnectorFactory withDataCache(boolean newValue) {
+        return withDataCache(OptionalBoolean.from(newValue));
+    }
+
+    /**
+     * Defines OpenJPA's query cache should be used.
+     * @param newValue The definition about if OpenJPA's query cache should be used.
+     * @return A new instance of this class which is similar to {@code this}, but with the given
+     *     definition about whether OpenJPA's query cache should be used.
+     */
+    @Tolerate
+    public OpenJpaConnectorFactory withQueryCache(boolean newValue) {
+        return withQueryCache(OptionalBoolean.from(newValue));
     }
 
     /**
@@ -339,6 +407,8 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
 
         f.accept("openjpa.DynamicEnhancementAgent", getDynamicEnhancementAgent().getCode());
         f.accept("openjpa.RuntimeUnenhancedClasses", getRuntimeUnenhancedClasses().getCode());
+        f.accept("openjpa.DataCache", getDataCache().getCode());
+        f.accept("openjpa.QueryCache", getQueryCache().getCode());
         return Map.copyOf(props);
     }
 }

@@ -3,6 +3,7 @@ package ninja.javahacker.test.jpasimpletransactions;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 import ninja.javahacker.jpasimpletransactions.eclipselink.EclipselinkAdapter;
@@ -28,16 +29,18 @@ public class AdapterTest {
                 .map(c::cast);
     }
 
-    @ParameterizedTest(name = "testAdapterIdentityless {0}")
+    @ParameterizedTest(name = "{displayName} - {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testAdapterIdentityless(String t, JpaConfiguration config) throws Exception {
         var adapter = config.getAdapter();
+        Supplier<Boolean> makeList = () ->
+                ProviderAdapter.all().map(x -> x.get().content()).collect(Collectors.toList()).contains(adapter);
         Assertions.assertAll(
                 () -> Assertions.assertSame(adapter, adapter.getClass().getField("CANONICAL").get(null)),
                 () -> Assertions.assertEquals(adapter, adapter.getClass().getConstructor().newInstance()),
                 () -> Assertions.assertEquals(adapter, load(adapter.getClass()).orElseThrow(AssertionError::new)),
-                () -> Assertions.assertTrue(ProviderAdapter.all().collect(Collectors.toList()).contains(adapter)),
-                () -> Assertions.assertTrue(ProviderAdapter.all().collect(Collectors.toList()).contains(adapter))
+                () -> Assertions.assertTrue(makeList.get()),
+                () -> Assertions.assertTrue(makeList.get())
         );
     }
 
@@ -59,7 +62,7 @@ public class AdapterTest {
 
     @Test
     public void testAdapterListProvided() throws Exception {
-        var a = ProviderAdapter.all().collect(Collectors.toList());
+        var a = ProviderAdapter.all().map(x -> x.get().content()).collect(Collectors.toList());
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(3, a.size()),
@@ -69,7 +72,7 @@ public class AdapterTest {
         );
     }
 
-    @ParameterizedTest(name = "testAdapterProvider {0}")
+    @ParameterizedTest(name = "{displayName} - {0}")
     @MethodSource("ninja.javahacker.test.jpasimpletransactions.JpaConfiguration#all")
     public void testAdapterProvider(String t, JpaConfiguration config) throws Exception {
         var adapter = config.getAdapter();

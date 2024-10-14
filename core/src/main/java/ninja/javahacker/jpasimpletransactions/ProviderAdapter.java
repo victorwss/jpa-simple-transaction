@@ -1,12 +1,12 @@
 package ninja.javahacker.jpasimpletransactions;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.spi.PersistenceProvider;
 import java.sql.Connection;
 import java.util.ServiceLoader;
-import java.util.ServiceLoader.Provider;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceProvider;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.config.ProviderConnectorFactory;
 
@@ -97,7 +97,7 @@ public interface ProviderAdapter {
 
     /**
      * Finds a suitable {@link ProviderAdapter} for the given {@link EntityManagerFactory}.
-     * @implSpec The list of knowns {@link ProviderAdapter} is reloaded in every call to this method.
+     * @implSpec The list of knows {@link ProviderAdapter} is reloaded in every call to this method.
      * @param emf The given {@link EntityManagerFactory}.
      * @return The {@link ProviderAdapter} found.
      * @throws UnsupportedOperationException No known {@link ProviderAdapter} recognized the given {@link EntityManagerFactory}.
@@ -113,7 +113,7 @@ public interface ProviderAdapter {
 
     /**
      * Finds a suitable {@link ProviderAdapter} for the given {@link EntityManager}.
-     * @implSpec The list of knowns {@link ProviderAdapter} is reloaded in every call to this method.
+     * @implSpec The list of knows {@link ProviderAdapter} is reloaded in every call to this method.
      * @param em The given {@link EntityManager}.
      * @return The {@link ProviderAdapter} found.
      * @throws UnsupportedOperationException No known {@link ProviderAdapter} recognized the given {@link EntityManager}.
@@ -129,13 +129,12 @@ public interface ProviderAdapter {
 
     /**
      * Streams all of the known {@link ProviderAdapter}s.
-     * @implSpec The list of knowns {@link ProviderAdapter} is reloaded in every call to this method.
-     * @return The {@link ProviderAdapter} found.
-     * @throws UnsupportedOperationException No known {@link ProviderAdapter} recognized the given {@link EntityManager}.
-     * @throws IllegalArgumentException If {@code em} is {@code null}.
+     * @return All the {@link ProviderAdapter}s found, wrapped inside {@code Supplier}s of {@code Maybe}s
+     *     because some of them might fail to load.
+     * @implSpec The list of known {@link ProviderAdapter}s is reloaded in every call to this method.
      */
-    public static Stream<ProviderAdapter> all() {
-        return ServiceLoader.load(ProviderAdapter.class).stream().map(Provider::get);
+    public static Stream<Supplier<Maybe<ProviderAdapter>>> all() {
+        return ServiceLoader.load(ProviderAdapter.class).stream().map(Maybe::wrap);
     }
 
     /**

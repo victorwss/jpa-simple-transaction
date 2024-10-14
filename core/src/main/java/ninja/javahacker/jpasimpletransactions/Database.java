@@ -72,6 +72,7 @@ public class Database {
      */
     @NonNull
     @Synchronized
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals", "PMD.CloseResource"})
     public Optional<Connector> removeConnector(@NonNull String persistenceUnitName) {
         var conn = CONNECTOR_MAP.remove(persistenceUnitName);
         if (conn == null) return Optional.empty();
@@ -87,6 +88,7 @@ public class Database {
      */
     @NonNull
     @Synchronized
+    @SuppressWarnings("PMD.CloseResource")
     public void removeAllConnectors() {
         var defaultConnector = DEFAULT_CONNECTOR.get();
         var defaultName = defaultConnector == null ? null : defaultConnector.getPersistenceUnitName();
@@ -125,6 +127,7 @@ public class Database {
      * @throws IllegalStateException If a different connector with the same persistence unit name was already registered.
      */
     @Synchronized
+    @SuppressWarnings({"PMD.CompareObjectsWithEquals", "PMD.CloseResource"})
     public void addConnector(@NonNull Connector conn, boolean defaultConnector) {
         var pn = conn.getPersistenceUnitName();
         var c = CONNECTOR_MAP.get(pn);

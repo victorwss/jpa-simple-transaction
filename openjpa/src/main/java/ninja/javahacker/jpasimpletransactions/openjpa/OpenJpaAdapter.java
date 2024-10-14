@@ -1,10 +1,10 @@
 package ninja.javahacker.jpasimpletransactions.openjpa;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.spi.PersistenceProvider;
 import java.sql.Connection;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceProvider;
 import lombok.NonNull;
 import ninja.javahacker.jpasimpletransactions.ExtendedEntityManager;
 import ninja.javahacker.jpasimpletransactions.ProviderAdapter;
@@ -19,10 +19,10 @@ import org.apache.openjpa.persistence.PersistenceProviderImpl;
  */
 public final class OpenJpaAdapter implements ProviderAdapter {
 
-    private static final PersistenceProviderImpl PROVIDER = new PersistenceProviderImpl();
+    private static final PersistenceProvider PROVIDER = new PersistenceProviderImpl();
 
     /**
-     * Precreated instance. Use this to avoid needlessly reinstantiating this class if you can.
+     * Precreated instance. Use this to avoid needlessly re-instantiating this class if you can.
      */
     public static final OpenJpaAdapter CANONICAL = new OpenJpaAdapter(42);
 
@@ -83,6 +83,7 @@ public final class OpenJpaAdapter implements ProviderAdapter {
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public OpenJpaConnectorFactory config() {
         return new OpenJpaConnectorFactory();
     }
@@ -90,7 +91,7 @@ public final class OpenJpaAdapter implements ProviderAdapter {
     /**
      * Returns 3.
      * <p>Since this class is stateless, all of its instances are considered equals, so they must have the same hash code,
-     * which was arbitrarily choosen to be 3.</p>
+     * which was arbitrarily chosen to be 3.</p>
      * @return 3.
      */
     @Override

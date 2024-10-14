@@ -1,18 +1,18 @@
 package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import lombok.Getter;
 import lombok.NonNull;
 import ninja.javahacker.reifiedgeneric.ReifiedGeneric;
 
 /**
- * Class responsible for managing the lifecycle of an {@link EntityManagerFactory}
+ * Class responsible for managing the life-cycle of an {@link EntityManagerFactory}
  * and its {@link SpecialEntityManager}s and also automatically marking transaction
  * scopes.
  *
@@ -28,6 +28,7 @@ public final class Connector implements AutoCloseable {
     /**
      * The name of the persistence unit used by this {@code Connector}.
      * -- GETTER --
+     * Gives the name of the persistence unit used by this {@code Connector}.
      * @return The name of the persistence unit used by this {@code Connector}.
      */
     @Getter
@@ -36,6 +37,7 @@ public final class Connector implements AutoCloseable {
     /**
      * The {@link EntityManagerFactory} used for creating {@link EntityManager}s within this {@code Connector}.
      * -- GETTER --
+     * Gives the {@link EntityManagerFactory} used for creating {@link EntityManager}s within this {@code Connector}.
      * @return The {@link EntityManagerFactory} used for creating {@link EntityManager}s within this {@code Connector}.
      */
     @Getter
@@ -46,6 +48,7 @@ public final class Connector implements AutoCloseable {
     /**
      * The persistence provider used by this {@code Connector}.
      * -- GETTER --
+     * Gives the persistence provider used by this {@code Connector}.
      * @return The persistence provider used by this {@code Connector}.
      */
     @Getter
@@ -167,7 +170,7 @@ public final class Connector implements AutoCloseable {
         if (alreadyExists != null) return trans.get();
 
         boolean ok = false;
-        try (SpecialEntityManager actual = createNewEntityManager()) {
+        try (var actual = createNewEntityManager()) {
             Database.getListener().operationStarted(persistenceUnitName);
             managers.set(actual);
             EntityTransaction et = actual.getTransaction();
@@ -203,6 +206,7 @@ public final class Connector implements AutoCloseable {
      * Tells if this is the default connector.
      * @return {@code true} if this is the default connector or {@code false} otherwise.
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public boolean isDefaultConnector() {
         return this == Database.getDefaultConnectorIfDefined().orElse(null);
     }

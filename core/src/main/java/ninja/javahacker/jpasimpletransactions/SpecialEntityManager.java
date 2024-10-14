@@ -1,13 +1,13 @@
 package ninja.javahacker.jpasimpletransactions;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
 import java.sql.Connection;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
@@ -18,7 +18,6 @@ import lombok.experimental.PackagePrivate;
  * delegates to some other {@link EntityManager}.
  * @author Victor Williams Stafusa da Silva
  */
-@SuppressWarnings("rawtypes")
 @PackagePrivate
 final class SpecialEntityManager implements ExtendedEntityManager {
 
@@ -85,6 +84,7 @@ final class SpecialEntityManager implements ExtendedEntityManager {
     }
 
     @Override
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public EntityTransaction getTransaction() {
         var inner = wrapped.getTransaction(); // Relays exceptions.
         if (inner == null) throw new IllegalStateException(); // Should never happen with a sane wrapped EntityManager.
