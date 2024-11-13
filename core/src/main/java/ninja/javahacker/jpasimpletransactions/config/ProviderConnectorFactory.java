@@ -45,17 +45,17 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
      * Set the entity classes that should be recognized as entity types.
      * @param entities The entity classes to define.
      * @return A new instance of this class which is similar to {@code this}, but with the given entity classes.
-     * @throws IllegalArgumentException If {@code entities} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withEntities(@NonNull Set<Class<?>> entities);
+    public E withEntities(@NonNull Set<Class<?>> entities) throws IllegalArgumentException;
 
     /**
      * Set the entity classes that should be recognized as entity types.
      * @param entities The entity classes to define.
      * @return A new instance of this class which is similar to {@code this}, but with the given entity classes.
-     * @throws IllegalArgumentException If {@code entities} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public default E withEntities(@NonNull Class<?>... entities) {
+    public default E withEntities(@NonNull Class<?>... entities) throws IllegalArgumentException {
         return withEntities(Set.of(entities));
     }
 
@@ -63,9 +63,9 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
      * Add an entity class to the set of recognized entity types.
      * @param entityClass The entity class to add.
      * @return A new instance of this class which is similar to {@code this}, but with the given entity class added.
-     * @throws IllegalArgumentException If {@code entityClass} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public default E addEntity(@NonNull Class<?> entityClass) {
+    public default E addEntity(@NonNull Class<?> entityClass) throws IllegalArgumentException {
         var m = new ArrayList<>(getEntities());
         m.add(entityClass);
         return withEntities(Set.copyOf(m));
@@ -75,9 +75,9 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
      * Removes an entity class to the set of recognized entity types.
      * @param entityClass The entity class to remove.
      * @return A new instance of this class which is similar to {@code this}, but with the given entity class removed.
-     * @throws IllegalArgumentException If {@code entityClass} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public default E removeEntity(@NonNull Class<?> entityClass) {
+    public default E removeEntity(@NonNull Class<?> entityClass) throws IllegalArgumentException {
         var m = new ArrayList<>(getEntities());
         m.remove(entityClass);
         return withEntities(Set.copyOf(m));
@@ -118,8 +118,9 @@ public interface ProviderConnectorFactory<E extends ProviderConnectorFactory<E>>
      * Gets the explicitly declared scoped annotation.
      * @param scopedAnnotation The explicitly declared scoped annotation.
      * @return A new instance of this class which is similar to {@code this}, but with the explicitly declared scoped annotation.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withScopedAnnotation(Class<? extends Annotation> scopedAnnotation);
+    public E withScopedAnnotation(@NonNull Class<? extends Annotation> scopedAnnotation) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}

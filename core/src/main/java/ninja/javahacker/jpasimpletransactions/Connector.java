@@ -80,9 +80,6 @@ public final class Connector implements AutoCloseable {
             @NonNull ProviderAdapter adapter)
     {
         return new Connector(persistenceUnitName, emf, adapter);
-        /*var con = new Connector(persistenceUnitName, emf, adapter);
-        Database.addConnector(con, false);
-        return con;*/
     }
 
     /**

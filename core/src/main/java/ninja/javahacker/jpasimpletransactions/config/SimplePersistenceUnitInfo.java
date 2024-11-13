@@ -60,6 +60,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
             @NonNull Collection<Class<?>> classes,
             @NonNull Class<? extends Annotation> scopeAnnotation,
             @NonNull Map<String, String> properties)
+            throws IllegalArgumentException
     {
         this.url = url;
         this.providerClass = providerClass;
@@ -111,12 +112,10 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     /**
      * {@inheritDoc}
      * @return {@inheritDoc}
-     * @deprecated {@inheritDoc}
      * @implSpec This implementation always returns {@link PersistenceUnitTransactionType#RESOURCE_LOCAL} in this method.
      */
-    @SuppressWarnings("removal")
-    @Deprecated(forRemoval = true)
     @Override
+    @SuppressWarnings("removal")
     public PersistenceUnitTransactionType getTransactionType() {
         return PersistenceUnitTransactionType.RESOURCE_LOCAL;
     }
@@ -159,7 +158,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
      * @throws UncheckedIOException If an {@link IOException} happens when trying to read the data from the JARs in the classpath.
      */
     @Override
-    public List<URL> getJarFileUrls() {
+    public List<URL> getJarFileUrls() throws UncheckedIOException {
         ClassLoader cl = getClassLoader();
         if (cl == null) return List.of();
         try {
@@ -232,7 +231,7 @@ public final class SimplePersistenceUnitInfo implements PersistenceUnitInfo {
     /**
      * {@inheritDoc}
      * @return {@inheritDoc}
-     * @implSpec This implementation always returns {@code "3.1"} in this method.
+     * @implSpec This implementation always returns {@code "3.2"} in this method.
      */
     @Override
     public String getPersistenceXMLSchemaVersion() {

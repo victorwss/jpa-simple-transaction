@@ -46,7 +46,7 @@ public final class DaoFactory {
     }
 
     @Nullable
-    @SuppressWarnings({"unchecked", "UnnecessaryBoxing"})
+    @SuppressWarnings({"unchecked", "UnnecessaryBoxing", "PMD.CloseResource"})
     @SuppressFBWarnings("URV_UNRELATED_RETURN_VALUES")
     private <X> X execute(@NonNull ReifiedGeneric<X> ret, @NonNull Method m, @NonNull Object... params) {
         ExtendedEntityManager em = giver.get();
@@ -84,7 +84,7 @@ public final class DaoFactory {
         throw new AssertionError();
     }
 
-    @SuppressWarnings("element-type-mismatch")
+    @SuppressWarnings({"element-type-mismatch", "PMD.AvoidDuplicateLiterals"})
     private static void validateMethod(Method m) {
         var ret = m.getGenericReturnType();
         ReifiedGeneric.of(ret); // Check for sanity.
@@ -244,6 +244,7 @@ public final class DaoFactory {
      * @throws UnsupportedOperationException If some method can't be implemented for some reason, likely a bad combination of
      *     parameters, return type, modifiers, annotations and/or method name.
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public <E> E daoFor(@NonNull ReifiedGeneric<E> type) {
         Class<E> targetInterface = type.asClass();
         if (!targetInterface.isInterface()) throw new IllegalArgumentException();

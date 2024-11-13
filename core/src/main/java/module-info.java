@@ -1,6 +1,9 @@
 /**
  * Simplifies the development of JPA applications without needing configuration files.
  */
+@SuppressWarnings({
+    "requires-automatic", "requires-transitive-automatic" // com.github.spotbugs.annotations
+})
 module ninja.javahacker.jpasimpletransactions.core {
     requires transitive jakarta.persistence;
     requires transitive jakarta.inject;

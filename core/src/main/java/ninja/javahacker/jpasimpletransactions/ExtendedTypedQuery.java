@@ -43,7 +43,7 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @return An {@code ExtendedTypedQuery} corresponding to a decorator of the given {@link TypedQuery}.
      * @throws IllegalArgumentException If {@code query} is {@code null}.
      */
-    public static <X> ExtendedTypedQuery<X> wrap(@NonNull TypedQuery<X> query) {
+    public static <X> ExtendedTypedQuery<X> wrap(@NonNull TypedQuery<X> query) throws IllegalArgumentException {
         return query instanceof ExtendedTypedQuery ? (ExtendedTypedQuery<X>) query : new SpecialTypedQuery<>(query);
     }
 
@@ -51,39 +51,42 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * {@inheritDoc}
      * @param maxResults {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the argument is negative
      */
     @Override
-    public ExtendedTypedQuery<X> setMaxResults(int maxResults);
+    public ExtendedTypedQuery<X> setMaxResults(int maxResults) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
      * @param startPosition {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the argument is negative
      */
     @Override
-    public ExtendedTypedQuery<X> setFirstResult(int startPosition);
+    public ExtendedTypedQuery<X> setFirstResult(int startPosition) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
      * @param hintName {@inheritDoc}
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the second argument is not
+     *     valid for the implementation
      */
     @Override
-    public ExtendedTypedQuery<X> setHint(String hintName, Object value);
+    public ExtendedTypedQuery<X> setHint(String hintName, Object value) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
      * @param param {@inheritDoc}
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the parameter
+     *     does not correspond to a parameter of the
+     *     query
      */
     @Override
-    public <T extends Object> ExtendedTypedQuery<X> setParameter(Parameter<T> param, T value);
+    public <T extends Object> ExtendedTypedQuery<X> setParameter(Parameter<T> param, T value) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
@@ -91,17 +94,21 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param value {@inheritDoc}
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the parameter does not
+     *     correspond to a parameter of the query
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(Parameter, Object)
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(Parameter, Object)} on it.
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
      */
     @Deprecated
     @Override
-    public ExtendedTypedQuery<X> setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType);
+    public ExtendedTypedQuery<X> setParameter(
+            Parameter<Calendar> param,
+            Calendar value,
+            TemporalType temporalType)
+            throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
@@ -109,45 +116,29 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param value {@inheritDoc}
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the parameter does not
+     *     correspond to a parameter of the query
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(Parameter, Object)
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(Parameter, Object)} on it.
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
      */
     @Deprecated
     @Override
-    public ExtendedTypedQuery<X> setParameter(Parameter<Date> param, Date value, TemporalType temporalType);
+    public ExtendedTypedQuery<X> setParameter(Parameter<Date> param, Date value, TemporalType temporalType) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
      * @param name {@inheritDoc}
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the parameter name does
+     *     not correspond to a parameter of the query or if
+     *     the argument is of incorrect type
      */
     @Override
-    public ExtendedTypedQuery<X> setParameter(String name, Object value);
-
-    /**
-     * {@inheritDoc}
-     * @param name {@inheritDoc}
-     * @param value {@inheritDoc}
-     * @param temporalType {@inheritDoc}
-     * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
-     * @see LocalDate
-     * @see LocalDateTime
-     * @see #setParameter(String, Object)
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(String, Object)} on it.
-     */
-    @Deprecated
-    @Override
-    public ExtendedTypedQuery<X> setParameter(String name, Calendar value, TemporalType temporalType);
+    public ExtendedTypedQuery<X> setParameter(String name, Object value) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
@@ -155,27 +146,49 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param value {@inheritDoc}
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if the parameter name does
+     *     not correspond to a parameter of the query or if
+     *     the value argument is of incorrect type
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(String, Object)
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(String, Object)} on it.
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
      */
     @Deprecated
     @Override
-    public ExtendedTypedQuery<X> setParameter(String name, Date value, TemporalType temporalType);
+    public ExtendedTypedQuery<X> setParameter(String name, Calendar value, TemporalType temporalType) throws IllegalArgumentException;
+
+    /**
+     * {@inheritDoc}
+     * @param name {@inheritDoc}
+     * @param value {@inheritDoc}
+     * @param temporalType {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws IllegalArgumentException if position does not
+     *     correspond to a positional parameter of the
+     *     query or if the argument is of incorrect type
+     * @see LocalDate
+     * @see LocalDateTime
+     * @see #setParameter(String, Object)
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
+     */
+    @Deprecated
+    @Override
+    public ExtendedTypedQuery<X> setParameter(String name, Date value, TemporalType temporalType) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
      * @param position {@inheritDoc}
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if position does not
+     *     correspond to a positional parameter of the
+     *     query or if the argument is of incorrect type
      */
     @Override
-    public ExtendedTypedQuery<X> setParameter(int position, Object value);
+    public ExtendedTypedQuery<X> setParameter(int position, Object value) throws IllegalArgumentException;
 
     /**
      * {@inheritDoc}
@@ -183,13 +196,14 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param value {@inheritDoc}
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if position does not
+     *     correspond to a positional parameter of the query
+     *     or if the value argument is of incorrect type
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(int, Object)
-     * @deprecated Do not use the horrible {@link Calendar} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(int, Object)} on it.
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
      */
     @Deprecated
     @Override
@@ -201,13 +215,14 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * @param value {@inheritDoc}
      * @param temporalType {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException if position does not
+     *     correspond to a positional parameter of the query
+     *     or if the value argument is of incorrect type
      * @see LocalDate
      * @see LocalDateTime
      * @see #setParameter(int, Object)
-     * @deprecated Do not use the horrible {@link Date} class anymore. Use {@link LocalDate}, {@link LocalDateTime} or some
-     *     other better suited date/time class from the {@link java.time} package and then simply use the
-     *     {@link #setParameter(int, Object)} on it.
+     * @deprecated Newly-written code should use the date/time types
+     *     defined in {@link java.time}.
      */
     @Deprecated
     @Override
@@ -225,8 +240,11 @@ public interface ExtendedTypedQuery<X> extends TypedQuery<X> {
      * {@inheritDoc}
      * @param lockMode {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalStateException {@inheritDoc}
+     * @throws IllegalStateException if the query is found not to
+     *     be a Jakarta Persistence query language SELECT query
+     *     or a {@link jakarta.persistence.criteria.CriteriaQuery}
+     *     query
      */
     @Override
-    public ExtendedTypedQuery<X> setLockMode(LockModeType lockMode);
+    public ExtendedTypedQuery<X> setLockMode(LockModeType lockMode) throws IllegalArgumentException;
 }

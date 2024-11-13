@@ -1,3 +1,6 @@
+@SuppressWarnings({
+    "requires-automatic", "requires-transitive-automatic" // com.github.spotbugs.annotations
+})
 open module ninja.javahacker.test.jpasimpletransactions {
     requires ninja.javahacker.jpasimpletransactions.core;
     requires ninja.javahacker.jpasimpletransactions.hibernate;
@@ -8,6 +11,5 @@ open module ninja.javahacker.test.jpasimpletransactions {
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
     requires org.hsqldb;
-    requires org.hibernate.orm.core;
     uses ninja.javahacker.jpasimpletransactions.ProviderAdapter;
 }

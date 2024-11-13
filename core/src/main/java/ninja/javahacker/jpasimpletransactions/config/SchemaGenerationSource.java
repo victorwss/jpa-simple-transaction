@@ -32,6 +32,7 @@ import lombok.Value;
  * @author Victor Williams Stafusa da Silva
  */
 @Value
+@SuppressWarnings("missing-explicit-ctor")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaGenerationSource {
 

@@ -21,9 +21,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the persistence unit's name into a new object.
      * @param persistenceUnitName The new persistence unit's name.
      * @return A new instance of this class which is similar to {@code this}, but with the given persistence unit's name.
-     * @throws IllegalArgumentException If {@code persistenceUnitName} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withPersistenceUnitName(@NonNull String persistenceUnitName);
+    public E withPersistenceUnitName(@NonNull String persistenceUnitName) throws IllegalArgumentException;
 
     /**
      * Gets the database's {@link Driver}.
@@ -35,10 +35,10 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the database's {@link Driver} into a new object.
      * @param driverName The new database's {@link Driver} name.
      * @return A new instance of this class which is similar to {@code this}, but with the given database's {@link Driver}.
-     * @throws IllegalArgumentException If {@code driverName} is {@code null}.
-     * @throws ClassNotFoundException If the given {@code driverName} does not resolves to any known class.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
+     * @throws ClassNotFoundException If the given parameter does not resolves to any known class.
      */
-    public default E withDriver(@NonNull String driverName) throws ClassNotFoundException {
+    public default E withDriver(@NonNull String driverName) throws ClassNotFoundException, IllegalArgumentException {
         return withDriver(Class.forName(driverName).asSubclass(Driver.class));
     }
 
@@ -46,9 +46,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the database's {@link Driver} into a new object.
      * @param driver The new database's {@link Driver}.
      * @return A new instance of this class which is similar to {@code this}, but with the given database's {@link Driver}.
-     * @throws IllegalArgumentException If {@code driverName} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withDriver(@NonNull Class<? extends Driver> driver);
+    public E withDriver(@NonNull Class<? extends Driver> driver) throws IllegalArgumentException;
 
     /**
      * Gets the database's URL for connection.
@@ -60,9 +60,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the database's URL for connection into a new object.
      * @param url The new database's URL for connection.
      * @return A new instance of this class which is similar to {@code this}, but with the given database's URL for connection.
-     * @throws IllegalArgumentException If {@code url} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withUrl(@NonNull String url);
+    public E withUrl(@NonNull String url) throws IllegalArgumentException;
 
     /**
      * Gets the database's user for connection.
@@ -74,9 +74,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the database's user for connection into a new object.
      * @param user The new database's user for connection.
      * @return A new instance of this class which is similar to {@code this}, but with the given database's user for connection.
-     * @throws IllegalArgumentException If {@code user} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withUser(@NonNull String user);
+    public E withUser(@NonNull String user) throws IllegalArgumentException;
 
     /**
      * Gets the database's password for connection.
@@ -88,9 +88,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Sets the database's password for connection into a new object.
      * @param password The new database's password for connection.
      * @return A new instance of this class which is similar to {@code this}, but with the given database's password for connection.
-     * @throws IllegalArgumentException If {@code password} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withPassword(@NonNull String password);
+    public E withPassword(@NonNull String password) throws IllegalArgumentException;
 
     /**
      * Gets the strategy used for automatic schema generation or validation.
@@ -103,9 +103,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param schemaGenerationAction The new strategy used for automatic schema generation or validation.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     strategy for automatic schema generation or validation.
-     * @throws IllegalArgumentException If {@code schemaGenerationAction} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withSchemaGenerationAction(@NonNull SchemaGenerationAction schemaGenerationAction);
+    public E withSchemaGenerationAction(@NonNull SchemaGenerationAction schemaGenerationAction) throws IllegalArgumentException;
 
     /**
      * Gets the strategy used for executing custom scripts on creating database artifacts.
@@ -118,9 +118,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param schemaGenerationCreate The new strategy used for executing custom scripts on creating database artifacts.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     strategy used for executing custom scripts on creating database artifacts.
-     * @throws IllegalArgumentException If {@code schemaGenerationCreate} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withSchemaGenerationCreate(@NonNull SchemaGenerationSource schemaGenerationCreate);
+    public E withSchemaGenerationCreate(@NonNull SchemaGenerationSource schemaGenerationCreate) throws IllegalArgumentException;
 
     /**
      * Gets the strategy used for executing custom scripts on dropping database artifacts.
@@ -133,9 +133,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param schemaGenerationDrop The new strategy used for executing custom scripts on dropping database artifacts.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     strategy used for executing custom scripts on dropping database artifacts.
-     * @throws IllegalArgumentException If {@code schemaGenerationDrop} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withSchemaGenerationDrop(@NonNull SchemaGenerationSource schemaGenerationDrop);
+    public E withSchemaGenerationDrop(@NonNull SchemaGenerationSource schemaGenerationDrop) throws IllegalArgumentException;
 
     /**
      * Tells which and where should scripts for table creation and droppings be stored.
@@ -148,9 +148,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param schemaScriptStoreLocation The definition of which and where should scripts for table creation and droppings be stored.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of which and where should scripts for table creation and droppings be stored.
-     * @throws IllegalArgumentException If {@code schemaScriptStoreLocation} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withSchemaScriptStoreLocation(@NonNull SchemaGenerationActionTarget schemaScriptStoreLocation);
+    public E withSchemaScriptStoreLocation(@NonNull SchemaGenerationActionTarget schemaScriptStoreLocation) throws IllegalArgumentException;
 
     /**
      * Tells where the script for table initialization is stored, if it exists.
@@ -163,9 +163,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param loadScript The place where the script for table initialization is stored.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of where the script for table initialization is stored.
-     * @throws IllegalArgumentException If {@code loadScript} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withLoadScript(@NonNull String loadScript);
+    public E withLoadScript(@NonNull String loadScript) throws IllegalArgumentException;
 
     /**
      * Tells which is the JDBC connection that should be used for schema generation. This is intended mainly for Java EE / Jakarta EE
@@ -180,9 +180,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param schemaGenerationConnection The JDBC connection that should be used for schema generation.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of which is the JDBC connection that should be used for schema generation.
-     * @throws IllegalArgumentException If {@code schemaGenerationConnection} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withSchemaGenerationConnection(@NonNull String schemaGenerationConnection);
+    public E withSchemaGenerationConnection(@NonNull String schemaGenerationConnection) throws IllegalArgumentException;
 
     /**
      * Tells if database schema script should or not be created.
@@ -197,9 +197,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      *     {@link OptionalBoolean#FALSE} if not and {@link OptionalBoolean#UNSPECIFIED} if the setting should not be defined.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of whether a database schema script should or not be created.
-     * @throws IllegalArgumentException If {@code createDatabaseSchemas} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withCreateDatabaseSchemas(@NonNull OptionalBoolean createDatabaseSchemas);
+    public E withCreateDatabaseSchemas(@NonNull OptionalBoolean createDatabaseSchemas) throws IllegalArgumentException;
 
     /**
      * Defines if a database schema script should or not be created.
@@ -222,9 +222,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param databaseProductName The database brand or vendor name.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of the database brand or vendor name.
-     * @throws IllegalArgumentException If {@code databaseProductName} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withDatabaseProductName(@NonNull String databaseProductName);
+    public E withDatabaseProductName(@NonNull String databaseProductName) throws IllegalArgumentException;
 
     /**
      * Retrieves the database major version number.
@@ -237,9 +237,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param databaseMajorVersion The database major version number.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of major version number.
-     * @throws IllegalArgumentException If {@code databaseMajorVersion} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withDatabaseMajorVersion(@NonNull String databaseMajorVersion);
+    public E withDatabaseMajorVersion(@NonNull String databaseMajorVersion) throws IllegalArgumentException;
 
     /**
      * Retrieves the database minor version number.
@@ -252,9 +252,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param databaseMinorVersion The database minor version number.
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition of minor version number.
-     * @throws IllegalArgumentException If {@code databaseMinorVersion} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public E withDatabaseMinorVersion(@NonNull String databaseMinorVersion);
+    public E withDatabaseMinorVersion(@NonNull String databaseMinorVersion) throws IllegalArgumentException;
 
     /**
      * Retrieves the set of extra custom properties.
@@ -268,9 +268,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @param key The extra custom property to be retrieved.
      * @return An {@link Optional} containing the value of some extra custom property, if it exists,
      *     or an empty {@link Optional} if it doesn't.
-     * @throws IllegalArgumentException If the {@code key} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public default Optional<String> getExtra(@NonNull String key) {
+    public default Optional<String> getExtra(@NonNull String key) throws IllegalArgumentException {
         return Optional.ofNullable(getExtras().get(key));
     }
 
@@ -278,10 +278,10 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Replaces all the extra custom properties.
      * @param extras A mapping containing all the new extra custom properties.
      * @return A new instance of this class which is similar to {@code this}, but with the new given custom extra properties.
-     * @throws IllegalArgumentException If the given map is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      * @implSpec Further modifications to the given map should not be reflected into the produced instance.
      */
-    public E withExtras(@NonNull Map<String, String> extras);
+    public E withExtras(@NonNull Map<String, String> extras) throws IllegalArgumentException;
 
     /**
      * Adds or replaces a custom extra property.
@@ -290,7 +290,7 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * @return A new instance of this class which is similar to {@code this}, but with a new definition of the given custom extra property.
      * @throws IllegalArgumentException If either parameter is {@code null}.
      */
-    public default E putExtra(@NonNull String key, @NonNull String value) {
+    public default E putExtra(@NonNull String key, @NonNull String value) throws IllegalArgumentException {
         var m = new HashMap<>(getExtras());
         m.put(key, value);
         return withExtras(m);
@@ -300,9 +300,9 @@ public interface StandardConnectorFactory<E extends StandardConnectorFactory<E>>
      * Removes an extra custom property.
      * @param key The extra custom property to be removed.
      * @return A new instance of this class which is similar to {@code this}, but without the given custom extra property.
-     * @throws IllegalArgumentException If the {@code key} is {@code null}.
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    public default E removeExtra(@NonNull String key) {
+    public default E removeExtra(@NonNull String key) throws IllegalArgumentException {
         var m = new HashMap<>(getExtras());
         m.remove(key);
         return withExtras(m);

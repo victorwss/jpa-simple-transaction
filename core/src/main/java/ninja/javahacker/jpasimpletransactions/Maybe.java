@@ -2,7 +2,6 @@ package ninja.javahacker.jpasimpletransactions;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
 /**
@@ -10,14 +9,14 @@ import lombok.NonNull;
  * @param <T> The type of the object representing a success.
  * @author Victor Williams Stafusa da Silva
  */
-public sealed interface Maybe<T> permits Success, Failure {
+public sealed interface Maybe<T> permits MaybeSuccess, MaybeFailure {
 
     /**
      * True if this represents a success.
      * @return if this represents a success.
      */
     public default boolean isSuccess() {
-        return this instanceof Success;
+        return this instanceof MaybeSuccess;
     }
 
     /**
@@ -36,7 +35,7 @@ public sealed interface Maybe<T> permits Success, Failure {
      * @throws IllegalArgumentException If {@code oops} is {@code null}.
      */
     public static <T> Maybe<T> failure(@NonNull Throwable oops) {
-        return new Failure<>(oops);
+        return new MaybeFailure<>(oops);
     }
 
     /**
@@ -55,7 +54,7 @@ public sealed interface Maybe<T> permits Success, Failure {
      * @throws IllegalArgumentException If {@code entry} is {@code null}.
      */
     public static <T> Maybe<T> success(@NonNull T entry) {
-        return new Success<>(entry);
+        return new MaybeSuccess<>(entry);
     }
 
     /**
@@ -72,6 +71,7 @@ public sealed interface Maybe<T> permits Success, Failure {
      * @param inner The given {@code Supplier}'s to be wrapped.
      * @return The given {@code Supplier} wrapped into a {@code Supplier} that produces a {@code Maybe} instance.
      */
+    @SuppressWarnings("PMD.AvoidCatchingThrowable")
     public static <T> Supplier<Maybe<T>> wrap(@NonNull Supplier<T> inner) {
         return () -> {
             try {
@@ -89,32 +89,6 @@ public sealed interface Maybe<T> permits Success, Failure {
      * @return A {@code Maybe} instance with only one layer.
      */
     public static <T> Maybe<T> flatten(@NonNull Maybe<Maybe<T>> tooDeep) {
-        return !tooDeep.isSuccess() ? failure(tooDeep.failure().get())
-                : !tooDeep.success().get().isSuccess() ? failure(tooDeep.success().get().failure().get())
-                : success(tooDeep.success().get().success().get());
-    }
-}
-
-@AllArgsConstructor
-final class Success<T> implements Maybe<T> {
-
-    @NonNull
-    private final T entry;
-
-    @Override
-    public Optional<T> success() {
-        return Optional.of(entry);
-    }
-}
-
-@AllArgsConstructor
-final class Failure<T> implements Maybe<T> {
-
-    @NonNull
-    private final Throwable oops;
-
-    @Override
-    public Optional<Throwable> failure() {
-        return Optional.of(oops);
+        return !tooDeep.isSuccess() ? failure(tooDeep.failure().get()) : tooDeep.success().get();
     }
 }

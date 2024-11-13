@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
@@ -24,8 +24,6 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
  * Implementation of {@link ProviderConnectorFactory} for Open JPA.
  * @author Victor Williams Stafusa da Silva
  */
-@Value
-@With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
@@ -40,9 +38,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param persistenceUnitName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String persistenceUnitName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String persistenceUnitName;
 
     /**
      * The database's {@link Driver}.
@@ -53,9 +54,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param driver {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Driver> driver;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Driver> driver;
 
     /**
      * The database's URL for connection.
@@ -66,9 +70,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param url {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String url;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String url;
 
     /**
      * The database's user for connection.
@@ -79,9 +86,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param user {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String user;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String user;
 
     /**
      * The database's password for connection.
@@ -92,9 +102,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param password {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String password;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String password;
 
     /**
      * The strategy used for automatic schema generation or validation.
@@ -105,9 +118,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param schemaGenerationAction {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationAction schemaGenerationAction;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationAction schemaGenerationAction;
 
     /**
      * The strategy used for executing custom scripts on creating database artifacts.
@@ -118,9 +134,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param schemaGenerationCreate {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationCreate;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationCreate;
 
     /**
      * The strategy used for executing custom scripts on dropping database artifacts.
@@ -131,9 +150,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param schemaGenerationDrop {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationDrop;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationDrop;
 
     /**
      * Which and where should scripts for table creation and droppings be stored.
@@ -144,9 +166,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param schemaScriptStoreLocation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationActionTarget schemaScriptStoreLocation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationActionTarget schemaScriptStoreLocation;
 
     /**
      * Where the script for table initialization is stored, if it exists.
@@ -157,9 +182,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param loadScript {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String loadScript;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String loadScript;
 
     /**
      * The JDBC connection that should be used for schema generation. This is intended mainly for Java EE / Jakarta EE environments.
@@ -170,9 +198,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param schemaGenerationConnection {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String schemaGenerationConnection;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String schemaGenerationConnection;
 
     /**
      * If a database schema script should or not be created.
@@ -183,9 +214,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param createDatabaseSchemas {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull OptionalBoolean createDatabaseSchemas;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    OptionalBoolean createDatabaseSchemas;
 
     /**
      * The database brand or vendor name.
@@ -196,9 +230,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param databaseProductName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseProductName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseProductName;
 
     /**
      * The database major version number.
@@ -209,9 +246,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param databaseMajorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMajorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMajorVersion;
 
     /**
      * The database minor version number.
@@ -222,9 +262,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param databaseMinorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMinorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMinorVersion;
 
     /**
      * The set of extra custom properties.
@@ -235,9 +278,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param extras {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Map<String, String> extras;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Map<String, String> extras;
 
     /**
      * The set of explicitly declared entity classes that should be recognized as entity types.
@@ -248,9 +294,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param entities {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Set<Class<?>> entities;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Set<Class<?>> entities;
 
     /**
      * The explicitly declared scoped annotation.
@@ -261,9 +310,12 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      * {@inheritDoc}
      * @param scopedAnnotation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Annotation> scopedAnnotation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Annotation> scopedAnnotation;
 
     /**
      * Defines if a dynamic enhancement agent should be used at runtime.
@@ -277,7 +329,10 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      *     definition about whether a dynamic enhancement agent should be used at runtime.
      * @throws IllegalArgumentException If {@code dynamicEnhancementAgent} is {@code null}.
      */
-    @NonNull OptionalBoolean dynamicEnhancementAgent;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean dynamicEnhancementAgent;
 
     /**
      * The strategy used to handle unenhanced classes at runtime.
@@ -291,7 +346,10 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      *     strategy used to handle unenhanced classes at runtime.
      * @throws IllegalArgumentException If {@code runtimeUnenhancedClasses} is {@code null}.
      */
-    @NonNull Support runtimeUnenhancedClasses;
+    @With
+    @Getter
+    @NonNull
+    Support runtimeUnenhancedClasses;
 
     /**
      * If OpenJPA's data cache should be used.
@@ -305,7 +363,10 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      *     setting about whether OpenJPA's data cache should be used.
      * @throws IllegalArgumentException If {@code dataCache} is {@code null}.
      */
-    @NonNull OptionalBoolean dataCache;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean dataCache;
 
     /**
      * If OpenJPA's query cache should be used.
@@ -319,7 +380,10 @@ public class OpenJpaConnectorFactory implements ProviderConnectorFactory<OpenJpa
      *     setting about whether OpenJPA's query cache should be used.
      * @throws IllegalArgumentException If {@code queryCache} is {@code null}.
      */
-    @NonNull OptionalBoolean queryCache;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean queryCache;
 
     /**
      * Sole public constructor. Creates an empty instance.

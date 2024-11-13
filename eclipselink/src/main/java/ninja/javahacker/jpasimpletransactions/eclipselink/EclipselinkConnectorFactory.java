@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 import ninja.javahacker.jpasimpletransactions.SimpleScope;
@@ -23,8 +23,6 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
  * Implementation of {@link ProviderConnectorFactory} for Eclipselink.
  * @author Victor Williams Stafusa da Silva
  */
-@Value
-@With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
@@ -39,9 +37,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param persistenceUnitName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String persistenceUnitName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String persistenceUnitName;
 
     /**
      * The database's {@link Driver}.
@@ -52,9 +53,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param driver {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Driver> driver;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Driver> driver;
 
     /**
      * The database's URL for connection.
@@ -65,9 +69,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param url {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String url;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String url;
 
     /**
      * The database's user for connection.
@@ -78,9 +85,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param user {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String user;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String user;
 
     /**
      * The database's password for connection.
@@ -91,9 +101,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param password {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String password;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String password;
 
     /**
      * The strategy used for automatic schema generation or validation.
@@ -104,9 +117,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param schemaGenerationAction {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationAction schemaGenerationAction;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationAction schemaGenerationAction;
 
     /**
      * The strategy used for executing custom scripts on creating database artifacts.
@@ -117,9 +133,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param schemaGenerationCreate {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationCreate;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationCreate;
 
     /**
      * The strategy used for executing custom scripts on dropping database artifacts.
@@ -130,9 +149,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param schemaGenerationDrop {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationDrop;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationDrop;
 
     /**
      * Which and where should scripts for table creation and droppings be stored.
@@ -143,9 +165,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param schemaScriptStoreLocation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationActionTarget schemaScriptStoreLocation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationActionTarget schemaScriptStoreLocation;
 
     /**
      * Where the script for table initialization is stored, if it exists.
@@ -156,9 +181,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param loadScript {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String loadScript;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String loadScript;
 
     /**
      * The JDBC connection that should be used for schema generation. This is intended mainly for Java EE / Jakarta EE environments.
@@ -169,9 +197,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param schemaGenerationConnection {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String schemaGenerationConnection;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String schemaGenerationConnection;
 
     /**
      * If a database schema script should or not be created.
@@ -182,9 +213,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param createDatabaseSchemas {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull OptionalBoolean createDatabaseSchemas;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    OptionalBoolean createDatabaseSchemas;
 
     /**
      * The database brand or vendor name.
@@ -195,9 +229,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param databaseProductName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseProductName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseProductName;
 
     /**
      * The database major version number.
@@ -208,9 +245,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param databaseMajorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMajorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMajorVersion;
 
     /**
      * The database minor version number.
@@ -221,9 +261,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param databaseMinorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMinorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMinorVersion;
 
     /**
      * The set of extra custom properties.
@@ -234,9 +277,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param extras {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Map<String, String> extras;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Map<String, String> extras;
 
     /**
      * The set of explicitly declared entity classes that should be recognized as entity types.
@@ -247,9 +293,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param entities {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Set<Class<?>> entities;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Set<Class<?>> entities;
 
     /**
      * The explicitly declared scoped annotation.
@@ -260,9 +309,12 @@ public class EclipselinkConnectorFactory implements ProviderConnectorFactory<Ecl
      * {@inheritDoc}
      * @param scopedAnnotation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Annotation> scopedAnnotation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Annotation> scopedAnnotation;
 
     /**
      * Sole public constructor. Creates an empty instance.

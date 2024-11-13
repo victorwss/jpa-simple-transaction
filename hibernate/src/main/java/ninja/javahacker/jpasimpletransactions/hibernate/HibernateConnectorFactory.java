@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 import lombok.With;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.Tolerate;
@@ -24,8 +24,6 @@ import ninja.javahacker.jpasimpletransactions.config.SchemaGenerationSource;
  * Implementation of {@link ProviderConnectorFactory} for Hibernate.
  * @author Victor Williams Stafusa da Silva
  */
-@Value
-@With
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings({"checkstyle:javadoctagcontinuationindentation", "checkstyle:atclauseorder"})
@@ -40,9 +38,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param persistenceUnitName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String persistenceUnitName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String persistenceUnitName;
 
     /**
      * The database's {@link Driver}.
@@ -53,9 +54,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param driver {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Driver> driver;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Driver> driver;
 
     /**
      * The database's URL for connection.
@@ -66,9 +70,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param url {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String url;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String url;
 
     /**
      * The database's user for connection.
@@ -79,9 +86,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param user {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String user;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String user;
 
     /**
      * The database's password for connection.
@@ -92,9 +102,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param password {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String password;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String password;
 
     /**
      * The strategy used for automatic schema generation or validation.
@@ -105,9 +118,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param schemaGenerationAction {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationAction schemaGenerationAction;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationAction schemaGenerationAction;
 
     /**
      * The strategy used for executing custom scripts on creating database artifacts.
@@ -118,9 +134,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param schemaGenerationCreate {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationCreate;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationCreate;
 
     /**
      * The strategy used for executing custom scripts on dropping database artifacts.
@@ -131,9 +150,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param schemaGenerationDrop {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationSource schemaGenerationDrop;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationSource schemaGenerationDrop;
 
     /**
      * Which and where should scripts for table creation and droppings be stored.
@@ -144,9 +166,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param schemaScriptStoreLocation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull SchemaGenerationActionTarget schemaScriptStoreLocation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    SchemaGenerationActionTarget schemaScriptStoreLocation;
 
     /**
      * Where the script for table initialization is stored, if it exists.
@@ -157,9 +182,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param loadScript {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String loadScript;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String loadScript;
 
     /**
      * The JDBC connection that should be used for schema generation. This is intended mainly for Java EE / Jakarta EE environments.
@@ -170,9 +198,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param schemaGenerationConnection {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String schemaGenerationConnection;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String schemaGenerationConnection;
 
     /**
      * If a database schema script should or not be created.
@@ -183,9 +214,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param createDatabaseSchemas {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull OptionalBoolean createDatabaseSchemas;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    OptionalBoolean createDatabaseSchemas;
 
     /**
      * The database brand or vendor name.
@@ -196,9 +230,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param databaseProductName {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseProductName;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseProductName;
 
     /**
      * The database major version number.
@@ -209,9 +246,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param databaseMajorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMajorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMajorVersion;
 
     /**
      * The database minor version number.
@@ -222,9 +262,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param databaseMinorVersion {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull String databaseMinorVersion;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    String databaseMinorVersion;
 
     /**
      * The set of extra custom properties.
@@ -235,9 +278,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param extras {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Map<String, String> extras;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Map<String, String> extras;
 
     /**
      * The set of explicitly declared entity classes that should be recognized as entity types.
@@ -248,9 +294,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param entities {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Set<Class<?>> entities;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Set<Class<?>> entities;
 
     /**
      * The explicitly declared scoped annotation.
@@ -261,9 +310,12 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * {@inheritDoc}
      * @param scopedAnnotation {@inheritDoc}
      * @return {@inheritDoc}
-     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws IllegalArgumentException If the parameter is {@code null}.
      */
-    @NonNull Class<? extends Annotation> scopedAnnotation;
+    @With(onMethod_ = @Override)
+    @Getter(onMethod_ = @Override)
+    @NonNull
+    Class<? extends Annotation> scopedAnnotation;
 
     /**
      * The class that represents the dialect that Hibernate should use.
@@ -277,7 +329,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     class that represents the dialect that Hibernate should use.
      * @throws IllegalArgumentException If {@code dialect} is {@code null}.
      */
-    @NonNull Class<?> dialect;
+    @With
+    @Getter
+    @NonNull
+    Class<?> dialect;
 
     /**
      * The class that represents the JTA platform that Hibernate should use.
@@ -291,7 +346,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     class that represents the JTA platform that Hibernate should use.
      * @throws IllegalArgumentException If {@code jtaPlatform} is {@code null}.
      */
-    @NonNull Class<?> jtaPlatform;
+    @With
+    @Getter
+    @NonNull
+    Class<?> jtaPlatform;
 
     /**
      * The database schema.
@@ -305,7 +363,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     database schema.
      * @throws IllegalArgumentException If {@code schema} is {@code null}.
      */
-    @NonNull String schema;
+    @With
+    @Getter
+    @NonNull
+    String schema;
 
     /**
      * Defines if SQL instructions should be logged out.
@@ -319,7 +380,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     definition about whether SQL instructions should be logged out.
      * @throws IllegalArgumentException If {@code showSql} is {@code null}.
      */
-    @NonNull OptionalBoolean showSql;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean showSql;
 
     /**
      * Defines if SQL instructions should be formatted.
@@ -333,7 +397,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     definition about whether SQL instructions should be formatted.
      * @throws IllegalArgumentException If {@code formatSql} is {@code null}.
      */
-    @NonNull OptionalBoolean formatSql;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean formatSql;
 
     /**
      * Defines if SQL comments should be issued within SQL instructions.
@@ -347,7 +414,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     definition about whether SQL comments should be issued within SQL instructions.
      * @throws IllegalArgumentException If {@code useSqlComments} is {@code null}.
      */
-    @NonNull OptionalBoolean useSqlComments;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean useSqlComments;
 
     /**
      * Defines if SQL instructions could be issued in multiple lines.
@@ -360,6 +430,8 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      * @return A new instance of this class which is similar to {@code this}, but with the given
      *     definition about whether SQL instructions could be issued in multiple lines.
      */
+    @With
+    @Getter
     boolean multipleLinesCommands;
 
     /**
@@ -380,7 +452,10 @@ public class HibernateConnectorFactory implements ProviderConnectorFactory<Hiber
      *     should be used for {@code &#64;GeneratedValue} instead of the old one.
      * @throws IllegalArgumentException If {@code newGeneratorMappings} is {@code null}.
      */
-    @NonNull OptionalBoolean newGeneratorMappings;
+    @With
+    @Getter
+    @NonNull
+    OptionalBoolean newGeneratorMappings;
 
     /**
      * Sole public constructor. Creates an empty instance.
